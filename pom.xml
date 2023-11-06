@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>io.github.microsphere-projects</groupId>
+        <artifactId>microsphere-build</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+    </parent>
+
+    <groupId>io.github.microsphere-projects</groupId>
+    <artifactId>microsphere-resilience4j</artifactId>
+    <version>${revision}</version>
+    <packaging>pom</packaging>
+
+    <name>Microsphere :: Resilience4j</name>
+    <description>Microsphere Projects for Resilience4j</description>
+
+    <scm>
+        <url>https://github.com/microsphere-projects/microsphere-resilience4j</url>
+        <connection>scm:git:git://github.com/microsphere-projects/microsphere-resilience4j.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/microsphere-projects/microsphere-resilience4j.git
+        </developerConnection>
+    </scm>
+
+    <developers>
+        <developer>
+            <id>mercyblitz</id>
+            <name>Mercy Ma</name>
+            <email>mercyblitz@gmail.com</email>
+            <organization>Microsphere</organization>
+            <roles>
+                <role>lead</role>
+                <role>architect</role>
+                <role>developer</role>
+            </roles>
+        </developer>
+    </developers>
+
+    <properties>
+        <revision>0.0.1-SNAPSHOT</revision>
+    </properties>
+
+    <modules>
+        <module>microsphere-resilience4j-parent</module>
+        <module>microsphere-resilience4j-dependencies</module>
+        <module>microsphere-resilience4j-core</module>
+        <module>microsphere-resilience4j-spring</module>
+        <module>microsphere-resilience4j-spring-boot-starter</module>
+        <module>microsphere-resilience4j-spring-cloud-starter</module>
+    </modules>
+
+</project>

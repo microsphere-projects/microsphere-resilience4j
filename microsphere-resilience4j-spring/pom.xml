@@ -79,7 +79,7 @@
         <!-- Microsphere Spring Redis -->
         <dependency>
             <groupId>io.github.microsphere-projects</groupId>
-            <artifactId>microsphere-spring-redis</artifactId>
+            <artifactId>microsphere-redis-spring</artifactId>
             <version>${revision}</version>
             <optional>true</optional>
         </dependency>

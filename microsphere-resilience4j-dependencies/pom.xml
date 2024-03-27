@@ -35,13 +35,13 @@
 
             <dependency>
                 <groupId>io.github.microsphere-projects</groupId>
-                <artifactId>microsphere-resilience4j-spring-boot-starter</artifactId>
+                <artifactId>microsphere-resilience4j-spring-boot</artifactId>
                 <version>${revision}</version>
             </dependency>
 
             <dependency>
                 <groupId>io.github.microsphere-projects</groupId>
-                <artifactId>microsphere-resilience4j-spring-cloud-starter</artifactId>
+                <artifactId>microsphere-resilience4j-spring-cloud</artifactId>
                 <version>${revision}</version>
             </dependency>
 

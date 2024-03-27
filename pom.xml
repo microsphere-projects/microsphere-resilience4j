@@ -61,8 +61,8 @@
         <module>microsphere-resilience4j-dependencies</module>
         <module>microsphere-resilience4j-core</module>
         <module>microsphere-resilience4j-spring</module>
-        <module>microsphere-resilience4j-spring-boot-starter</module>
-        <module>microsphere-resilience4j-spring-cloud-starter</module>
+        <module>microsphere-resilience4j-spring-boot</module>
+        <module>microsphere-resilience4j-spring-cloud</module>
     </modules>
 
     <distributionManagement>

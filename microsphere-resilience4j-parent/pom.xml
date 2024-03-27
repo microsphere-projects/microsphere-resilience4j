@@ -19,9 +19,6 @@
     <description>Microsphere Resilience4j Parent</description>
 
     <properties>
-        <microsphere.version>${revision}</microsphere.version>
-        <microsphere-spring.version>${revision}</microsphere-spring.version>
-        <microsphere-spring-boot.version>${revision}</microsphere-spring-boot.version>
         <microsphere-spring-cloud.version>${revision}</microsphere-spring-cloud.version>
         <!-- Third-party versions -->
         <resilience4j.version>1.7.0</resilience4j.version>
@@ -40,33 +37,6 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-
-<!--            &lt;!&ndash; Microsphere Spring Boot Dependencies &ndash;&gt;-->
-<!--            <dependency>-->
-<!--                <groupId>io.github.microsphere-projects</groupId>-->
-<!--                <artifactId>microsphere-spring-boot-dependencies</artifactId>-->
-<!--                <version>${microsphere-spring-boot.version}</version>-->
-<!--                <type>pom</type>-->
-<!--                <scope>import</scope>-->
-<!--            </dependency>-->
-
-<!--            &lt;!&ndash; Microsphere Spring Dependencies &ndash;&gt;-->
-<!--            <dependency>-->
-<!--                <groupId>io.github.microsphere-projects</groupId>-->
-<!--                <artifactId>microsphere-spring-dependencies</artifactId>-->
-<!--                <version>${microsphere-spring.version}</version>-->
-<!--                <type>pom</type>-->
-<!--                <scope>import</scope>-->
-<!--            </dependency>-->
-
-<!--            &lt;!&ndash; Microsphere Dependencies &ndash;&gt;-->
-<!--            <dependency>-->
-<!--                <groupId>io.github.microsphere-projects</groupId>-->
-<!--                <artifactId>microsphere-dependencies</artifactId>-->
-<!--                <version>${microsphere.version}</version>-->
-<!--                <type>pom</type>-->
-<!--                <scope>import</scope>-->
-<!--            </dependency>-->
 
             <!-- Resilience4j Dependencies -->
             <dependency>

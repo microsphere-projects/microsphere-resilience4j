@@ -46,10 +46,9 @@
     </developers>
 
     <scm>
-        <url>https://github.com/microsphere-projects/microsphere-resilience4j</url>
-        <connection>scm:git:git://github.com/microsphere-projects/microsphere-resilience4j.git</connection>
-        <developerConnection>scm:git:ssh://git@github.com/microsphere-projects/microsphere-resilience4j.git
-        </developerConnection>
+        <url>git@github.com/microsphere-projects/microsphere-resilience4j.git</url>
+        <connection>scm:git:${project.scm.url}</connection>
+        <developerConnection>scm:git:ssh://${project.scm.url}</developerConnection>
     </scm>
 
     <properties>
@@ -88,5 +87,5 @@
             <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
         </repository>
     </repositories>
-    
+
 </project>

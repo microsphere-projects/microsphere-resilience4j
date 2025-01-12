@@ -63,10 +63,17 @@
             <optional>true</optional>
         </dependency>
 
+        <!-- P6Spy -->
         <dependency>
             <groupId>p6spy</groupId>
             <artifactId>p6spy</artifactId>
             <optional>true</optional>
+        </dependency>
+
+        <!-- Alibaba Druid -->
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>druid</artifactId>
         </dependency>
 
         <!-- Microsphere Spring WebMVC -->
@@ -80,7 +87,6 @@
         <dependency>
             <groupId>io.github.microsphere-projects</groupId>
             <artifactId>microsphere-redis-spring</artifactId>
-            <version>${revision}</version>
             <optional>true</optional>
         </dependency>
 

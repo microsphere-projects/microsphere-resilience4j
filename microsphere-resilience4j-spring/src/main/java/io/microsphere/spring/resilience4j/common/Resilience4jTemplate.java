@@ -66,11 +66,11 @@ public class Resilience4jTemplate<E, C> {
         this.entryClass = (Class<E>) module.getEntryClass();
         this.configurationClass = (Class<C>) module.getConfigurationClass();
     }
-
-    public <R> R execute(String name, Function<E, R> entryFunction) {
-        Resilience4jContext<E> context = getContext(name);
-        return entryFunction.apply(context.getEntry());
-    }
+//
+//    public <R> R execute(String name, Function<E, R> entryFunction) {
+//        Resilience4jContext<E> context = getContext(name);
+//        return entryFunction.apply(context.getEntry());
+//    }
 
     public <R> R execute(String name, CheckedFunction1<Resilience4jContext<E>, R> contextFunction) throws Throwable {
         Resilience4jContext<E> context = getContext(name);

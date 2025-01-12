@@ -94,7 +94,9 @@ public class Resilience4jContext<E> {
             entryEnd.accept(e, d);
             return null;
         }, (r, t) -> {
-            failureHandler.accept(t);
+            if (t != null) {
+                failureHandler.accept(t);
+            }
         });
     }
 

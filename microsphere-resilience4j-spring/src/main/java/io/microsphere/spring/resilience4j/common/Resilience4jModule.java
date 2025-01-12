@@ -30,15 +30,16 @@ import io.github.resilience4j.timelimiter.TimeLimiterRegistry;
 import io.vavr.control.Try;
 import org.springframework.core.ResolvableType;
 
-import java.beans.Introspector;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
-import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
+
+import static io.microsphere.util.ClassUtils.isAssignableFrom;
+import static java.beans.Introspector.decapitalize;
+import static java.lang.invoke.MethodType.methodType;
 
 /**
  * The Resilience4j Module enumeration
@@ -85,7 +86,7 @@ public enum Resilience4jModule {
 
     private final Class<?> configurationClass;
 
-    private final MethodHandle entryMethodHandle;
+    private final MethodHandle retrieveEntryMethodHandle;
 
     /**
      * @see <a href="https://resilience4j.readme.io/docs/getting-started-3#aspect-order">Resilience4j Aspect order</a>
@@ -105,7 +106,7 @@ public enum Resilience4jModule {
         this.entryClass = entryClass;
         this.registryClass = registryClass;
         this.configurationClass = configurationClass;
-        this.entryMethodHandle = findEntryMethodHandle(entryClass, registryClass, entryMethodParameterTypes);
+        this.retrieveEntryMethodHandle = findEntryMethodHandle(entryClass, registryClass, entryMethodParameterTypes);
         this.defaultAspectOrder = defaultAspectOrder;
     }
 
@@ -125,9 +126,8 @@ public enum Resilience4jModule {
 
     private static MethodHandle findEntryMethodHandle(Class<?> entryClass, Class<? extends Registry> registryClass, List<Class<?>> entryMethodParameterTypes) {
         MethodHandles.Lookup lookup = getLookup();
-        MethodType methodType = MethodType.methodType(entryClass, entryMethodParameterTypes);
-        Method method = null;
-        String methodName = Introspector.decapitalize(entryClass.getSimpleName());
+        MethodType methodType = methodType(entryClass, entryMethodParameterTypes);
+        String methodName = decapitalize(entryClass.getSimpleName());
         final MethodHandle methodHandle;
         try {
             methodHandle = lookup.findVirtual(registryClass, methodName, methodType);
@@ -146,7 +146,7 @@ public enum Resilience4jModule {
 
     public <R extends Registry<E, C>, E, C> E getEntry(R registry, String name) {
         C configuration = (C) getConfiguration(registry, name);
-        return (E) Try.of(() -> entryMethodHandle.invoke(registry, name, configuration)).getOrElseThrow(e -> new RuntimeException(e));
+        return (E) Try.of(() -> retrieveEntryMethodHandle.invoke(registry, name, configuration)).getOrElseThrow(e -> new RuntimeException(e));
     }
 
     private Object getConfiguration(Registry registry, String name) {
@@ -217,7 +217,9 @@ public enum Resilience4jModule {
     public static Resilience4jModule valueOf(Class<?> type) {
         Resilience4jModule module = null;
         for (Resilience4jModule m : values()) {
-            if (Objects.equals(type, m.getEntryClass()) || Objects.equals(type, m.getRegistryClass()) || Objects.equals(type, m.getConfigurationClass())) {
+            if (isAssignableFrom(m.getEntryClass(), type)
+                    || isAssignableFrom(m.getRegistryClass(), type)
+                    || isAssignableFrom(m.getConfigurationClass(), type)) {
                 module = m;
                 break;
             }
@@ -227,4 +229,5 @@ public enum Resilience4jModule {
         }
         return module;
     }
+
 }

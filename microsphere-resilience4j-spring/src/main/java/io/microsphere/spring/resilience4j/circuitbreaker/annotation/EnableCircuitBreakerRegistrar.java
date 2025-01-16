@@ -40,6 +40,7 @@ class EnableCircuitBreakerRegistrar implements ImportBeanDefinitionRegistrar, Be
 
     @Override
     public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
+        // TODO the features is enabled or not by the attributes
         registerBeanDefinition(registry, CircuitBreakerConfiguration.class);
         registerBeanDefinition(registry, CircuitBreakerApplicationEventPublisher.class);
         registerBeanDefinition(registry, CircuitBreakerEventConsumerBeanRegistrar.class);

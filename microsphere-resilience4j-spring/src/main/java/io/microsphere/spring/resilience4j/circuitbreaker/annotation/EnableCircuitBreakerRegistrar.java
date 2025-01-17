@@ -16,17 +16,11 @@
  */
 package io.microsphere.spring.resilience4j.circuitbreaker.annotation;
 
+import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.configure.CircuitBreakerConfiguration;
-import io.microsphere.spring.resilience4j.circuitbreaker.event.CircuitBreakerApplicationEventPublisher;
-import io.microsphere.spring.resilience4j.circuitbreaker.event.CircuitBreakerEventConsumerBeanRegistrar;
-import io.microsphere.spring.resilience4j.circuitbreaker.web.CircuitBreakerHandlerMethodInterceptor;
-import org.springframework.beans.factory.BeanClassLoaderAware;
-import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+import io.github.resilience4j.circuitbreaker.event.CircuitBreakerEvent;
+import io.microsphere.spring.resilience4j.common.annotation.EnableResilience4jRegistrar;
 import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
-import org.springframework.core.type.AnnotationMetadata;
-
-import static io.microsphere.spring.util.BeanRegistrar.registerBeanDefinition;
-import static io.microsphere.util.ClassLoaderUtils.isPresent;
 
 /**
  * The {@link EnableCircuitBreaker} {@link ImportBeanDefinitionRegistrar} class
@@ -34,23 +28,6 @@ import static io.microsphere.util.ClassLoaderUtils.isPresent;
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
  * @since 1.0.0
  */
-class EnableCircuitBreakerRegistrar implements ImportBeanDefinitionRegistrar, BeanClassLoaderAware {
-
-    private ClassLoader classLoader;
-
-    @Override
-    public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
-        // TODO the features is enabled or not by the attributes
-        registerBeanDefinition(registry, CircuitBreakerConfiguration.class);
-        registerBeanDefinition(registry, CircuitBreakerApplicationEventPublisher.class);
-        registerBeanDefinition(registry, CircuitBreakerEventConsumerBeanRegistrar.class);
-        if (isPresent("org.springframework.web.servlet.HandlerInterceptor", classLoader)) {
-            registerBeanDefinition(registry, CircuitBreakerHandlerMethodInterceptor.class);
-        }
-    }
-
-    @Override
-    public void setBeanClassLoader(ClassLoader classLoader) {
-        this.classLoader = classLoader;
-    }
+class EnableCircuitBreakerRegistrar extends EnableResilience4jRegistrar<EnableCircuitBreaker,
+        CircuitBreaker, CircuitBreakerConfiguration, CircuitBreakerEvent> {
 }

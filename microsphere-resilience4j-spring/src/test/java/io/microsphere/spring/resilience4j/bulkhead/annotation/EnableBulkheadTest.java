@@ -46,7 +46,7 @@ import static org.junit.Assert.assertEquals;
         "microsphere.resilience4j.bulkhead.instances[test].maxConcurrentCalls=10",
         "microsphere.resilience4j.bulkhead.instances[test].eventConsumerBufferSize=100",
         "microsphere.resilience4j.bulkhead.instances[test].maxWaitDuration=PT30S"})
-@EnableBulkhead
+@EnableBulkhead(publishEvents = true)
 @EnableSpringConverterAdapter
 public class EnableBulkheadTest {
 

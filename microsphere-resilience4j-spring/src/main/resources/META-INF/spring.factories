@@ -1,0 +1,23 @@
+# Resilience4jEventApplicationEventPublisher
+io.microsphere.spring.resilience4j.common.event.Resilience4jEventApplicationEventPublisher=\
+io.microsphere.spring.resilience4j.bulkhead.event.BulkheadApplicationEventPublisher,\
+io.microsphere.spring.resilience4j.circuitbreaker.event.CircuitBreakerApplicationEventPublisher,\
+io.microsphere.spring.resilience4j.ratelimiter.event.RateLimiterApplicationEventPublisher,\
+io.microsphere.spring.resilience4j.retry.event.RetryApplicationEventPublisher,\
+io.microsphere.spring.resilience4j.timelimiter.event.TimeLimiterApplicationEventPublisher
+
+# Resilience4jEventConsumerBeanRegistrar
+io.microsphere.spring.resilience4j.common.event.Resilience4jEventConsumerBeanRegistrar=\
+io.microsphere.spring.resilience4j.bulkhead.event.BulkheadEventConsumerBeanRegistrar,\
+io.microsphere.spring.resilience4j.circuitbreaker.event.CircuitBreakerEventConsumerBeanRegistrar,\
+io.microsphere.spring.resilience4j.ratelimiter.event.RateLimiterEventConsumerBeanRegistrar,\
+io.microsphere.spring.resilience4j.retry.event.RetryEventConsumerBeanRegistrar,\
+io.microsphere.spring.resilience4j.timeLimiter.event.TimeLimiterEventConsumerBeanRegistrar
+
+
+# Resilience4jHandlerMethodInterceptor
+io.microsphere.spring.resilience4j.common.web.Resilience4jHandlerMethodInterceptor=\
+io.microsphere.spring.resilience4j.bulkhead.web.BulkheadHandlerMethodInterceptor,\
+io.microsphere.spring.resilience4j.circuitbreaker.web.CircuitBreakerHandlerMethodInterceptor,\
+io.microsphere.spring.resilience4j.ratelimiter.web.RateLimiterHandlerMethodInterceptor
+

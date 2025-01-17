@@ -19,7 +19,9 @@ package io.microsphere.spring.resilience4j.circuitbreaker.annotation;
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.configure.CircuitBreakerConfigurationProperties;
 import io.microsphere.spring.beans.factory.annotation.EnableConfigurationBeanBinding;
+import io.microsphere.spring.resilience4j.common.annotation.EnableResilience4jExtension;
 import org.springframework.context.annotation.Import;
+import org.springframework.core.annotation.AliasFor;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -39,6 +41,47 @@ import java.lang.annotation.Target;
 @Documented
 @Inherited
 @Import(EnableCircuitBreakerRegistrar.class)
+@EnableResilience4jExtension
 @EnableConfigurationBeanBinding(prefix = "microsphere.resilience4j.circuitbreaker", type = CircuitBreakerConfigurationProperties.class)
 public @interface EnableCircuitBreaker {
+
+    /**
+     * Whether to publish Resilience4j's events
+     *
+     * @return <code>true</code> as default
+     */
+    @AliasFor(annotation = EnableResilience4jExtension.class, attribute = "publishEvents")
+    boolean publishEvents() default false;
+
+    /**
+     * Whether to consume Resilience4j's events
+     *
+     * @return <code>true</code> as default
+     */
+    @AliasFor(annotation = EnableResilience4jExtension.class, attribute = "consumeEvents")
+    boolean consumeEvents() default false;
+
+    /**
+     * Which Web Environment to be supported
+     *
+     * @return empty as default
+     */
+    @AliasFor(annotation = EnableResilience4jExtension.class, attribute = "webEnvironment")
+    EnableResilience4jExtension.WebEnvironment[] webEnvironment() default {};
+
+    /**
+     * The Data Access Environment
+     *
+     * @return empty as default
+     */
+    @AliasFor(annotation = EnableResilience4jExtension.class, attribute = "dataAccessEnvironment")
+    EnableResilience4jExtension.DataAccessEnvironment[] dataAccessEnvironment() default {};
+
+    /**
+     * The RPC Environment
+     *
+     * @return empty as default
+     */
+    @AliasFor(annotation = EnableResilience4jExtension.class, attribute = "rpcEnvironment")
+    EnableResilience4jExtension.RPCEnvironment[] rpcEnvironment() default {};
 }

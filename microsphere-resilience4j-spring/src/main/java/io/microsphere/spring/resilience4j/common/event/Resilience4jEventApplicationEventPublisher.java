@@ -16,6 +16,8 @@
  */
 package io.microsphere.spring.resilience4j.common.event;
 
+import io.github.resilience4j.circuitbreaker.CircuitBreaker;
+import io.github.resilience4j.circuitbreaker.event.CircuitBreakerEvent;
 import io.github.resilience4j.core.EventConsumer;
 import io.github.resilience4j.core.EventPublisher;
 import io.github.resilience4j.core.registry.EntryAddedEvent;
@@ -35,8 +37,8 @@ import static org.springframework.util.ReflectionUtils.invokeMethod;
 /**
  * Propagating Resilience4j's event to the Spring {@link ApplicationEvent}
  *
- * @param <E>  the type of Resilience4j entry
- * @param <ET> the type o Resilience4j entries' event
+ * @param <E>  the type of Resilience4j entry, e.g : {@link CircuitBreaker}
+ * @param <ET> the type o Resilience4j entries' event : {@link CircuitBreakerEvent}
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
  * @since 1.0.0
  */

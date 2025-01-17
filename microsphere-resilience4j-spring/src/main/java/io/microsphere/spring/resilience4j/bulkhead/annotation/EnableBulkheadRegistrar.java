@@ -16,17 +16,11 @@
  */
 package io.microsphere.spring.resilience4j.bulkhead.annotation;
 
+import io.github.resilience4j.bulkhead.Bulkhead;
 import io.github.resilience4j.bulkhead.configure.BulkheadConfiguration;
-import io.microsphere.spring.resilience4j.bulkhead.event.BulkheadApplicationEventPublisher;
-import io.microsphere.spring.resilience4j.bulkhead.event.BulkheadEventConsumerBeanRegistrar;
-import io.microsphere.spring.resilience4j.bulkhead.web.BulkheadHandlerMethodInterceptor;
-import org.springframework.beans.factory.BeanClassLoaderAware;
-import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+import io.github.resilience4j.bulkhead.event.BulkheadEvent;
+import io.microsphere.spring.resilience4j.common.annotation.EnableResilience4jRegistrar;
 import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
-import org.springframework.core.type.AnnotationMetadata;
-
-import static io.microsphere.spring.util.BeanRegistrar.registerBeanDefinition;
-import static io.microsphere.util.ClassLoaderUtils.isPresent;
 
 /**
  * The {@link EnableBulkhead} {@link ImportBeanDefinitionRegistrar} class
@@ -34,22 +28,5 @@ import static io.microsphere.util.ClassLoaderUtils.isPresent;
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
  * @since 1.0.0
  */
-class EnableBulkheadRegistrar implements ImportBeanDefinitionRegistrar, BeanClassLoaderAware {
-
-    private ClassLoader classLoader;
-
-    @Override
-    public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
-        registerBeanDefinition(registry, BulkheadConfiguration.class);
-        registerBeanDefinition(registry, BulkheadApplicationEventPublisher.class);
-        registerBeanDefinition(registry, BulkheadEventConsumerBeanRegistrar.class);
-        if (isPresent("org.springframework.web.servlet.HandlerInterceptor", classLoader)) {
-            registerBeanDefinition(registry, BulkheadHandlerMethodInterceptor.class);
-        }
-    }
-
-    @Override
-    public void setBeanClassLoader(ClassLoader classLoader) {
-        this.classLoader = classLoader;
-    }
+class EnableBulkheadRegistrar extends EnableResilience4jRegistrar<EnableBulkhead, Bulkhead, BulkheadConfiguration, BulkheadEvent> {
 }

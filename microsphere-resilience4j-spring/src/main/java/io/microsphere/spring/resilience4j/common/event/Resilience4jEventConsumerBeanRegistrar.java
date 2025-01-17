@@ -16,6 +16,7 @@
  */
 package io.microsphere.spring.resilience4j.common.event;
 
+import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.core.EventConsumer;
 import io.github.resilience4j.core.registry.EntryAddedEvent;
 import io.github.resilience4j.core.registry.EntryRemovedEvent;
@@ -37,7 +38,7 @@ import static org.springframework.util.ReflectionUtils.invokeMethod;
 /**
  * Resilience4j {@link EventConsumer Event consumer beans} register
  *
- * @param <E> The Resilience4j entry
+ * @param <E> the type of Resilience4j entry, e.g : {@link CircuitBreaker}
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
  * @since 1.0.0
  */

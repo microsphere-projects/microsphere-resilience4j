@@ -32,6 +32,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
+import static io.microsphere.spring.resilience4j.common.annotation.EnableResilience4jExtension.WebEnvironment.SPRING_WEBMVC;
 import static org.junit.Assert.assertEquals;
 
 
@@ -47,9 +48,13 @@ import static org.junit.Assert.assertEquals;
         "microsphere.resilience4j.circuitbreaker.instances[test].waitDurationInOpenState=PT30S",
         "microsphere.resilience4j.circuitbreaker.instances[test].slidingWindowSize=100",
         "microsphere.resilience4j.circuitbreaker.instances[test].slowCallRateThreshold=0.7"})
-@EnableCircuitBreaker
+@EnableCircuitBreaker(
+        publishEvents = true,
+        consumeEvents = true,
+        webEnvironment = {SPRING_WEBMVC})
 @EnableSpringConverterAdapter
 public class EnableCircuitBreakerTest {
+
     @Autowired
     private CircuitBreakerRegistry registry;
 

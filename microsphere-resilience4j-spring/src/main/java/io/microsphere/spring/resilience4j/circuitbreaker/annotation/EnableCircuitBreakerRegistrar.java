@@ -18,7 +18,6 @@ package io.microsphere.spring.resilience4j.circuitbreaker.annotation;
 
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.configure.CircuitBreakerConfiguration;
-import io.github.resilience4j.circuitbreaker.event.CircuitBreakerEvent;
 import io.microsphere.spring.resilience4j.common.annotation.EnableResilience4jRegistrar;
 import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
 
@@ -28,6 +27,6 @@ import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
  * @since 1.0.0
  */
-class EnableCircuitBreakerRegistrar extends EnableResilience4jRegistrar<EnableCircuitBreaker,
-        CircuitBreaker, CircuitBreakerConfiguration, CircuitBreakerEvent> {
+class EnableCircuitBreakerRegistrar extends EnableResilience4jRegistrar<EnableCircuitBreaker, CircuitBreaker,
+        CircuitBreakerConfiguration> {
 }

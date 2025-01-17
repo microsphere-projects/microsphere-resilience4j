@@ -18,7 +18,6 @@ package io.microsphere.spring.resilience4j.bulkhead.annotation;
 
 import io.github.resilience4j.bulkhead.Bulkhead;
 import io.github.resilience4j.bulkhead.configure.BulkheadConfiguration;
-import io.github.resilience4j.bulkhead.event.BulkheadEvent;
 import io.microsphere.spring.resilience4j.common.annotation.EnableResilience4jRegistrar;
 import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
 
@@ -28,5 +27,5 @@ import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
  * @since 1.0.0
  */
-class EnableBulkheadRegistrar extends EnableResilience4jRegistrar<EnableBulkhead, Bulkhead, BulkheadConfiguration, BulkheadEvent> {
+class EnableBulkheadRegistrar extends EnableResilience4jRegistrar<EnableBulkhead, Bulkhead, BulkheadConfiguration> {
 }

@@ -54,7 +54,7 @@ import static org.springframework.util.ClassUtils.resolveClassName;
  * @see EnableCircuitBreaker
  * @since 1.0.0
  */
-public abstract class EnableResilience4jRegistrar<A extends Annotation, E, EC, ET> extends BeanCapableImportCandidate
+public abstract class EnableResilience4jRegistrar<A extends Annotation, E, EC> extends BeanCapableImportCandidate
         implements ImportBeanDefinitionRegistrar {
 
     private static final Map<String, Class<?>> attributedEventComponentClassesMap;

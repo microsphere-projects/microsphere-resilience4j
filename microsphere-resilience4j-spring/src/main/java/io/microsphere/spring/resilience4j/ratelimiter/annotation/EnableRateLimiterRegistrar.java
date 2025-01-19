@@ -16,17 +16,10 @@
  */
 package io.microsphere.spring.resilience4j.ratelimiter.annotation;
 
+import io.github.resilience4j.ratelimiter.RateLimiter;
 import io.github.resilience4j.ratelimiter.configure.RateLimiterConfiguration;
-import io.microsphere.spring.resilience4j.ratelimiter.event.RateLimiterApplicationEventPublisher;
-import io.microsphere.spring.resilience4j.ratelimiter.event.RateLimiterEventConsumerBeanRegistrar;
-import io.microsphere.spring.resilience4j.ratelimiter.web.RateLimiterHandlerMethodInterceptor;
-import org.springframework.beans.factory.BeanClassLoaderAware;
-import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+import io.microsphere.spring.resilience4j.common.annotation.EnableResilience4jRegistrar;
 import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
-import org.springframework.core.type.AnnotationMetadata;
-
-import static io.microsphere.spring.util.BeanRegistrar.registerBeanDefinition;
-import static io.microsphere.util.ClassLoaderUtils.isPresent;
 
 /**
  * The {@link EnableRateLimiter} {@link ImportBeanDefinitionRegistrar} class
@@ -34,22 +27,5 @@ import static io.microsphere.util.ClassLoaderUtils.isPresent;
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
  * @since 1.0.0
  */
-class EnableRateLimiterRegistrar implements ImportBeanDefinitionRegistrar, BeanClassLoaderAware {
-
-    private ClassLoader classLoader;
-
-    @Override
-    public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
-        registerBeanDefinition(registry, RateLimiterConfiguration.class);
-        registerBeanDefinition(registry, RateLimiterApplicationEventPublisher.class);
-        registerBeanDefinition(registry, RateLimiterEventConsumerBeanRegistrar.class);
-        if (isPresent("org.springframework.web.servlet.HandlerInterceptor", classLoader)) {
-            registerBeanDefinition(registry, RateLimiterHandlerMethodInterceptor.class);
-        }
-    }
-
-    @Override
-    public void setBeanClassLoader(ClassLoader classLoader) {
-        this.classLoader = classLoader;
-    }
+class EnableRateLimiterRegistrar extends EnableResilience4jRegistrar<EnableRateLimiter, RateLimiter, RateLimiterConfiguration> {
 }

@@ -16,27 +16,19 @@
  */
 package io.microsphere.spring.resilience4j.timelimiter.annotation;
 
+import io.github.resilience4j.timelimiter.TimeLimiter;
 import io.github.resilience4j.timelimiter.configure.TimeLimiterConfiguration;
-import io.microsphere.spring.resilience4j.timelimiter.event.TimeLimiterApplicationEventPublisher;
-import io.microsphere.spring.resilience4j.timelimiter.event.TimeLimiterEventConsumerBeanRegistrar;
-import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+import io.microsphere.spring.resilience4j.common.annotation.EnableResilience4jRegistrar;
 import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
-import org.springframework.core.type.AnnotationMetadata;
-
-import static io.microsphere.spring.util.BeanRegistrar.registerBeanDefinition;
 
 /**
  * The {@link EnableTimeLimiter} {@link ImportBeanDefinitionRegistrar} class
  *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
+ * @see EnableTimeLimiter
+ * @see TimeLimiter
+ * @see TimeLimiterConfiguration
  * @since 1.0.0
  */
-class EnableTimeLimiterRegistrar implements ImportBeanDefinitionRegistrar {
-
-    @Override
-    public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
-        registerBeanDefinition(registry, TimeLimiterConfiguration.class);
-        registerBeanDefinition(registry, TimeLimiterApplicationEventPublisher.class);
-        registerBeanDefinition(registry, TimeLimiterEventConsumerBeanRegistrar.class);
-    }
+class EnableTimeLimiterRegistrar extends EnableResilience4jRegistrar<EnableTimeLimiter, TimeLimiter, TimeLimiterConfiguration> {
 }

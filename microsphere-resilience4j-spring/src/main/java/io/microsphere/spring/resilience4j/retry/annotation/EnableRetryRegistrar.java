@@ -16,27 +16,19 @@
  */
 package io.microsphere.spring.resilience4j.retry.annotation;
 
+import io.github.resilience4j.retry.Retry;
 import io.github.resilience4j.retry.configure.RetryConfiguration;
-import io.microsphere.spring.resilience4j.retry.event.RetryApplicationEventPublisher;
-import io.microsphere.spring.resilience4j.retry.event.RetryEventConsumerBeanRegistrar;
-import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+import io.microsphere.spring.resilience4j.common.annotation.EnableResilience4jRegistrar;
 import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
-import org.springframework.core.type.AnnotationMetadata;
-
-import static io.microsphere.spring.util.BeanRegistrar.registerBeanDefinition;
 
 /**
  * The {@link EnableRetry} {@link ImportBeanDefinitionRegistrar} class
  *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
+ * @see EnableRetry
+ * @see Retry
+ * @see RetryConfiguration
  * @since 1.0.0
  */
-class EnableRetryRegistrar implements ImportBeanDefinitionRegistrar {
-
-    @Override
-    public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
-        registerBeanDefinition(registry, RetryConfiguration.class);
-        registerBeanDefinition(registry, RetryApplicationEventPublisher.class);
-        registerBeanDefinition(registry, RetryEventConsumerBeanRegistrar.class);
-    }
+class EnableRetryRegistrar extends EnableResilience4jRegistrar<EnableRetry, Retry, RetryConfiguration> {
 }

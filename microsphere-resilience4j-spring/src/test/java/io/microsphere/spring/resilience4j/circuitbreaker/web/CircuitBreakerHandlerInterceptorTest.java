@@ -23,7 +23,7 @@ import io.microsphere.spring.resilience4j.common.Resilience4jModule;
 import org.junit.jupiter.api.Test;
 
 import static io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry.ofDefaults;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * {@link CircuitBreakerHandlerMethodInterceptor} Test

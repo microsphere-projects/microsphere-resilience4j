@@ -35,8 +35,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import static io.microsphere.spring.beans.factory.support.BeanRegistrar.registerBeanDefinition;
 import static io.microsphere.spring.core.annotation.ResolvablePlaceholderAnnotationAttributes.of;
-import static io.microsphere.spring.util.BeanRegistrar.registerBeanDefinition;
 import static java.util.Collections.unmodifiableMap;
 import static org.springframework.core.io.support.SpringFactoriesLoader.loadFactoryNames;
 import static org.springframework.util.ClassUtils.resolveClassName;
@@ -48,7 +48,6 @@ import static org.springframework.util.ClassUtils.resolveClassName;
  * @param <A>  the type of Enable Annotation , e.g : {@link EnableCircuitBreaker}
  * @param <E>  the type of Resilience4j entry, e.g : {@link CircuitBreaker}
  * @param <EC> the type of Resilience4j entry's configuration, e.g : {@link CircuitBreakerConfiguration}
- * @param <ET> the type o Resilience4j entry's event : {@link CircuitBreakerEvent}
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
  * @see EnableResilience4jExtension
  * @see EnableCircuitBreaker

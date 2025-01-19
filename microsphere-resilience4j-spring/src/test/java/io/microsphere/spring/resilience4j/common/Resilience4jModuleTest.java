@@ -32,7 +32,7 @@ import io.github.resilience4j.retry.RetryRegistry;
 import io.github.resilience4j.timelimiter.TimeLimiter;
 import io.github.resilience4j.timelimiter.TimeLimiterConfig;
 import io.github.resilience4j.timelimiter.TimeLimiterRegistry;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.Serializable;
 
@@ -42,8 +42,8 @@ import static io.microsphere.spring.resilience4j.common.Resilience4jModule.CIRCU
 import static io.microsphere.spring.resilience4j.common.Resilience4jModule.RATE_LIMITER;
 import static io.microsphere.spring.resilience4j.common.Resilience4jModule.RETRY;
 import static io.microsphere.spring.resilience4j.common.Resilience4jModule.TIME_LIMITER;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * {@link Resilience4jModule} Test

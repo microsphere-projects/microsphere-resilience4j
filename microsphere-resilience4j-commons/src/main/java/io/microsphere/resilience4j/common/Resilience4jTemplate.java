@@ -14,21 +14,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.microsphere.resilience4j.spring.common;
+package io.microsphere.resilience4j.common;
 
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
 import io.github.resilience4j.core.Registry;
-import io.vavr.CheckedFunction1;
 import io.microsphere.logging.Logger;
-import io.microsphere.logging.LoggerFactory;
-import org.springframework.util.Assert;
+import io.vavr.CheckedFunction1;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import static io.microsphere.resilience4j.spring.common.Resilience4jModule.valueOf;
+import static io.microsphere.logging.LoggerFactory.getLogger;
+import static io.microsphere.resilience4j.common.Resilience4jModule.valueOf;
+import static io.microsphere.util.Assert.assertNotNull;
+import static java.lang.ThreadLocal.withInitial;
 
 /**
  * Resilience4j Template Class
@@ -40,9 +41,9 @@ import static io.microsphere.resilience4j.spring.common.Resilience4jModule.value
  */
 public class Resilience4jTemplate<E, C> {
 
-    protected final static ThreadLocal<Map<Class<?>, Resilience4jContext<?>>> contextHolder = ThreadLocal.withInitial(HashMap::new);
+    protected final static ThreadLocal<Map<Class<?>, Resilience4jContext<?>>> contextHolder = withInitial(HashMap::new);
 
-    protected final Logger logger = LoggerFactory.getLogger(getClass());
+    protected final Logger logger = getLogger(getClass());
 
     protected final Registry<E, C> registry;
 
@@ -58,18 +59,13 @@ public class Resilience4jTemplate<E, C> {
     private final Resilience4jModule module;
 
     public Resilience4jTemplate(Registry<E, C> registry) {
-        Assert.notNull(registry, "The 'registry' argument can't be null");
+        assertNotNull(registry, "The 'registry' argument can't be null");
         this.registry = registry;
         this.entryCaches = new HashMap<>();
         this.module = valueOf(registry.getClass());
         this.entryClass = (Class<E>) module.getEntryClass();
         this.configurationClass = (Class<C>) module.getConfigurationClass();
     }
-//
-//    public <R> R execute(String name, Function<E, R> entryFunction) {
-//        Resilience4jContext<E> context = getContext(name);
-//        return entryFunction.apply(context.getEntry());
-//    }
 
     public <R> R execute(String name, CheckedFunction1<Resilience4jContext<E>, R> contextFunction) throws Throwable {
         Resilience4jContext<E> context = getContext(name);
@@ -94,7 +90,7 @@ public class Resilience4jTemplate<E, C> {
     }
 
     protected E getEntry(String name) {
-        return this.module.getEntry(this.registry, name);
+        return null;
     }
 
     public final Registry<E, C> getRegistry() {

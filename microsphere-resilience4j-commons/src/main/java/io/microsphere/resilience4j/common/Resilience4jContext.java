@@ -14,18 +14,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.microsphere.resilience4j.spring.common;
+package io.microsphere.resilience4j.common;
 
+import io.microsphere.logging.Logger;
 import io.vavr.CheckedConsumer;
 import io.vavr.CheckedFunction0;
 import io.vavr.CheckedFunction1;
 import io.vavr.CheckedFunction2;
-import io.microsphere.logging.Logger;
-import io.microsphere.logging.LoggerFactory;
 
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
+
+import static io.microsphere.logging.LoggerFactory.getLogger;
 
 /**
  * The Resilience4j Context
@@ -36,7 +37,7 @@ import java.util.function.Consumer;
  */
 public class Resilience4jContext<E> {
 
-    private static final Logger logger = LoggerFactory.getLogger(Resilience4jContext.class);
+    private static final Logger logger = getLogger(Resilience4jContext.class);
 
     private final String name;
 

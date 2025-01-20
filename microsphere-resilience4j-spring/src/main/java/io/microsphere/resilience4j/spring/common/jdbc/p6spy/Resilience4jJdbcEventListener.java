@@ -24,8 +24,8 @@ import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
 import io.github.resilience4j.core.Registry;
 import io.microsphere.resilience4j.spring.common.Resilience4jContext;
 import io.microsphere.resilience4j.spring.common.Resilience4jModule;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.microsphere.logging.Logger;
+import io.microsphere.logging.LoggerFactory;
 import org.springframework.util.Assert;
 
 import java.sql.SQLException;

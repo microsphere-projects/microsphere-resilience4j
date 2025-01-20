@@ -21,6 +21,13 @@
 
     <dependencies>
 
+        <!-- Microsphere Resilience4j -->
+        <dependency>
+            <groupId>io.github.microsphere-projects</groupId>
+            <artifactId>microsphere-resilience4j-commons</artifactId>
+            <version>${revision}</version>
+        </dependency>
+
         <!-- Servlet API -->
         <dependency>
             <groupId>javax.servlet</groupId>
@@ -119,6 +126,14 @@
             <artifactId>commons-pool2</artifactId>
             <scope>test</scope>
         </dependency>
+
+        <!-- Logback -->
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
 </project>

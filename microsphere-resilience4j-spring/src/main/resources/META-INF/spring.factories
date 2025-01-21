@@ -1,23 +1,22 @@
 # Resilience4jEventApplicationEventPublisher
-event.common.io.microsphere.resilience4j.spring.Resilience4jEventApplicationEventPublisher=\
-event.bulkhead.io.microsphere.resilience4j.spring.BulkheadApplicationEventPublisher,\
-event.circuitbreaker.io.microsphere.resilience4j.spring.CircuitBreakerApplicationEventPublisher,\
-event.ratelimiter.io.microsphere.resilience4j.spring.RateLimiterApplicationEventPublisher,\
-event.retry.io.microsphere.resilience4j.spring.RetryApplicationEventPublisher,\
-event.timelimiter.io.microsphere.resilience4j.spring.TimeLimiterApplicationEventPublisher
+io.microsphere.resilience4j.spring.common.event.Resilience4jEventApplicationEventPublisher=\
+io.microsphere.resilience4j.spring.bulkhead.event.BulkheadApplicationEventPublisher,\
+io.microsphere.resilience4j.spring.circuitbreaker.event.CircuitBreakerApplicationEventPublisher,\
+io.microsphere.resilience4j.spring.ratelimiter.event.RateLimiterApplicationEventPublisher,\
+io.microsphere.resilience4j.spring.retry.event.RetryApplicationEventPublisher,\
+io.microsphere.resilience4j.spring.timelimiter.event.TimeLimiterApplicationEventPublisher
 
 # Resilience4jEventConsumerBeanRegistrar
-event.common.io.microsphere.resilience4j.spring.Resilience4jEventConsumerBeanRegistrar=\
-event.bulkhead.io.microsphere.resilience4j.spring.BulkheadEventConsumerBeanRegistrar,\
-event.circuitbreaker.io.microsphere.resilience4j.spring.CircuitBreakerEventConsumerBeanRegistrar,\
-event.ratelimiter.io.microsphere.resilience4j.spring.RateLimiterEventConsumerBeanRegistrar,\
-event.retry.io.microsphere.resilience4j.spring.RetryEventConsumerBeanRegistrar,\
-event.timelimiter.io.microsphere.resilience4j.spring.TimeLimiterEventConsumerBeanRegistrar
-
+io.microsphere.resilience4j.spring.common.event.Resilience4jEventConsumerBeanRegistrar=\
+io.microsphere.resilience4j.spring.bulkhead.event.BulkheadEventConsumerBeanRegistrar,\
+io.microsphere.resilience4j.spring.circuitbreaker.event.CircuitBreakerEventConsumerBeanRegistrar,\
+io.microsphere.resilience4j.spring.ratelimiter.event.RateLimiterEventConsumerBeanRegistrar,\
+io.microsphere.resilience4j.spring.retry.event.RetryEventConsumerBeanRegistrar,\
+io.microsphere.resilience4j.spring.timelimiter.event.TimeLimiterEventConsumerBeanRegistrar
 
 # Resilience4jHandlerMethodInterceptor
-web.common.io.microsphere.resilience4j.spring.Resilience4jHandlerMethodInterceptor=\
-web.bulkhead.io.microsphere.resilience4j.spring.BulkheadHandlerMethodInterceptor,\
-web.circuitbreaker.io.microsphere.resilience4j.spring.CircuitBreakerHandlerMethodInterceptor,\
-web.ratelimiter.io.microsphere.resilience4j.spring.RateLimiterHandlerMethodInterceptor
+io.microsphere.resilience4j.spring.common.web.Resilience4jHandlerMethodInterceptor=\
+io.microsphere.resilience4j.spring.bulkhead.web.BulkheadHandlerMethodInterceptor,\
+io.microsphere.resilience4j.spring.circuitbreaker.web.CircuitBreakerHandlerMethodInterceptor,\
+io.microsphere.resilience4j.spring.ratelimiter.web.RateLimiterHandlerMethodInterceptor
 

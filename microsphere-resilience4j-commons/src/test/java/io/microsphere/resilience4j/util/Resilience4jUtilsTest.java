@@ -37,7 +37,7 @@ public class Resilience4jUtilsTest {
     @Test
     public void test() {
         BulkheadRegistry bulkheadRegistry = ofDefaults();
-        Bulkhead bulkhead = getEntry(bulkheadRegistry, "test", bulkheadRegistry.getDefaultConfig());
+        Bulkhead bulkhead = getEntry(bulkheadRegistry, "test");
         assertNotNull(bulkhead);
     }
 }

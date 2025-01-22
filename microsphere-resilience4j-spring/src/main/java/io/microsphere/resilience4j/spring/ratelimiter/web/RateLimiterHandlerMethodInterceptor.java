@@ -16,13 +16,10 @@
  */
 package io.microsphere.resilience4j.spring.ratelimiter.web;
 
-import io.github.resilience4j.core.Registry;
 import io.github.resilience4j.ratelimiter.RateLimiter;
 import io.github.resilience4j.ratelimiter.RateLimiterConfig;
 import io.github.resilience4j.ratelimiter.RateLimiterRegistry;
 import io.microsphere.resilience4j.spring.common.web.Resilience4jHandlerMethodInterceptor;
-import org.springframework.web.context.request.NativeWebRequest;
-import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 /**
@@ -40,16 +37,16 @@ public class RateLimiterHandlerMethodInterceptor extends Resilience4jHandlerMeth
     }
 
     @Override
-    protected void beforeExecute(RateLimiter rateLimiter, HandlerMethod handlerMethod, Object[] args, NativeWebRequest request) {
+    protected void beforeExecute(RateLimiter rateLimiter) {
         rateLimiter.acquirePermission();
     }
 
     @Override
-    protected void afterExecute(RateLimiter rateLimiter, HandlerMethod handlerMethod, Object[] args, Object returnValue, Throwable error, NativeWebRequest request) {
-        if (error == null) {
+    protected void afterExecute(RateLimiter rateLimiter, Object result, Throwable failure) {
+        if (failure == null) {
             rateLimiter.onResult(args);
         } else {
-            rateLimiter.onError(error);
+            rateLimiter.onError(failure);
         }
     }
 

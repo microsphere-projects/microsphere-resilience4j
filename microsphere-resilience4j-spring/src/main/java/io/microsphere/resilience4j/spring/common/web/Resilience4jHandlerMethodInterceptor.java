@@ -48,9 +48,9 @@ import static org.springframework.core.ResolvableType.forType;
 /**
  * The abstract template class for Resilience4j's {@link HandlerMethodInterceptor}
  *
- * @param <E> the type of Resilience4j's entity, e.g., {@link CircuitBreaker}
- * @param <C> the type of Resilience4j's configuration, e.g., {@link CircuitBreakerConfig}
- * @param <R> the registry of Resilience4j's entity, e.g., {@link CircuitBreakerRegistry}
+ * @param <E> the type of Resilience4j's entry, e.g., {@link CircuitBreaker}
+ * @param <C> the type of Resilience4j's entry configuration, e.g., {@link CircuitBreakerConfig}
+ * @param <R> the type of Resilience4j's entry registry, e.g., {@link CircuitBreakerRegistry}
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
  * @see HandlerMethodInterceptor
  * @see Resilience4jModule
@@ -70,7 +70,7 @@ public abstract class Resilience4jHandlerMethodInterceptor<E, C, R extends Regis
     /**
      * Local Cache using {@link HashMap} with better performance
      */
-    protected final Map<String, E> entryCaches;
+    protected final Map<String, E> localEntriesCache;
 
     private final Class<E> entryClass;
 
@@ -82,7 +82,7 @@ public abstract class Resilience4jHandlerMethodInterceptor<E, C, R extends Regis
         // always keep self being a delegate
         Assert.notNull(registry, "The 'registry' argument can't be null");
         this.registry = registry;
-        this.entryCaches = new HashMap<>();
+        this.localEntriesCache = new HashMap<>();
         ResolvableType currentType = forType(getClass());
         ResolvableType superType = currentType.as(Resilience4jHandlerMethodInterceptor.class);
         this.module = valueOf(this.registry.getClass());
@@ -93,18 +93,18 @@ public abstract class Resilience4jHandlerMethodInterceptor<E, C, R extends Regis
     @Override
     public void beforeExecute(HandlerMethod handlerMethod, Object[] args, NativeWebRequest request) throws Exception {
         E entry = getEntry(handlerMethod);
-        beforeExecute(entry, handlerMethod, args, request);
+        beforeExecute(entry);
     }
 
     @Override
     public void afterExecute(HandlerMethod handlerMethod, Object[] args, Object returnValue, Throwable error, NativeWebRequest request) throws Exception {
         E entry = getEntry(handlerMethod);
-        afterExecute(entry, handlerMethod, args, returnValue, error, request);
+        afterExecute(entry, returnValue, error);
     }
 
-    protected abstract void beforeExecute(E entry, HandlerMethod handlerMethod, Object[] args, NativeWebRequest request) throws Exception;
+    protected abstract void beforeExecute(E entry) throws Exception;
 
-    protected abstract void afterExecute(E entry, HandlerMethod handlerMethod, Object[] args, Object returnValue, Throwable error, NativeWebRequest request) throws Exception;
+    protected abstract void afterExecute(E entry, Object result, Throwable failure) throws Exception;
 
     @Override
     public void onApplicationEvent(WebEndpointMappingsReadyEvent event) {
@@ -113,7 +113,7 @@ public abstract class Resilience4jHandlerMethodInterceptor<E, C, R extends Regis
 
     @Override
     public void destroy() throws Exception {
-        this.entryCaches.clear();
+        this.localEntriesCache.clear();
     }
 
     /**
@@ -138,7 +138,7 @@ public abstract class Resilience4jHandlerMethodInterceptor<E, C, R extends Regis
     protected void initEntryCache(WebEndpointMappingsReadyEvent event) {
         Collection<WebEndpointMapping> webEndpointMappings = event.getMappings();
         int size = webEndpointMappings.size();
-        Map<String, E> entryCaches = new HashMap<>(size);
+        Map<String, E> localEntriesCache = new HashMap<>(size);
 
         Iterator<WebEndpointMapping> iterator = webEndpointMappings.iterator();
         while (iterator.hasNext()) {
@@ -148,11 +148,11 @@ public abstract class Resilience4jHandlerMethodInterceptor<E, C, R extends Regis
                 HandlerMethod handlerMethod = (HandlerMethod) endpoint;
                 String entryName = getEntryName(handlerMethod);
                 E entry = createEntry(entryName);
-                entryCaches.put(entryName, entry);
+                localEntriesCache.put(entryName, entry);
                 logger.debug("A new entry[name : '{}' , type : '{}'] was added into cache", entryName, entry.getClass().getName());
             }
         }
-        this.entryCaches.putAll(entryCaches);
+        this.localEntriesCache.putAll(localEntriesCache);
     }
 
     protected final E getEntry(HandlerMethod handlerMethod) {
@@ -161,6 +161,10 @@ public abstract class Resilience4jHandlerMethodInterceptor<E, C, R extends Regis
     }
 
     protected final E getEntry(String name) {
+        E entry = localEntriesCache.get(name);
+        if (entry != null) {
+            return entry;
+        }
         Optional<E> optionalEntry = registry.find(name);
         return optionalEntry.orElseGet(() -> createEntry(name));
     }

@@ -19,10 +19,7 @@ package io.microsphere.resilience4j.spring.bulkhead.web;
 import io.github.resilience4j.bulkhead.Bulkhead;
 import io.github.resilience4j.bulkhead.BulkheadConfig;
 import io.github.resilience4j.bulkhead.BulkheadRegistry;
-import io.github.resilience4j.core.Registry;
 import io.microsphere.resilience4j.spring.common.web.Resilience4jHandlerMethodInterceptor;
-import org.springframework.web.context.request.NativeWebRequest;
-import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 /**
@@ -40,12 +37,12 @@ public class BulkheadHandlerMethodInterceptor extends Resilience4jHandlerMethodI
     }
 
     @Override
-    protected void beforeExecute(Bulkhead entry, HandlerMethod handlerMethod, Object[] args, NativeWebRequest request) {
+    protected void beforeExecute(Bulkhead entry) {
         entry.acquirePermission();
     }
 
     @Override
-    protected void afterExecute(Bulkhead entry, HandlerMethod handlerMethod, Object[] args, Object returnValue, Throwable error, NativeWebRequest request) {
+    protected void afterExecute(Bulkhead entry, Object result, Throwable failure) {
         entry.onComplete();
     }
 

@@ -66,7 +66,7 @@ public abstract class Resilience4jDruidFilter<E, C, R extends Registry<E, C>> ex
 
     private static final Logger logger = getLogger(Resilience4jDruidFilter.class);
 
-    protected static final long UNKNOW_DURATION = -1L;
+    protected static final long UNKNOWN_DURATION = -1L;
 
     private DataSourceProxy dataSource;
 
@@ -222,10 +222,10 @@ public abstract class Resilience4jDruidFilter<E, C, R extends Registry<E, C>> ex
         T result = null;
         Throwable failure = null;
         Long startTime = isDurationRecorded() ? System.nanoTime() : null;
-        Long duration = UNKNOW_DURATION;
+        Long duration = UNKNOWN_DURATION;
         try {
             beforeExecute(entry);
-            result = callable.call();
+            result = execute(entry, callable);
         } catch (Exception e) {
             failure = e;
             if (e instanceof SQLException) {
@@ -281,11 +281,24 @@ public abstract class Resilience4jDruidFilter<E, C, R extends Registry<E, C>> ex
     protected abstract void beforeExecute(E entry);
 
     /**
+     * Execute the specified {@link Callable}
+     *
+     * @param entry    Resilience4j's entry, e.g., {@link CircuitBreaker}
+     * @param callable {@link Callable}
+     * @param <T>      the type of execution result
+     * @return {@link Callable#call()}
+     * @throws Exception if {@link Callable#call()} throws an exception
+     */
+    protected <T> T execute(E entry, Callable<T> callable) throws Exception {
+        return callable.call();
+    }
+
+    /**
      * Callback after execution
      *
      * @param entry    Resilience4j's entry, e.g., {@link CircuitBreaker}
      * @param duration duration in nana seconds if {@link #isDurationRecorded()} is <code>true</code>, or
-     *                 <code>duration</code> will be assigned to be {@link #UNKNOW_DURATION}(value is <code>-1</code>)
+     *                 <code>duration</code> will be assigned to be {@link #UNKNOWN_DURATION}(value is <code>-1</code>)
      * @param result   the execution result
      * @param failure  optional {@link Throwable} instance, if <code>null</code>, it means the execution is successful
      */

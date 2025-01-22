@@ -18,14 +18,16 @@ package io.microsphere.resilience4j.spring.circuitbreaker.web;
 
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
+import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 import io.github.resilience4j.core.Registry;
-import io.microsphere.resilience4j.spring.common.Resilience4jContext;
 import io.microsphere.resilience4j.spring.common.web.Resilience4jHandlerMethodInterceptor;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import java.util.concurrent.TimeUnit;
+
+import static org.springframework.web.context.request.RequestAttributes.SCOPE_REQUEST;
 
 /**
  * {@link HandlerInterceptor} based on Resilience4j {@link CircuitBreaker}
@@ -35,31 +37,36 @@ import java.util.concurrent.TimeUnit;
  * @see CircuitBreaker
  * @since 1.0.0
  */
-public class CircuitBreakerHandlerMethodInterceptor extends Resilience4jHandlerMethodInterceptor<CircuitBreaker, CircuitBreakerConfig> {
+public class CircuitBreakerHandlerMethodInterceptor extends Resilience4jHandlerMethodInterceptor<CircuitBreaker, CircuitBreakerConfig, CircuitBreakerRegistry> {
 
-    public CircuitBreakerHandlerMethodInterceptor(Registry<CircuitBreaker, CircuitBreakerConfig> registry) {
+    private static final String START_TIME_ATTRIBUTE_NAME = "microsphere.resilience4j.circuitBreaker.startTime";
+
+    public CircuitBreakerHandlerMethodInterceptor(CircuitBreakerRegistry registry) {
         super(registry);
     }
 
     @Override
-    protected void beforeExecute(Resilience4jContext<CircuitBreaker> context, HandlerMethod handlerMethod, Object[] args, NativeWebRequest request) throws Throwable {
-        context.start(CircuitBreaker::acquirePermission);
+    protected void beforeExecute(CircuitBreaker circuitBreaker, HandlerMethod handlerMethod, Object[] args, NativeWebRequest request) {
+        circuitBreaker.acquirePermission();
+        long startTime = circuitBreaker.getCurrentTimestamp();
+        request.setAttribute(START_TIME_ATTRIBUTE_NAME, startTime, SCOPE_REQUEST);
     }
 
     @Override
-    protected void afterExecute(Resilience4jContext<CircuitBreaker> context, HandlerMethod handlerMethod, Object[] args, Object returnValue, Throwable error, NativeWebRequest request) throws Throwable {
-        context.end((circuitBreaker, duration) -> {
-            if (error == null) {
-                circuitBreaker.onResult(duration, TimeUnit.NANOSECONDS, args);
-            } else {
-                circuitBreaker.onError(duration, TimeUnit.NANOSECONDS, error);
-            }
-        });
+    protected void afterExecute(CircuitBreaker circuitBreaker, HandlerMethod handlerMethod, Object[] args, Object returnValue, Throwable error, NativeWebRequest request) {
+        long starTime = (long) request.getAttribute(START_TIME_ATTRIBUTE_NAME, SCOPE_REQUEST);
+        long duration = circuitBreaker.getCurrentTimestamp() - starTime;
+        if (error == null) {
+            circuitBreaker.onResult(duration, TimeUnit.NANOSECONDS, args);
+        } else {
+            circuitBreaker.onError(duration, TimeUnit.NANOSECONDS, error);
+        }
     }
 
     @Override
     protected CircuitBreaker createEntry(String name) {
-        return CircuitBreaker.of(name, getConfiguration(name), registry.getTags());
+        CircuitBreakerRegistry registry = super.getRegistry();
+        return registry.circuitBreaker(name, super.getConfiguration(name), registry.getTags());
     }
 
 }

@@ -24,6 +24,12 @@ import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 import io.github.resilience4j.circuitbreaker.event.CircuitBreakerEvent;
+import io.github.resilience4j.common.CommonProperties;
+import io.github.resilience4j.common.bulkhead.configuration.BulkheadConfigurationProperties;
+import io.github.resilience4j.common.circuitbreaker.configuration.CircuitBreakerConfigurationProperties;
+import io.github.resilience4j.common.ratelimiter.configuration.RateLimiterConfigurationProperties;
+import io.github.resilience4j.common.retry.configuration.RetryConfigurationProperties;
+import io.github.resilience4j.common.timelimiter.configuration.TimeLimiterConfigurationProperties;
 import io.github.resilience4j.core.Registry;
 import io.github.resilience4j.ratelimiter.RateLimiter;
 import io.github.resilience4j.ratelimiter.RateLimiterConfig;
@@ -53,47 +59,49 @@ public enum Resilience4jModule {
     /**
      * {@link Retry} module
      */
-    RETRY(Retry.class, RetryConfig.class, RetryEvent.class, RetryRegistry.class, 0),
+    RETRY(Retry.class, RetryConfig.class, RetryConfigurationProperties.class, RetryEvent.class, RetryRegistry.class, 0),
 
     /**
      * {@link CircuitBreaker} module
      */
-    CIRCUIT_BREAKER(CircuitBreaker.class, CircuitBreakerConfig.class, CircuitBreakerEvent.class, CircuitBreakerRegistry.class, 1),
+    CIRCUIT_BREAKER(CircuitBreaker.class, CircuitBreakerConfig.class, CircuitBreakerConfigurationProperties.class, CircuitBreakerEvent.class, CircuitBreakerRegistry.class, 1),
 
     /**
      * {@link RateLimiter} Module
      */
-    RATE_LIMITER(RateLimiter.class, RateLimiterConfig.class, RateLimiterEvent.class, RateLimiterRegistry.class, 2),
+    RATE_LIMITER(RateLimiter.class, RateLimiterConfig.class, RateLimiterConfigurationProperties.class, RateLimiterEvent.class, RateLimiterRegistry.class, 2),
 
     /**
      * {@link TimeLimiter} module
      */
-    TIME_LIMITER(TimeLimiter.class, TimeLimiterConfig.class, TimeLimiterEvent.class, TimeLimiterRegistry.class, 3),
+    TIME_LIMITER(TimeLimiter.class, TimeLimiterConfig.class, TimeLimiterConfigurationProperties.class, TimeLimiterEvent.class, TimeLimiterRegistry.class, 3),
 
     /**
      * {@link Bulkhead} module
      */
-    BULKHEAD(Bulkhead.class, BulkheadConfig.class, BulkheadEvent.class, BulkheadRegistry.class, 4);
-
+    BULKHEAD(Bulkhead.class, BulkheadConfig.class, BulkheadConfigurationProperties.class, BulkheadEvent.class, BulkheadRegistry.class, 4);
 
     private final Class<?> entryClass;
 
-    private final Class<?> configurationClass;
+    private final Class<?> configClass;
 
-    private final Class<? extends Registry> registryClass;
+    private final Class<? extends CommonProperties> configurationPropertiesClass;
 
     private final Class<?> eventClass;
+
+    private final Class<? extends Registry> registryClass;
 
     /**
      * @see <a href="https://resilience4j.readme.io/docs/getting-started-3#aspect-order">Resilience4j Aspect order</a>
      */
     private final int defaultAspectOrder;
 
-    Resilience4jModule(Class<?> entryClass, Class<?> configurationClass, Class<?> eventClass,
-                       Class<? extends Registry> registryClass, int defaultAspectOrder) {
+    Resilience4jModule(Class<?> entryClass, Class<?> configClass, Class<? extends CommonProperties> configurationPropertiesClass,
+                       Class<?> eventClass, Class<? extends Registry> registryClass, int defaultAspectOrder) {
         this.entryClass = entryClass;
         this.registryClass = registryClass;
-        this.configurationClass = configurationClass;
+        this.configClass = configClass;
+        this.configurationPropertiesClass = configurationPropertiesClass;
         this.eventClass = eventClass;
         this.defaultAspectOrder = defaultAspectOrder;
     }
@@ -118,8 +126,17 @@ public enum Resilience4jModule {
      *
      * @return non-null
      */
-    public Class<?> getConfigurationClass() {
-        return configurationClass;
+    public Class<?> getConfigClass() {
+        return configClass;
+    }
+
+    /**
+     * Get the class of Resilience4j's config properties
+     *
+     * @return non-null
+     */
+    public Class<? extends CommonProperties> getConfigurationPropertiesClass() {
+        return configurationPropertiesClass;
     }
 
     /**
@@ -154,7 +171,8 @@ public enum Resilience4jModule {
     public String toString() {
         final StringBuilder sb = new StringBuilder("Resilience4jModule{");
         sb.append("entryClass=").append(entryClass);
-        sb.append(", configClass=").append(configurationClass);
+        sb.append(", configClass=").append(configClass);
+        sb.append(", configurationPropertiesClass=").append(configurationPropertiesClass);
         sb.append(", eventClass=").append(eventClass);
         sb.append(", registryClass=").append(registryClass);
         sb.append(", defaultAspectOrder=").append(defaultAspectOrder);
@@ -168,7 +186,8 @@ public enum Resilience4jModule {
      * @param type the type to search, may be one of the following:
      *             <ul>
      *                 <li>{@link #getEntryClass() the entry class}</li>
-     *                 <li>{@link #getConfigurationClass() the configuration class}</li>
+     *                 <li>{@link #getConfigClass() the configuration class}</li>
+     *                 <li>{@link #getConfigurationPropertiesClass() the configuration properties class}</li>
      *                 <li>{@link #getEventClass() the event class}</li>
      *                 <li>{@link #getRegistryClass() the entry registry class}</li>
      *             </ul>
@@ -178,7 +197,8 @@ public enum Resilience4jModule {
         Resilience4jModule module = null;
         for (Resilience4jModule m : values()) {
             if (isAssignableFrom(m.getEntryClass(), type)
-                    || isAssignableFrom(m.getConfigurationClass(), type)
+                    || isAssignableFrom(m.getConfigClass(), type)
+                    || isAssignableFrom(m.getConfigurationPropertiesClass(), type)
                     || isAssignableFrom(m.getEventClass(), type)
                     || isAssignableFrom(m.getRegistryClass(), type)
             ) {

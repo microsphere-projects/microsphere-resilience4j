@@ -19,7 +19,7 @@ package io.microsphere.resilience4j.spring.ratelimiter.web;
 import io.github.resilience4j.core.Registry;
 import io.github.resilience4j.ratelimiter.RateLimiter;
 import io.github.resilience4j.ratelimiter.RateLimiterConfig;
-import io.microsphere.resilience4j.spring.common.Resilience4jContext;
+import io.github.resilience4j.ratelimiter.RateLimiterRegistry;
 import io.microsphere.resilience4j.spring.common.web.Resilience4jHandlerMethodInterceptor;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.HandlerMethod;
@@ -33,32 +33,29 @@ import org.springframework.web.servlet.HandlerInterceptor;
  * @see RateLimiter
  * @since 1.0.0
  */
-public class RateLimiterHandlerMethodInterceptor extends Resilience4jHandlerMethodInterceptor<RateLimiter, RateLimiterConfig> {
+public class RateLimiterHandlerMethodInterceptor extends Resilience4jHandlerMethodInterceptor<RateLimiter, RateLimiterConfig, RateLimiterRegistry> {
 
-    public RateLimiterHandlerMethodInterceptor(Registry<RateLimiter, RateLimiterConfig> registry) {
+    public RateLimiterHandlerMethodInterceptor(RateLimiterRegistry registry) {
         super(registry);
     }
 
     @Override
-    protected void beforeExecute(Resilience4jContext<RateLimiter> context, HandlerMethod handlerMethod, Object[] args, NativeWebRequest request) throws Throwable {
-        context.start(r -> {
-            r.acquirePermission();
-        });
+    protected void beforeExecute(RateLimiter rateLimiter, HandlerMethod handlerMethod, Object[] args, NativeWebRequest request) {
+        rateLimiter.acquirePermission();
     }
 
     @Override
-    protected void afterExecute(Resilience4jContext<RateLimiter> context, HandlerMethod handlerMethod, Object[] args, Object returnValue, Throwable error, NativeWebRequest request) throws Throwable {
-        context.end((RateLimiter, duration) -> {
-            if (error == null) {
-                RateLimiter.onResult(args);
-            } else {
-                RateLimiter.onError(error);
-            }
-        });
+    protected void afterExecute(RateLimiter rateLimiter, HandlerMethod handlerMethod, Object[] args, Object returnValue, Throwable error, NativeWebRequest request) {
+        if (error == null) {
+            rateLimiter.onResult(args);
+        } else {
+            rateLimiter.onError(error);
+        }
     }
 
     @Override
     protected RateLimiter createEntry(String name) {
-        return RateLimiter.of(name, getConfiguration(name), registry.getTags());
+        RateLimiterRegistry registry = super.getRegistry();
+        return registry.rateLimiter(name, super.getConfiguration(name), registry.getTags());
     }
 }

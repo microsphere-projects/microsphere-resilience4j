@@ -19,7 +19,7 @@ package io.microsphere.resilience4j.spring.circuitbreaker.web;
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
-import io.microsphere.resilience4j.spring.common.Resilience4jModule;
+import io.microsphere.resilience4j.common.Resilience4jModule;
 import org.junit.jupiter.api.Test;
 
 import static io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry.ofDefaults;
@@ -43,7 +43,7 @@ public class CircuitBreakerHandlerInterceptorTest {
         assertEquals(registry, interceptor.getRegistry());
         assertEquals(registry.getDefaultConfig(), interceptor.getDefaultConfiguration());
         assertEquals(CircuitBreaker.class, interceptor.getEntryClass());
-        assertEquals(CircuitBreakerConfig.class, interceptor.getConfigurationClass());
+        assertEquals(CircuitBreakerConfig.class, interceptor.getConfigClass());
         assertEquals(Resilience4jModule.CIRCUIT_BREAKER, interceptor.getModule());
 
     }

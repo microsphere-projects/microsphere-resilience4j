@@ -52,7 +52,7 @@ public abstract class Resilience4jUtils extends BaseUtils {
 
     private static void initGetEntryMethodsCache(Resilience4jModule module, Map<Resilience4jModule, Method> methodsCache) {
         Class<?> entryClass = module.getEntryClass();
-        Class<?> configClass = module.getConfigurationClass();
+        Class<?> configClass = module.getConfigClass();
         Class<?> registryClass = module.getRegistryClass();
         String methodName = decapitalize(entryClass.getSimpleName());
         Method method = findMethod(registryClass, methodName, String.class, configClass);

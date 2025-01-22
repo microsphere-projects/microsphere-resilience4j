@@ -35,41 +35,57 @@ import com.alibaba.druid.sql.ast.statement.SQLTableSource;
 import com.alibaba.druid.sql.ast.statement.SQLUpdateStatement;
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
+import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 import io.github.resilience4j.core.Registry;
+import io.github.resilience4j.core.lang.Nullable;
 import io.microsphere.logging.Logger;
-import io.microsphere.resilience4j.spring.common.Resilience4jTemplate;
-import io.vavr.control.Try;
+import io.microsphere.resilience4j.common.Resilience4jModule;
 
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.Callable;
 
 import static com.alibaba.druid.sql.SQLUtils.parseStatements;
 import static io.microsphere.logging.LoggerFactory.getLogger;
+import static io.microsphere.resilience4j.common.Resilience4jModule.valueOf;
 
 /**
  * Resilience4j x Druid {@link Filter}
  *
  * @param <E> the type of Resilience4j's entry, e.g., {@link CircuitBreaker}
  * @param <C> the type of Resilience4j's configuration, e.g., {@link CircuitBreakerConfig}
+ * @param <R> the registry of Resilience4j's entity, e.g., {@link CircuitBreakerRegistry}
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy<a/>
  * @see Filter
  * @see FilterAdapter
  * @since 1.0.0
  */
-public abstract class Resilience4jDruidFilter<E, C> extends FilterAdapter {
+public abstract class Resilience4jDruidFilter<E, C, R extends Registry<E, C>> extends FilterAdapter {
 
     private static final Logger logger = getLogger(Resilience4jDruidFilter.class);
+
+    protected static final long UNKNOW_DURATION = -1L;
 
     private DataSourceProxy dataSource;
 
     private String validationSQL;
 
-    private final Resilience4jTemplate<E, C> resilience4jTemplate;
+    protected final R registry;
 
-    public Resilience4jDruidFilter(Registry<E, C> registry) {
-        this.resilience4jTemplate = new Resilience4jTemplate<>(registry);
+    protected final Resilience4jModule module;
+
+    protected final boolean durationRecorded;
+
+    public Resilience4jDruidFilter(R registry) {
+        this(registry, false);
+    }
+
+    public Resilience4jDruidFilter(R registry, boolean durationRecorded) {
+        this.registry = registry;
+        this.module = valueOf(registry.getClass());
+        this.durationRecorded = durationRecorded;
     }
 
     @Override
@@ -146,24 +162,97 @@ public abstract class Resilience4jDruidFilter<E, C> extends FilterAdapter {
         return doInResilience4j(statement, () -> super.statement_executeUpdate(chain, statement, sql, columnNames));
     }
 
-    protected <T> T doInResilience4j(StatementProxy statement, Callable<T> callable) throws SQLException {
-        String entryName = getResilience4jEntryName(statement);
-
-        return (T) Try.of(() ->
-                resilience4jTemplate.execute(entryName, (context) -> {
-                    context.start(Resilience4jDruidFilter.this::start);
-                    T result = callable.call();
-                    context.end(Resilience4jDruidFilter.this::end);
-                    return result;
-                })
-        );
+    /**
+     * Get the {@link C configuration} by the specified name
+     *
+     * @param configName the specified configuration name
+     * @return if the {@link C configuration} can't be found by the specified configuration name,
+     * {@link #getDefaultConfiguration()} will be used as default
+     */
+    protected C getConfiguration(String configName) {
+        return registry.getConfiguration(configName).orElse(getDefaultConfiguration());
     }
 
-    protected abstract Object start(E e);
+    /**
+     * Get the default {@link C configuration}
+     *
+     * @return non-null
+     */
+    public final C getDefaultConfiguration() {
+        return registry.getDefaultConfig();
+    }
 
-    protected abstract void end(E e, Long durationTime);
+    /**
+     * Get the class of Resilience4j's entry
+     *
+     * @return non-null
+     */
+    public final Class<E> getEntryClass() {
+        return (Class<E>) this.module.getEntryClass();
+    }
 
-    private String getResilience4jEntryName(StatementProxy statement) {
+    /**
+     * Get the class of Resilience4j's configuration
+     *
+     * @return non-null
+     */
+    public final Class<C> getConfigClass() {
+        return (Class<C>) this.module.getConfigClass();
+    }
+
+    /**
+     * Get the {@link Resilience4jModule Resilience4j's module}
+     *
+     * @return non-null
+     */
+    public final Resilience4jModule getModule() {
+        return module;
+    }
+
+    public final R getRegistry() {
+        return this.registry;
+    }
+
+    protected final boolean isDurationRecorded() {
+        return durationRecorded;
+    }
+
+    protected final <T> T doInResilience4j(StatementProxy statement, Callable<T> callable) throws SQLException {
+        E entry = getEntry(statement);
+        T result = null;
+        Throwable failure = null;
+        Long startTime = isDurationRecorded() ? System.nanoTime() : null;
+        Long duration = UNKNOW_DURATION;
+        try {
+            beforeExecute(entry);
+            result = callable.call();
+        } catch (Exception e) {
+            failure = e;
+            if (e instanceof SQLException) {
+                throw (SQLException) e;
+            } else {
+                throw new SQLException(e);
+            }
+        } finally {
+            if (startTime != null) {
+                duration = System.nanoTime() - startTime;
+            }
+            afterExecute(entry, duration, result, failure);
+        }
+        return result;
+    }
+
+    protected final E getEntry(StatementProxy statement) {
+        String entryName = getEntryName(statement);
+        return getEntry(entryName);
+    }
+
+    protected final E getEntry(String name) {
+        Optional<E> optionalEntry = registry.find(name);
+        return optionalEntry.orElseGet(() -> createEntry(name));
+    }
+
+    protected final String getEntryName(StatementProxy statement) {
         String sql = statement.getLastExecuteSql();
         if (Objects.equals(sql, validationSQL)) {
             return sql;
@@ -173,7 +262,7 @@ public abstract class Resilience4jDruidFilter<E, C> extends FilterAdapter {
         String resourceName = null;
         if (statementList.size() > 0) {
             SQLStatement sqlStatement = statementList.get(0);
-            resourceName = getResilience4jEntryName(sqlStatement);
+            resourceName = getEntryName(sqlStatement);
         }
         if (resourceName == null) {
             logger.debug("The JDBC statement can't be recognized, sql : '{}' , dbType : '{}'", sql, dbType);
@@ -182,16 +271,36 @@ public abstract class Resilience4jDruidFilter<E, C> extends FilterAdapter {
         return resourceName;
     }
 
-    private String getResilience4jEntryName(SQLStatement sqlStatement) {
+    protected abstract E createEntry(String name);
+
+    /**
+     * Callback before execution
+     *
+     * @param entry Resilience4j's entry, e.g., {@link CircuitBreaker}
+     */
+    protected abstract void beforeExecute(E entry);
+
+    /**
+     * Callback after execution
+     *
+     * @param entry    Resilience4j's entry, e.g., {@link CircuitBreaker}
+     * @param duration duration in nana seconds if {@link #isDurationRecorded()} is <code>true</code>, or
+     *                 <code>duration</code> will be assigned to be {@link #UNKNOW_DURATION}(value is <code>-1</code>)
+     * @param result   the execution result
+     * @param failure  optional {@link Throwable} instance, if <code>null</code>, it means the execution is successful
+     */
+    protected abstract void afterExecute(E entry, long duration, Object result, @Nullable Throwable failure);
+
+    private String getEntryName(SQLStatement sqlStatement) {
         try {
             if (sqlStatement instanceof SQLSelectStatement) {
-                return getResilience4jEntryName((SQLSelectStatement) sqlStatement);
+                return getEntryName((SQLSelectStatement) sqlStatement);
             } else if (sqlStatement instanceof SQLUpdateStatement) {
-                return getResilience4jEntryName((SQLUpdateStatement) sqlStatement);
+                return getEntryName((SQLUpdateStatement) sqlStatement);
             } else if (sqlStatement instanceof SQLInsertStatement) {
-                return getResilience4jEntryName((SQLInsertStatement) sqlStatement);
+                return getEntryName((SQLInsertStatement) sqlStatement);
             } else if (sqlStatement instanceof SQLDeleteStatement) {
-                return getResilience4jEntryName((SQLDeleteStatement) sqlStatement);
+                return getEntryName((SQLDeleteStatement) sqlStatement);
             }
         } catch (Throwable e) {
             logger.debug("The JDBC statement can't be parsed, sql : '{}'", sqlStatement, e);
@@ -199,7 +308,7 @@ public abstract class Resilience4jDruidFilter<E, C> extends FilterAdapter {
         return null;
     }
 
-    private String getResilience4jEntryName(SQLSelectStatement selectStatement) {
+    private String getEntryName(SQLSelectStatement selectStatement) {
         SQLSelect sqlSelect = selectStatement.getSelect();
         SQLSelectQueryBlock sqlSelectQueryBlock = sqlSelect.getFirstQueryBlock();
         if (sqlSelectQueryBlock == null) {
@@ -209,17 +318,17 @@ public abstract class Resilience4jDruidFilter<E, C> extends FilterAdapter {
         return "SELECT " + sqlTableSource.computeAlias();
     }
 
-    private String getResilience4jEntryName(SQLUpdateStatement updateStatement) {
+    private String getEntryName(SQLUpdateStatement updateStatement) {
         SQLTableSource sqlTableSource = updateStatement.getFrom();
         return "UPDATE " + sqlTableSource.computeAlias();
     }
 
-    private String getResilience4jEntryName(SQLInsertStatement insertStatement) {
+    private String getEntryName(SQLInsertStatement insertStatement) {
         SQLExprTableSource sqlTableSource = insertStatement.getTableSource();
         return "INSERT " + sqlTableSource.computeAlias();
     }
 
-    private String getResilience4jEntryName(SQLDeleteStatement deleteStatement) {
+    private String getEntryName(SQLDeleteStatement deleteStatement) {
         SQLTableSource sqlTableSource = deleteStatement.getTableSource();
         return "DELETE " + sqlTableSource.computeAlias();
     }

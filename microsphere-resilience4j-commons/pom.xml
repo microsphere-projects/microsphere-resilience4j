@@ -41,11 +41,12 @@
             <optional>true</optional>
         </dependency>
 
-<!--        <dependency>-->
-<!--            <groupId>io.github.resilience4j</groupId>-->
-<!--            <artifactId>resilience4j-framework-common</artifactId>-->
-<!--            <optional>true</optional>-->
-<!--        </dependency>-->
+        <dependency>
+            <groupId>io.github.resilience4j</groupId>
+            <artifactId>resilience4j-framework-common</artifactId>
+            <version>${resilience4j.version}</version>
+            <optional>true</optional>
+        </dependency>
 
         <dependency>
             <groupId>io.github.resilience4j</groupId>
@@ -96,6 +97,7 @@
             <artifactId>logback-classic</artifactId>
             <scope>test</scope>
         </dependency>
+
 
     </dependencies>
 

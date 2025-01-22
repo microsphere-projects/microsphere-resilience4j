@@ -17,6 +17,7 @@
 package io.microsphere.resilience4j.spring.circuitbreaker.jdbc.druid;
 
 import com.alibaba.druid.DbType;
+import com.alibaba.druid.filter.FilterChainImpl;
 import com.alibaba.druid.pool.DruidDataSource;
 import com.alibaba.druid.proxy.jdbc.ConnectionProxy;
 import com.alibaba.druid.proxy.jdbc.JdbcParameter;
@@ -45,22 +46,23 @@ import static io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry.ofDef
  */
 public class CircuitBreakerDruidFilterTest {
 
+    private DruidDataSource druidDataSource;
+
     private CircuitBreakerDruidFilter filter;
 
     @BeforeEach
     public void init() {
-        this.filter = new CircuitBreakerDruidFilter(ofDefaults());
-        DruidDataSource druidDataSource = new DruidDataSource();
+        this.druidDataSource = new DruidDataSource();
         druidDataSource.setValidationQuery("SELECT 1");
         druidDataSource.setDbType(DbType.mysql);
+
+        this.filter = new CircuitBreakerDruidFilter(ofDefaults());
         this.filter.init(druidDataSource);
     }
 
     @Test
     public void testDoInResilience4j() throws SQLException {
-        filter.doInResilience4j(new StatementProxyImpl(), () -> {
-            return 0;
-        });
+        filter.statement_execute(new FilterChainImpl(this.druidDataSource), new StatementProxyImpl(), null);
     }
 
 }

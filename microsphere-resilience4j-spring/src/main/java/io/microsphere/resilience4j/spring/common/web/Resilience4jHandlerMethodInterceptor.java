@@ -18,15 +18,13 @@ package io.microsphere.resilience4j.spring.common.web;
 
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
+import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 import io.github.resilience4j.core.Registry;
-import io.microsphere.resilience4j.spring.common.Resilience4jContext;
-import io.microsphere.resilience4j.spring.common.Resilience4jModule;
+import io.microsphere.logging.Logger;
+import io.microsphere.resilience4j.common.Resilience4jModule;
 import io.microsphere.spring.web.event.WebEndpointMappingsReadyEvent;
 import io.microsphere.spring.web.metadata.WebEndpointMapping;
 import io.microsphere.spring.web.method.support.HandlerMethodInterceptor;
-import io.vavr.control.Try;
-import io.microsphere.logging.Logger;
-import io.microsphere.logging.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.context.ApplicationListener;
 import org.springframework.core.Ordered;
@@ -40,35 +38,34 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.function.Function;
+import java.util.Optional;
 
+import static io.microsphere.logging.LoggerFactory.getLogger;
 import static io.microsphere.reflect.MethodUtils.getSignature;
-import static io.microsphere.resilience4j.spring.common.Resilience4jModule.valueOf;
+import static io.microsphere.resilience4j.common.Resilience4jModule.valueOf;
 import static org.springframework.core.ResolvableType.forType;
-import static org.springframework.web.context.request.RequestAttributes.SCOPE_REQUEST;
 
 /**
  * The abstract template class for Resilience4j's {@link HandlerMethodInterceptor}
  *
  * @param <E> the type of Resilience4j's entity, e.g., {@link CircuitBreaker}
  * @param <C> the type of Resilience4j's configuration, e.g., {@link CircuitBreakerConfig}
+ * @param <R> the registry of Resilience4j's entity, e.g., {@link CircuitBreakerRegistry}
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
  * @see HandlerMethodInterceptor
  * @see Resilience4jModule
  * @since 1.0.0
  */
-public abstract class Resilience4jHandlerMethodInterceptor<E, C> implements HandlerMethodInterceptor,
+public abstract class Resilience4jHandlerMethodInterceptor<E, C, R extends Registry<E, C>> implements HandlerMethodInterceptor,
         ApplicationListener<WebEndpointMappingsReadyEvent>, DisposableBean, Ordered {
 
     protected final static int ENTRY_CLASS_GENERIC_INDEX = 0;
 
     protected final static int CONFIGURATION_CLASS_GENERIC_INDEX = 1;
 
-    protected final static Function<? super Throwable, Exception> EXCEPTION_PROVIDER = t -> t instanceof Exception ? (Exception) t : new Exception(t.getCause());
+    protected final Logger logger = getLogger(getClass());
 
-    protected final Logger logger = LoggerFactory.getLogger(getClass());
-
-    protected final Registry<E, C> registry;
+    protected final R registry;
 
     /**
      * Local Cache using {@link HashMap} with better performance
@@ -77,37 +74,37 @@ public abstract class Resilience4jHandlerMethodInterceptor<E, C> implements Hand
 
     private final Class<E> entryClass;
 
-    private final Class<C> configurationClass;
+    private final Class<C> configClass;
 
     private final Resilience4jModule module;
 
-    public Resilience4jHandlerMethodInterceptor(Registry<E, C> registry) {
+    public Resilience4jHandlerMethodInterceptor(R registry) {
         // always keep self being a delegate
         Assert.notNull(registry, "The 'registry' argument can't be null");
         this.registry = registry;
         this.entryCaches = new HashMap<>();
         ResolvableType currentType = forType(getClass());
         ResolvableType superType = currentType.as(Resilience4jHandlerMethodInterceptor.class);
-        this.entryClass = (Class<E>) superType.getGeneric(ENTRY_CLASS_GENERIC_INDEX).resolve();
-        this.configurationClass = (Class<C>) superType.getGeneric(CONFIGURATION_CLASS_GENERIC_INDEX).resolve();
-        this.module = valueOf(this.entryClass);
+        this.module = valueOf(this.registry.getClass());
+        this.entryClass = (Class<E>) module.getEntryClass();
+        this.configClass = (Class<C>) module.getConfigClass();
     }
 
     @Override
     public void beforeExecute(HandlerMethod handlerMethod, Object[] args, NativeWebRequest request) throws Exception {
-        Resilience4jContext<E> context = getContext(request, handlerMethod);
-        Try.run(() -> beforeExecute(context, handlerMethod, args, request)).getOrElseThrow(EXCEPTION_PROVIDER);
+        E entry = getEntry(handlerMethod);
+        beforeExecute(entry, handlerMethod, args, request);
     }
 
     @Override
     public void afterExecute(HandlerMethod handlerMethod, Object[] args, Object returnValue, Throwable error, NativeWebRequest request) throws Exception {
-        Resilience4jContext<E> context = getContext(request, handlerMethod);
-        Try.run(() -> afterExecute(context, handlerMethod, args, returnValue, error, request)).getOrElseThrow(EXCEPTION_PROVIDER);
+        E entry = getEntry(handlerMethod);
+        afterExecute(entry, handlerMethod, args, returnValue, error, request);
     }
 
-    protected abstract void beforeExecute(Resilience4jContext<E> context, HandlerMethod handlerMethod, Object[] args, NativeWebRequest request) throws Throwable;
+    protected abstract void beforeExecute(E entry, HandlerMethod handlerMethod, Object[] args, NativeWebRequest request) throws Exception;
 
-    protected abstract void afterExecute(Resilience4jContext<E> context, HandlerMethod handlerMethod, Object[] args, Object returnValue, Throwable error, NativeWebRequest request) throws Throwable;
+    protected abstract void afterExecute(E entry, HandlerMethod handlerMethod, Object[] args, Object returnValue, Throwable error, NativeWebRequest request) throws Exception;
 
     @Override
     public void onApplicationEvent(WebEndpointMappingsReadyEvent event) {
@@ -124,7 +121,7 @@ public abstract class Resilience4jHandlerMethodInterceptor<E, C> implements Hand
      *
      * @return non-null
      */
-    public final Registry<E, C> getRegistry() {
+    public final R getRegistry() {
         return registry;
     }
 
@@ -158,22 +155,14 @@ public abstract class Resilience4jHandlerMethodInterceptor<E, C> implements Hand
         this.entryCaches.putAll(entryCaches);
     }
 
-    protected final Resilience4jContext<E> getContext(NativeWebRequest request, HandlerMethod handlerMethod) {
-        int scope = SCOPE_REQUEST;
-        String attributeName = getModule().name();
-        Resilience4jContext<E> context = (Resilience4jContext<E>) request.getAttribute(attributeName, scope);
-        if (context == null) {
-            String name = getEntryName(handlerMethod);
-            E entry = getEntry(name);
-            context = new Resilience4jContext<>(name, entry, module);
-            request.setAttribute(attributeName, context, scope);
-        }
-        return context;
+    protected final E getEntry(HandlerMethod handlerMethod) {
+        String name = getEntryName(handlerMethod);
+        return getEntry(name);
     }
 
     protected final E getEntry(String name) {
-        E entry = entryCaches.computeIfAbsent(name, this::createEntry);
-        return entry;
+        Optional<E> optionalEntry = registry.find(name);
+        return optionalEntry.orElseGet(() -> createEntry(name));
     }
 
     protected abstract E createEntry(String name);
@@ -225,8 +214,8 @@ public abstract class Resilience4jHandlerMethodInterceptor<E, C> implements Hand
      *
      * @return non-null
      */
-    public final Class<C> getConfigurationClass() {
-        return this.configurationClass;
+    public final Class<C> getConfigClass() {
+        return this.configClass;
     }
 
     /**

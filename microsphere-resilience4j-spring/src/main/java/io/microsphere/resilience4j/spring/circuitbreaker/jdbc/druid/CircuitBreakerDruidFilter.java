@@ -17,14 +17,12 @@
 package io.microsphere.resilience4j.spring.circuitbreaker.jdbc.druid;
 
 import com.alibaba.druid.filter.Filter;
-import com.alibaba.druid.proxy.jdbc.StatementProxy;
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
-import io.github.resilience4j.core.Registry;
+import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 import io.microsphere.resilience4j.spring.common.jdbc.druid.Resilience4jDruidFilter;
 
-import java.sql.SQLException;
-import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 
 /**
  * {@link CircuitBreaker} x Druid {@link Filter}
@@ -32,23 +30,30 @@ import java.util.concurrent.Callable;
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
  * @since 1.0.0
  */
-public class CircuitBreakerDruidFilter extends Resilience4jDruidFilter<CircuitBreaker, CircuitBreakerConfig> {
+public class CircuitBreakerDruidFilter extends Resilience4jDruidFilter<CircuitBreaker, CircuitBreakerConfig, CircuitBreakerRegistry> {
 
-    public CircuitBreakerDruidFilter(Registry<CircuitBreaker, CircuitBreakerConfig> registry) {
-        super(registry);
+    public CircuitBreakerDruidFilter(CircuitBreakerRegistry registry) {
+        super(registry, true);
     }
 
     @Override
-    protected Object start(CircuitBreaker circuitBreaker) {
-        return circuitBreaker.tryAcquirePermission();
+    protected CircuitBreaker createEntry(String name) {
+        CircuitBreakerRegistry registry = super.getRegistry();
+        return registry.circuitBreaker(name, super.getConfiguration(name), registry.getTags());
     }
 
     @Override
-    protected void end(CircuitBreaker circuitBreaker, Long durationTime) {
-        circuitBreaker.releasePermission();
+    protected void beforeExecute(CircuitBreaker circuitBreaker) {
+        circuitBreaker.acquirePermission();
     }
 
-    protected <T> T doInResilience4j(StatementProxy statement, Callable<T> callable) throws SQLException {
-        return super.doInResilience4j(statement, callable);
+    @Override
+    protected void afterExecute(CircuitBreaker circuitBreaker, long duration, Object result, Throwable failure) {
+        if (failure == null) {
+            circuitBreaker.onResult(duration, TimeUnit.NANOSECONDS, result);
+        } else {
+            circuitBreaker.onError(duration, TimeUnit.NANOSECONDS, failure);
+        }
     }
+
 }

@@ -19,10 +19,7 @@ package io.microsphere.resilience4j.spring.circuitbreaker.web;
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
-import io.github.resilience4j.core.Registry;
 import io.microsphere.resilience4j.spring.common.web.Resilience4jHandlerMethodInterceptor;
-import org.springframework.web.context.request.NativeWebRequest;
-import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import java.util.concurrent.TimeUnit;
@@ -46,20 +43,20 @@ public class CircuitBreakerHandlerMethodInterceptor extends Resilience4jHandlerM
     }
 
     @Override
-    protected void beforeExecute(CircuitBreaker circuitBreaker, HandlerMethod handlerMethod, Object[] args, NativeWebRequest request) {
+    protected void beforeExecute(CircuitBreaker circuitBreaker) {
         circuitBreaker.acquirePermission();
         long startTime = circuitBreaker.getCurrentTimestamp();
         request.setAttribute(START_TIME_ATTRIBUTE_NAME, startTime, SCOPE_REQUEST);
     }
 
     @Override
-    protected void afterExecute(CircuitBreaker circuitBreaker, HandlerMethod handlerMethod, Object[] args, Object returnValue, Throwable error, NativeWebRequest request) {
+    protected void afterExecute(CircuitBreaker circuitBreaker, Object result, Throwable failure) {
         long starTime = (long) request.getAttribute(START_TIME_ATTRIBUTE_NAME, SCOPE_REQUEST);
         long duration = circuitBreaker.getCurrentTimestamp() - starTime;
-        if (error == null) {
+        if (failure == null) {
             circuitBreaker.onResult(duration, TimeUnit.NANOSECONDS, args);
         } else {
-            circuitBreaker.onError(duration, TimeUnit.NANOSECONDS, error);
+            circuitBreaker.onError(duration, TimeUnit.NANOSECONDS, failure);
         }
     }
 

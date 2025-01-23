@@ -21,6 +21,7 @@ import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 import io.github.resilience4j.core.Registry;
 import io.microsphere.logging.Logger;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -118,5 +119,10 @@ public abstract class AbstractResilience4jTemplateTest<E, C, R extends Registry<
         this.template.initLocalEntriesCache(asList(entryName));
         E entry = this.template.getEntryFromCache(entryName);
         assertNotNull(entry);
+    }
+
+    @AfterEach
+    public void destroy() {
+        this.template.destroy();
     }
 }

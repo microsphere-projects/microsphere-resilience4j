@@ -58,7 +58,9 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> {
     protected final boolean durationRecorded;
 
     /**
-     * Local Cache using {@link HashMap} with better performance
+     * Local Cache using {@link HashMap} with better performance,
+     * it's no thread-safe and can be thread-safe if and only if it's initialized by
+     * {@link #initLocalEntriesCache(String)} at the initialization phase.
      */
     protected final Map<String, E> localEntriesCache;
 
@@ -205,6 +207,16 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> {
             afterExecute(entry, duration, result, failure, context);
         }
         return result;
+    }
+
+    /**
+     * Destroy :
+     * <ul>
+     *     <li>clear the local entries cache</li>
+     * </ul>
+     */
+    public void destroy() {
+        localEntriesCache.clear();
     }
 
     /**

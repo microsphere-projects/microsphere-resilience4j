@@ -19,6 +19,7 @@ package io.microsphere.resilience4j.common;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -33,11 +34,21 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 public class Resilience4jContextTest {
 
-    private Resilience4jContext context;
+    private String entryName = "test-entry";
+
+    private String entry = "test";
+
+    private Resilience4jContext<String> context;
 
     @BeforeEach
     public void init() {
-        context = new Resilience4jContext();
+        context = new Resilience4jContext<>(entryName, entry);
+    }
+
+    @Test
+    public void testProperties() {
+        assertEquals(entryName, context.getEntryName());
+        assertEquals(entry, context.getEntry());
     }
 
     @Test

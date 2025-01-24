@@ -37,9 +37,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class BulkheadTemplateTest extends AbstractResilience4jTemplateTest<Bulkhead, BulkheadConfig, BulkheadRegistry, BulkheadTemplate> {
 
     @Test
-    public void testExecuteWithoutInstance() {
-
-        String entryName = "test";
+    public void testExecute() {
 
         BulkheadRegistry.EventPublisher<Bulkhead> eventPublisher = this.registry.getEventPublisher();
 
@@ -49,7 +47,7 @@ public class BulkheadTemplateTest extends AbstractResilience4jTemplateTest<Bulkh
             assertTrue(BulkheadTemplateTest.super.entryClass.isAssignableFrom(entry.getClass()));
         });
 
-        Object result = this.template.execute(() -> entryName, () -> null);
+        Object result = this.template.execute(() -> this.entryName, () -> null);
         assertNull(result);
     }
 }

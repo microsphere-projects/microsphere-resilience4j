@@ -28,6 +28,7 @@ import org.junit.jupiter.api.Test;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.function.Supplier;
 
 import static io.microsphere.logging.LoggerFactory.getLogger;
 import static io.microsphere.reflect.MethodUtils.invokeStaticMethod;
@@ -62,6 +63,8 @@ public abstract class AbstractResilience4jTemplateTest<E, C, R extends Registry<
 
     protected RT template;
 
+    protected String entryName = "test";
+
     public AbstractResilience4jTemplateTest() {
         ParameterizedType superType = (ParameterizedType) this.getClass().getGenericSuperclass();
         Type[] actualTypeArguments = superType.getActualTypeArguments();
@@ -74,11 +77,15 @@ public abstract class AbstractResilience4jTemplateTest<E, C, R extends Registry<
     }
 
     @BeforeEach
-    public void init() throws Throwable {
+    public final void init() throws Throwable {
         this.registry = createRegistry();
         this.template = createTemplate(registry);
         logger.debug("The instance of Registry(class : '{}') was created.", this.registry.getClass().getName());
         logger.debug("The instance of Resilience4jTemplate(class : '{}') was created.", this.template.getClass().getName());
+    }
+
+    protected Supplier<String> getEntryNameGenerator() {
+        return () -> entryName;
     }
 
     protected RT createTemplate(R registry) throws Throwable {

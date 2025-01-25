@@ -19,8 +19,15 @@ package io.microsphere.resilience4j.common;
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
+import io.github.resilience4j.core.EventConsumer;
+import io.github.resilience4j.core.EventProcessor;
 import io.github.resilience4j.core.Registry;
 import io.github.resilience4j.core.lang.NonNull;
+import io.github.resilience4j.core.lang.Nullable;
+import io.github.resilience4j.core.registry.EntryAddedEvent;
+import io.github.resilience4j.core.registry.EntryRemovedEvent;
+import io.github.resilience4j.core.registry.EntryReplacedEvent;
+import io.github.resilience4j.core.registry.RegistryEventConsumer;
 import io.microsphere.logging.Logger;
 import io.vavr.CheckedFunction0;
 import io.vavr.CheckedRunnable;
@@ -35,13 +42,28 @@ import static io.microsphere.resilience4j.common.Resilience4jModule.valueOf;
 import static io.microsphere.util.Assert.assertNotNull;
 
 /**
- * The abstract template class for Resilience4j
+ * The abstract template class for Resilience4j supports the common operations:
+ * <ul>
+ *     <li>One-Time Operation :
+ *      <ul>
+ *          <li>{@link #execute(Supplier, CheckedFunction0)} : execution with result</li>
+ *          <li>{@link #execute(Supplier, CheckedRunnable)} : execution without result</li>
+ *      </ul>
+ *     </li>
+ *     <li>Two-Phase Operation :
+ *        <li>{@link #begin(Supplier)} : the first phase</li>
+ *        <li>{@link #end(Resilience4jContext)} :  the second phase</li>
+ *     </li>
+ * </ul>
  *
  * @param <E> the type of Resilience4j's entry, e.g., {@link CircuitBreaker}
  * @param <C> the type of Resilience4j's entry configuration, e.g., {@link CircuitBreakerConfig}
  * @param <R> the type of Resilience4j's entry registry, e.g., {@link CircuitBreakerRegistry}
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy<a/>
  * @see Resilience4jModule
+ * @see Resilience4jContext
+ * @see Registry
+ * @see RegistryEventConsumer
  * @since 1.0.0
  */
 public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> {
@@ -51,6 +73,8 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> {
     protected final R registry;
 
     protected final Resilience4jModule module;
+
+    protected final EventProcessor eventProcessor;
 
     /**
      * Local Cache using {@link HashMap} with better performance,
@@ -62,6 +86,7 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> {
     public Resilience4jTemplate(R registry) {
         assertNotNull(registry, "The registry must not be null");
         this.registry = registry;
+        this.eventProcessor = (EventProcessor) registry.getEventPublisher();
         this.module = valueOf(registry.getClass());
         this.localEntriesCache = new HashMap<>();
     }
@@ -117,23 +142,11 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> {
     }
 
     /**
-     * Adds a configuration to the registry
-     *
-     * @param configName    the configuration name
-     * @param configuration the added configuration
-     * @return {@link Resilience4jTemplate}
-     */
-    public Resilience4jTemplate<E, C, R> addConfiguration(String configName, C configuration) {
-        registry.addConfiguration(configName, configuration);
-        return this;
-    }
-
-    /**
      * Initialize the local entries cache
      *
      * @param entryNames the names of entries
      */
-    public Resilience4jTemplate<E, C, R> initLocalEntriesCache(Iterable<String> entryNames) {
+    public final Resilience4jTemplate<E, C, R> initLocalEntriesCache(Iterable<String> entryNames) {
         for (String entryName : entryNames) {
             initLocalEntriesCache(entryName);
         }
@@ -145,7 +158,7 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> {
      *
      * @param entryName the name of entry
      */
-    public Resilience4jTemplate<E, C, R> initLocalEntriesCache(String entryName) {
+    public final Resilience4jTemplate<E, C, R> initLocalEntriesCache(String entryName) {
         E entry = getEntry(entryName);
         localEntriesCache.put(entryName, entry);
         return this;
@@ -177,6 +190,7 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> {
         V result = null;
         try {
             result = execute(context, callback);
+            context.result = result;
         } catch (Throwable e) {
             context.failure = e;
             if (logger.isDebugEnabled()) {
@@ -203,7 +217,7 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> {
     }
 
     /**
-     * End the execution as the final phase.
+     * End the execution as the second phase.
      *
      * @param context {@link Resilience4jContext}
      */
@@ -212,14 +226,11 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> {
     }
 
     /**
-     * Destroy :
-     * <ul>
-     *     <li>clear the local entries cache</li>
-     * </ul>
+     * Callback before {@link #execute(Resilience4jContext, CheckedFunction0) execution}
+     *
+     * @param context {@link Resilience4jContext}
      */
-    public void destroy() {
-        localEntriesCache.clear();
-    }
+    protected abstract void beforeExecute(Resilience4jContext<E> context);
 
     /**
      * Call the target callback, for instance, the result maybe be wrapped.
@@ -233,6 +244,14 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> {
     protected <V> V execute(Resilience4jContext<E> context, CheckedFunction0<V> callback) throws Throwable {
         return callback.apply();
     }
+
+    /**
+     * Callback after {@link #execute(Resilience4jContext, CheckedFunction0) execution}
+     *
+     * @param context {@link Resilience4jContext}
+     * @return {@link CheckedFunction0#apply()}
+     */
+    protected abstract void afterExecute(Resilience4jContext<E> context);
 
     /**
      * Get the Resilience4j's entry by the specified name
@@ -261,6 +280,51 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> {
     }
 
     /**
+     * Create the Resilience4j's entry.
+     *
+     * @param name the name of the Resilience4j's entry
+     * @return non-null
+     */
+    @NonNull
+    protected abstract E createEntry(String name);
+
+    /**
+     * Remove the Resilience4j's entry.
+     *
+     * @param name the name of the Resilience4j's entry
+     * @return <code>null</code> if can't be found by <code>name</code>
+     */
+    @Nullable
+    protected E removeEntry(String name) {
+        Optional<E> optionalEntry = this.registry.remove(name);
+        return optionalEntry.orElse(null);
+    }
+
+    /**
+     * Replace the Resilience4j's entry.
+     *
+     * @param name     the name of the Resilience4j's entry
+     * @param newEntry the new Resilience4j's entry
+     * @return the old Resilience4j's entry if replaced, otherwise <code>null</code>
+     */
+    protected E replaceEntry(String name, E newEntry) {
+        Optional<E> optionalEntry = this.registry.replace(name, newEntry);
+        return optionalEntry.orElse(null);
+    }
+
+    /**
+     * Adds a configuration to the registry
+     *
+     * @param configName    the configuration name
+     * @param configuration the added configuration
+     * @return {@link Resilience4jTemplate}
+     */
+    public Resilience4jTemplate<E, C, R> configuration(String configName, C configuration) {
+        registry.addConfiguration(configName, configuration);
+        return this;
+    }
+
+    /**
      * Get the {@link C configuration} by the specified name
      *
      * @param configName the specified configuration name
@@ -273,27 +337,55 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> {
     }
 
     /**
-     * Create the Resilience4j's entry
+     * Register the {@link EventConsumer} of {@link EntryAddedEvent}
      *
-     * @param name the name of the Resilience4j's entry
-     * @return non-null
+     * @param entryAddedEventEventConsumer the {@link EventConsumer} of {@link EntryAddedEvent}
+     * @return {@link Resilience4jTemplate}
      */
-    @NonNull
-    protected abstract E createEntry(String name);
+    public final Resilience4jTemplate<E, C, R> onEntryAddedEvent(EventConsumer<EntryAddedEvent<E>> entryAddedEventEventConsumer) {
+        return consumeEvent(EntryAddedEvent.class, entryAddedEventEventConsumer);
+    }
 
     /**
-     * Callback before execution
+     * Register the {@link EventConsumer} of {@link EntryRemovedEvent}
      *
-     * @param context {@link Resilience4jContext}
+     * @param entryRemovedEventEventConsumer the {@link EventConsumer} of {@link EntryAddedEvent}
+     * @return {@link Resilience4jTemplate}
      */
-    protected abstract void beforeExecute(Resilience4jContext<E> context);
+    public final Resilience4jTemplate<E, C, R> onEntryRemovedEvent(EventConsumer<EntryRemovedEvent<E>> entryRemovedEventEventConsumer) {
+        return consumeEvent(EntryRemovedEvent.class, entryRemovedEventEventConsumer);
+    }
 
     /**
-     * Callback after execution
+     * Register the {@link EventConsumer} of {@link EntryReplacedEvent}
      *
-     * @param context {@link Resilience4jContext}
-     * @return {@link CheckedFunction0#apply()}
+     * @param entryReplacedEventEventConsumer the {@link EventConsumer} of {@link EntryAddedEvent}
+     * @return {@link Resilience4jTemplate}
      */
-    protected abstract void afterExecute(Resilience4jContext<E> context);
+    public final Resilience4jTemplate<E, C, R> onEntryReplacedEvent(EventConsumer<EntryReplacedEvent<E>> entryReplacedEventEventConsumer) {
+        return consumeEvent(EntryReplacedEvent.class, entryReplacedEventEventConsumer);
+    }
 
+    /**
+     * Register the {@link EventConsumer}
+     *
+     * @param eventType     the type of Resilience4j event
+     * @param eventConsumer EventConsumer
+     * @param <T>           the type of Resilience4j event
+     * @return {@link Resilience4jTemplate}
+     */
+    public <T> Resilience4jTemplate<E, C, R> consumeEvent(Class<? super T> eventType, EventConsumer<T> eventConsumer) {
+        eventProcessor.registerConsumer(eventType.getSimpleName(), eventConsumer);
+        return this;
+    }
+
+    /**
+     * Destroy :
+     * <ul>
+     *     <li>clear the local entries cache</li>
+     * </ul>
+     */
+    public void destroy() {
+        localEntriesCache.clear();
+    }
 }

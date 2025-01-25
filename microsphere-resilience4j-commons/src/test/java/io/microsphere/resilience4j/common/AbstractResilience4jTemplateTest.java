@@ -30,11 +30,16 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.function.Supplier;
 
+import static io.github.resilience4j.core.registry.RegistryEvent.Type.ADDED;
+import static io.github.resilience4j.core.registry.RegistryEvent.Type.REMOVED;
+import static io.github.resilience4j.core.registry.RegistryEvent.Type.REPLACED;
 import static io.microsphere.logging.LoggerFactory.getLogger;
 import static io.microsphere.reflect.MethodUtils.invokeStaticMethod;
 import static java.util.Arrays.asList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -63,7 +68,7 @@ public abstract class AbstractResilience4jTemplateTest<E, C, R extends Registry<
 
     protected RT template;
 
-    protected String entryName = "test";
+    protected String entryName = "test-entry";
 
     public AbstractResilience4jTemplateTest() {
         ParameterizedType superType = (ParameterizedType) this.getClass().getGenericSuperclass();
@@ -104,19 +109,23 @@ public abstract class AbstractResilience4jTemplateTest<E, C, R extends Registry<
 
     @Test
     public final void testReadMethods() {
+        Class<E> entryClass = this.entryClass;
+        RT template = this.template;
+        R registry = this.registry;
+        Class<C> configClass = this.configClass;
 
-        assertNotNull(this.template.getModule());
+        assertNotNull(template.getModule());
 
-        assertEquals(this.entryClass, this.template.getEntryClass());
-        assertEquals(this.configClass, this.template.getConfigClass());
-        assertTrue(this.registryClass.isAssignableFrom(this.template.getRegistry().getClass()));
-        assertEquals(this.templateClass, this.template.getClass());
+        assertEquals(entryClass, template.getEntryClass());
+        assertEquals(configClass, template.getConfigClass());
+        assertTrue(registryClass.isAssignableFrom(template.getRegistry().getClass()));
+        assertEquals(templateClass, template.getClass());
 
-        assertEquals(this.registry, this.template.getRegistry());
-        assertEquals(this.registry.getDefaultConfig(), this.template.getDefaultConfig());
+        assertEquals(registry, template.getRegistry());
+        assertEquals(registry.getDefaultConfig(), template.getDefaultConfig());
         String configName = "default";
-        assertEquals(this.registry.getConfiguration(configName).get(), this.template.getConfiguration(configName));
-        assertEquals(this.registry.getDefaultConfig(), this.template.getConfiguration("not-exists"));
+        assertEquals(registry.getConfiguration(configName).get(), template.getConfiguration(configName));
+        assertEquals(registry.getDefaultConfig(), template.getConfiguration("not-exists"));
 
     }
 
@@ -126,6 +135,46 @@ public abstract class AbstractResilience4jTemplateTest<E, C, R extends Registry<
         this.template.initLocalEntriesCache(asList(entryName));
         E entry = this.template.getEntryFromCache(entryName);
         assertNotNull(entry);
+    }
+
+    @Test
+    public final void testEntriesAndEvents() {
+        RT template = this.template;
+        String entryName = this.entryName;
+
+        // TEST ADDED
+        template.onEntryAddedEvent(event -> {
+            logger.debug("The event of registry : '{}' was received.", event);
+            assertNotNull(event.getAddedEntry());
+            assertEquals(ADDED, event.getEventType());
+        });
+        E entry = template.createEntry(entryName);
+        assertNotNull(entry);
+        E foundEntry = template.getEntry(entryName);
+        assertSame(entry, foundEntry);
+
+        // Test REPLACED
+        template.onEntryReplacedEvent(event -> {
+            logger.debug("The event of registry : '{}' was received.", event);
+            assertSame(entry, event.getOldEntry());
+            assertNotSame(entry, event.getNewEntry());
+            assertEquals(REPLACED, event.getEventType());
+        });
+        String newEntryName = "test-entry-2";
+        E newEntry = template.createEntry(newEntryName);
+        E oldEntry = template.replaceEntry(entryName, newEntry);
+        assertNotNull(newEntry);
+        assertNotNull(oldEntry);
+
+        // Test REMOVED
+        template.onEntryRemovedEvent(event -> {
+            logger.debug("The event of registry : '{}' was received.", event);
+            assertEquals(newEntry, event.getRemovedEntry());
+            assertEquals(REMOVED, event.getEventType());
+        });
+        E removedEntry = template.removeEntry(newEntryName);
+        assertNotNull(removedEntry);
+
     }
 
     @AfterEach

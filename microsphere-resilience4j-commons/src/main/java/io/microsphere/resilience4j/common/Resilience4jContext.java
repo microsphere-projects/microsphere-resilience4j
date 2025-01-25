@@ -38,30 +38,30 @@ import static java.util.Collections.unmodifiableMap;
 public class Resilience4jContext<E> {
 
     /**
-     * The name of Resilience4j's entry
+     * The name of Resilience4j's entry.
      */
     private final String entryName;
 
     /**
-     * The Resilience4j's entry, e.g., {@link CircuitBreaker}
+     * The Resilience4j's entry, e.g., {@link CircuitBreaker}.
      */
     @NonNull
     private final E entry;
 
     /**
-     * The start time of the execution
+     * The start time of the execution.
      */
     @Nullable
     private Long startTime;
 
     /**
-     * The execution result
+     * The execution result, if <code>null</code>, it means the execution does not return any value.
      */
     @Nullable
     Object result;
 
     /**
-     * The optional {@link Throwable} instance, if <code>null</code>, it means the execution is successful
+     * The optional {@link Throwable} instance, if <code>null</code>, it means the execution is successful.
      */
     @Nullable
     Throwable failure;
@@ -72,7 +72,7 @@ public class Resilience4jContext<E> {
     @Nullable
     private Map<String, Object> attributes;
 
-    Resilience4jContext(String entryName, E entry) {
+    protected Resilience4jContext(String entryName, E entry) {
         assertNotNull(entryName, "The entry name must not be null.");
         assertNotNull(entry, "The entry must not be null.");
         this.entryName = entryName;
@@ -80,7 +80,7 @@ public class Resilience4jContext<E> {
     }
 
     /**
-     * Get the name of Resilience4j's entry
+     * Get the name of Resilience4j's entry.
      *
      * @return non-null
      */
@@ -98,7 +98,7 @@ public class Resilience4jContext<E> {
     }
 
     /**
-     * Set the start time of the execution
+     * Set the start time of the execution.
      *
      * @param startTime the start time of the execution
      */
@@ -107,7 +107,7 @@ public class Resilience4jContext<E> {
     }
 
     /**
-     * Get the start time of the execution
+     * Get the start time of the execution.
      *
      * @return <code>null</code> if {@link #setStartTime(Long)} method will be invoked
      */
@@ -117,7 +117,7 @@ public class Resilience4jContext<E> {
     }
 
     /**
-     * Set the result of the execution
+     * Set the result of the execution.
      *
      * @return <code>null</code> if the target callback does not return value or is failed
      */
@@ -127,7 +127,7 @@ public class Resilience4jContext<E> {
     }
 
     /**
-     * Set the failure of the execution
+     * Set the failure of the execution.
      *
      * @return <code>null</code> if the target callback executes successfully
      */
@@ -195,7 +195,7 @@ public class Resilience4jContext<E> {
     }
 
     /**
-     * Remove all attributes
+     * Remove all attributes.
      *
      * @return {@link Resilience4jContext}
      */
@@ -208,7 +208,7 @@ public class Resilience4jContext<E> {
     }
 
     /**
-     * Get the attributes
+     * Get the attributes.
      *
      * @return the read-only attributes
      */

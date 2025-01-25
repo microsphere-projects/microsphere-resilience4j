@@ -38,15 +38,6 @@ public class BulkheadTemplateTest extends AbstractResilience4jTemplateTest<Bulkh
 
     @Test
     public void testExecute() {
-
-        BulkheadRegistry.EventPublisher<Bulkhead> eventPublisher = this.registry.getEventPublisher();
-
-        eventPublisher.onEntryAdded(event -> {
-            assertEquals(EntryAddedEvent.class, event.getClass());
-            Object entry = event.getAddedEntry();
-            assertTrue(BulkheadTemplateTest.super.entryClass.isAssignableFrom(entry.getClass()));
-        });
-
         Object result = this.template.execute(() -> this.entryName, () -> null);
         assertNull(result);
     }

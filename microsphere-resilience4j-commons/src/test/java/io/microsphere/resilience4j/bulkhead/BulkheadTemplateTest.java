@@ -22,6 +22,9 @@ import io.github.resilience4j.bulkhead.BulkheadRegistry;
 import io.microsphere.resilience4j.common.AbstractResilience4jTemplateTest;
 import org.junit.jupiter.api.Test;
 
+import static io.github.resilience4j.bulkhead.event.BulkheadEvent.Type.CALL_FINISHED;
+import static io.github.resilience4j.bulkhead.event.BulkheadEvent.Type.CALL_PERMITTED;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
@@ -35,7 +38,22 @@ public class BulkheadTemplateTest extends AbstractResilience4jTemplateTest<Bulkh
 
     @Test
     public void testExecute() {
-        Object result = this.template.execute(() -> this.entryName, () -> null);
+        String entryName = this.entryName;
+        BulkheadTemplate template = this.template;
+
+        template.onCallPermittedEvent(entryName, event -> {
+            logger.debug("the event of Bulkhead {} was received.", event);
+            assertEquals(entryName, event.getBulkheadName());
+            assertEquals(CALL_PERMITTED, event.getEventType());
+        });
+
+        template.onCallFinishedEvent(entryName, event -> {
+            logger.debug("the event of Bulkhead {} was received.", event);
+            assertEquals(entryName, event.getBulkheadName());
+            assertEquals(CALL_FINISHED, event.getEventType());
+        });
+
+        Object result = template.execute(() -> entryName, () -> null);
         assertNull(result);
     }
 }

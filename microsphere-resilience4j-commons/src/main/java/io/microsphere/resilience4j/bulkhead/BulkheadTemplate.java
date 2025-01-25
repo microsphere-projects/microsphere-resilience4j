@@ -19,6 +19,10 @@ package io.microsphere.resilience4j.bulkhead;
 import io.github.resilience4j.bulkhead.Bulkhead;
 import io.github.resilience4j.bulkhead.BulkheadConfig;
 import io.github.resilience4j.bulkhead.BulkheadRegistry;
+import io.github.resilience4j.bulkhead.event.BulkheadOnCallFinishedEvent;
+import io.github.resilience4j.bulkhead.event.BulkheadOnCallPermittedEvent;
+import io.github.resilience4j.bulkhead.event.BulkheadOnCallRejectedEvent;
+import io.github.resilience4j.core.EventConsumer;
 import io.microsphere.resilience4j.common.Resilience4jContext;
 import io.microsphere.resilience4j.common.Resilience4jTemplate;
 
@@ -66,5 +70,41 @@ public class BulkheadTemplate extends Resilience4jTemplate<Bulkhead, BulkheadCon
     protected void afterExecute(Resilience4jContext<Bulkhead> context) {
         Bulkhead bulkhead = context.getEntry();
         bulkhead.onComplete();
+    }
+
+    /**
+     * Register the {@link EventConsumer} of {@link BulkheadOnCallPermittedEvent}
+     *
+     * @param entryName     the name of Resilience4j's entry
+     * @param eventConsumer the {@link EventConsumer} of {@link BulkheadOnCallPermittedEvent}
+     * @return {@link BulkheadTemplate}
+     */
+    public BulkheadTemplate onCallPermittedEvent(String entryName, EventConsumer<BulkheadOnCallPermittedEvent> eventConsumer) {
+        registerEntryEventConsumer(entryName, BulkheadOnCallPermittedEvent.class, eventConsumer);
+        return this;
+    }
+
+    /**
+     * Register the {@link EventConsumer} of {@link BulkheadOnCallRejectedEvent}
+     *
+     * @param entryName     the name of Resilience4j's entry
+     * @param eventConsumer the {@link EventConsumer} of {@link BulkheadOnCallRejectedEvent}
+     * @return {@link BulkheadTemplate}
+     */
+    public BulkheadTemplate onCallRejectedEvent(String entryName, EventConsumer<BulkheadOnCallRejectedEvent> eventConsumer) {
+        registerEntryEventConsumer(entryName, BulkheadOnCallRejectedEvent.class, eventConsumer);
+        return this;
+    }
+
+    /**
+     * Register the {@link EventConsumer} of {@link BulkheadOnCallFinishedEvent}
+     *
+     * @param entryName     the name of Resilience4j's entry
+     * @param eventConsumer the {@link EventConsumer} of {@link BulkheadOnCallFinishedEvent}
+     * @return {@link BulkheadTemplate}
+     */
+    public BulkheadTemplate onCallFinishedEvent(String entryName, EventConsumer<BulkheadOnCallFinishedEvent> eventConsumer) {
+        registerEntryEventConsumer(entryName, BulkheadOnCallFinishedEvent.class, eventConsumer);
+        return this;
     }
 }

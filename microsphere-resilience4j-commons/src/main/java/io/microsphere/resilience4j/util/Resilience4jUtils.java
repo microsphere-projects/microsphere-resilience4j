@@ -16,17 +16,26 @@
  */
 package io.microsphere.resilience4j.util;
 
+import io.github.resilience4j.bulkhead.Bulkhead;
+import io.github.resilience4j.circuitbreaker.CircuitBreaker;
+import io.github.resilience4j.core.EventProcessor;
+import io.github.resilience4j.core.EventPublisher;
 import io.github.resilience4j.core.Registry;
+import io.github.resilience4j.ratelimiter.RateLimiter;
+import io.github.resilience4j.retry.Retry;
+import io.github.resilience4j.timelimiter.TimeLimiter;
 import io.microsphere.resilience4j.common.Resilience4jModule;
 import io.microsphere.util.BaseUtils;
 
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
 import static io.microsphere.reflect.MethodUtils.findMethod;
 import static io.microsphere.reflect.MethodUtils.invokeMethod;
 import static io.microsphere.resilience4j.common.Resilience4jModule.valueOf;
+import static io.microsphere.text.FormatUtils.format;
 import static java.beans.Introspector.decapitalize;
 import static java.util.Collections.unmodifiableMap;
 
@@ -71,5 +80,54 @@ public abstract class Resilience4jUtils extends BaseUtils {
         } catch (Throwable e) {
             throw new IllegalStateException(e);
         }
+    }
+
+    public static <E> EventProcessor<E> getEventProcessor(E entry) {
+        if (entry instanceof CircuitBreaker) {
+            return getEventProcessor((CircuitBreaker) entry);
+        } else if (entry instanceof Bulkhead) {
+            return getEventProcessor((Bulkhead) entry);
+        } else if (entry instanceof RateLimiter) {
+            return getEventProcessor((RateLimiter) entry);
+        } else if (entry instanceof TimeLimiter) {
+            return getEventProcessor((TimeLimiter) entry);
+        } else if (entry instanceof Retry) {
+            return getEventProcessor((Retry) entry);
+        }
+        String errorMessage = format("The entry only supports these modules :  {}", Arrays.toString(Resilience4jModule.values()));
+        throw new UnsupportedOperationException(errorMessage);
+    }
+
+    public static <E> EventProcessor<E> getEventProcessor(Retry retry) {
+        return asEventProcessor(retry.getEventPublisher());
+    }
+
+    public static <E> EventProcessor<E> getEventProcessor(TimeLimiter timeLimiter) {
+        return asEventProcessor(timeLimiter.getEventPublisher());
+    }
+
+    public static <E> EventProcessor<E> getEventProcessor(RateLimiter rateLimiter) {
+        return asEventProcessor(rateLimiter.getEventPublisher());
+    }
+
+    public static <E> EventProcessor<E> getEventProcessor(Bulkhead bulkhead) {
+        return asEventProcessor(bulkhead.getEventPublisher());
+    }
+
+    public static <E> EventProcessor<E> getEventProcessor(CircuitBreaker circuitBreaker) {
+        return asEventProcessor(circuitBreaker.getEventPublisher());
+    }
+
+    public static <T> EventProcessor<T> getEventProcessor(Registry registry) {
+        Registry.EventPublisher eventPublisher = registry.getEventPublisher();
+        return asEventProcessor(eventPublisher);
+    }
+
+    private static EventProcessor asEventProcessor(EventPublisher eventPublisher) {
+        if (eventPublisher instanceof EventProcessor) {
+            return (EventProcessor) eventPublisher;
+        }
+        String errorMessage = format("The eventPublisher should be an instance of EventProcessor, actual : {}", eventPublisher.getClass());
+        throw new UnsupportedOperationException(errorMessage);
     }
 }

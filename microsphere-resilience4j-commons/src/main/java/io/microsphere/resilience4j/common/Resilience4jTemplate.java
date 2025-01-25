@@ -39,8 +39,8 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 import static io.microsphere.logging.LoggerFactory.getLogger;
-import static io.microsphere.reflect.MethodUtils.invokeMethod;
 import static io.microsphere.resilience4j.common.Resilience4jModule.valueOf;
+import static io.microsphere.resilience4j.util.Resilience4jUtils.getEventProcessor;
 import static io.microsphere.util.Assert.assertNotNull;
 
 /**
@@ -88,7 +88,7 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> {
     public Resilience4jTemplate(R registry) {
         assertNotNull(registry, "The registry must not be null");
         this.registry = registry;
-        this.registryEventProcessor = (EventProcessor) registry.getEventPublisher();
+        this.registryEventProcessor = getEventProcessor(registry);
         this.module = valueOf(registry.getClass());
         this.localEntriesCache = new HashMap<>();
     }
@@ -393,7 +393,7 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> {
     protected final <T> Resilience4jTemplate<E, C, R> registerEntryEventConsumer(String entryName,
                                                                                  Class<? super T> eventType, EventConsumer<T> eventConsumer) {
         E entry = getEntry(entryName);
-        EventProcessor entryEventProcessor = invokeMethod(entry, "getEventPublisher");
+        EventProcessor entryEventProcessor = getEventProcessor(entry);
         return registerEventConsumer(entryEventProcessor, eventType, eventConsumer);
     }
 

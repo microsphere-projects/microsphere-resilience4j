@@ -36,10 +36,5 @@ public class RateLimiterDruidFilter extends Resilience4jDruidFilter<RateLimiter,
         super(registry);
     }
 
-    @Override
-    protected Resilience4jTemplate<RateLimiter, RateLimiterConfig, RateLimiterRegistry> createTemplate(RateLimiterRegistry registry) {
-        return new RateLimiterTemplate(registry);
-    }
-
 }
 

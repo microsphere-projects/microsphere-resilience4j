@@ -39,10 +39,5 @@ public class RetryDruidFilter extends Resilience4jDruidFilter<Retry, RetryConfig
         super(registry);
     }
 
-    @Override
-    protected Resilience4jTemplate<Retry, RetryConfig, RetryRegistry> createTemplate(RetryRegistry registry) {
-        return new RetryTemplate(registry);
-    }
-
 }
 

@@ -19,8 +19,6 @@ package io.microsphere.resilience4j.spring.bulkhead.web;
 import io.github.resilience4j.bulkhead.Bulkhead;
 import io.github.resilience4j.bulkhead.BulkheadConfig;
 import io.github.resilience4j.bulkhead.BulkheadRegistry;
-import io.microsphere.resilience4j.bulkhead.BulkheadTemplate;
-import io.microsphere.resilience4j.common.Resilience4jTemplate;
 import io.microsphere.resilience4j.spring.common.web.Resilience4jHandlerMethodInterceptor;
 import org.springframework.web.servlet.HandlerInterceptor;
 
@@ -37,10 +35,4 @@ public class BulkheadHandlerMethodInterceptor extends Resilience4jHandlerMethodI
     public BulkheadHandlerMethodInterceptor(BulkheadRegistry registry) {
         super(registry);
     }
-
-    @Override
-    protected Resilience4jTemplate<Bulkhead, BulkheadConfig, BulkheadRegistry> createTemplate(BulkheadRegistry registry) {
-        return new BulkheadTemplate(registry);
-    }
-
 }

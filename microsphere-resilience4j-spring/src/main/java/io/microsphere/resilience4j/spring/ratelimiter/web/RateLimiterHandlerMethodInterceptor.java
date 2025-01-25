@@ -38,9 +38,4 @@ public class RateLimiterHandlerMethodInterceptor extends Resilience4jHandlerMeth
         super(registry);
     }
 
-    @Override
-    protected Resilience4jTemplate<RateLimiter, RateLimiterConfig, RateLimiterRegistry> createTemplate(RateLimiterRegistry registry) {
-        return new RateLimiterTemplate(registry);
-    }
-
 }

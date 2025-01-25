@@ -33,15 +33,25 @@ import io.microsphere.logging.Logger;
 import io.vavr.CheckedFunction0;
 import io.vavr.CheckedRunnable;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.function.Supplier;
 
+import static io.microsphere.io.IOUtils.close;
 import static io.microsphere.logging.LoggerFactory.getLogger;
 import static io.microsphere.resilience4j.common.Resilience4jModule.valueOf;
 import static io.microsphere.resilience4j.util.Resilience4jUtils.getEventProcessor;
 import static io.microsphere.util.Assert.assertNotNull;
+import static io.microsphere.util.ClassLoaderUtils.getClassLoader;
+import static io.microsphere.util.ClassLoaderUtils.getResource;
+import static io.microsphere.util.ClassLoaderUtils.loadClass;
+import static io.microsphere.util.ClassUtils.newInstance;
 
 /**
  * The abstract template class for Resilience4j supports the common operations:
@@ -69,6 +79,38 @@ import static io.microsphere.util.Assert.assertNotNull;
  * @since 1.0.0
  */
 public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> {
+
+    /**
+     * The resource-path for default templates
+     */
+    private static final String DEFAULT_TEMPLATES_RESOURCE_PATH = "META-INF/default/templates.properties";
+
+    private static final EnumMap<Resilience4jModule, Class<? extends Resilience4jTemplate>> defaultTemplates;
+
+    static {
+        Properties properties = new Properties();
+        ClassLoader classLoader = getClassLoader(Resilience4jTemplate.class);
+        URL url = getResource(classLoader, DEFAULT_TEMPLATES_RESOURCE_PATH);
+        InputStream inputStream = null;
+        try {
+            inputStream = url.openStream();
+            properties.load(inputStream);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } finally {
+            close(inputStream);
+        }
+
+        defaultTemplates = new EnumMap<>(Resilience4jModule.class);
+        for (Resilience4jModule module : Resilience4jModule.values()) {
+            String moduleName = module.name().toLowerCase();
+            String templateClassName = properties.getProperty(moduleName);
+            Class<? extends Resilience4jTemplate> templateClass =
+                    (Class<? extends Resilience4jTemplate>) loadClass(templateClassName, classLoader);
+            defaultTemplates.put(module, templateClass);
+        }
+
+    }
 
     protected final Logger logger = getLogger(getClass());
 
@@ -411,5 +453,19 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> {
      */
     public void destroy() {
         localEntriesCache.clear();
+    }
+
+    /**
+     * @param registry
+     * @param <E>      the type of Resilience4j's entry, e.g., {@link CircuitBreaker}
+     * @param <C>      the type of Resilience4j's entry configuration, e.g., {@link CircuitBreakerConfig}
+     * @param <R>      the type of Resilience4j's entry registry, e.g., {@link CircuitBreakerRegistry}
+     * @param <T>      the sub-type of {@link Resilience4jTemplate}
+     * @return
+     */
+    public static <E, C, R extends Registry<E, C>, T extends Resilience4jTemplate<E, C, R>> T createTemplate(R registry) {
+        Resilience4jModule module = valueOf(registry.getClass());
+        Class<? extends Resilience4jTemplate> templateClass = defaultTemplates.get(module);
+        return (T) newInstance(templateClass, registry);
     }
 }

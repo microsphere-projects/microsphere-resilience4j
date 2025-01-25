@@ -47,6 +47,7 @@ import java.util.concurrent.Callable;
 
 import static com.alibaba.druid.sql.SQLUtils.parseStatements;
 import static io.microsphere.logging.LoggerFactory.getLogger;
+import static io.microsphere.resilience4j.common.Resilience4jTemplate.createTemplate;
 
 /**
  * Resilience4j x Druid {@link Filter}
@@ -72,8 +73,6 @@ public abstract class Resilience4jDruidFilter<E, C, R extends Registry<E, C>> ex
     public Resilience4jDruidFilter(R registry) {
         this.template = createTemplate(registry);
     }
-
-    protected abstract Resilience4jTemplate<E, C, R> createTemplate(R registry);
 
     @Override
     public void init(DataSourceProxy dataSource) {

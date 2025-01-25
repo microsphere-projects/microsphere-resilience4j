@@ -19,8 +19,6 @@ package io.microsphere.resilience4j.spring.circuitbreaker.web;
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
-import io.microsphere.resilience4j.circuitbreaker.CircuitBreakerTemplate;
-import io.microsphere.resilience4j.common.Resilience4jTemplate;
 import io.microsphere.resilience4j.spring.common.web.Resilience4jHandlerMethodInterceptor;
 import org.springframework.web.servlet.HandlerInterceptor;
 
@@ -36,11 +34,6 @@ public class CircuitBreakerHandlerMethodInterceptor extends Resilience4jHandlerM
 
     public CircuitBreakerHandlerMethodInterceptor(CircuitBreakerRegistry registry) {
         super(registry);
-    }
-
-    @Override
-    protected Resilience4jTemplate<CircuitBreaker, CircuitBreakerConfig, CircuitBreakerRegistry> createTemplate(CircuitBreakerRegistry registry) {
-        return new CircuitBreakerTemplate(registry);
     }
 
 }

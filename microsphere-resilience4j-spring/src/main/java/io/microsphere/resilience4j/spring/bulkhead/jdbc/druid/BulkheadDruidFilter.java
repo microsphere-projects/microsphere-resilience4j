@@ -35,9 +35,4 @@ public class BulkheadDruidFilter extends Resilience4jDruidFilter<Bulkhead, Bulkh
     public BulkheadDruidFilter(BulkheadRegistry registry) {
         super(registry);
     }
-
-    @Override
-    protected Resilience4jTemplate<Bulkhead, BulkheadConfig, BulkheadRegistry> createTemplate(BulkheadRegistry registry) {
-        return new BulkheadTemplate(registry);
-    }
 }

@@ -36,9 +36,4 @@ public class CircuitBreakerDruidFilter extends Resilience4jDruidFilter<CircuitBr
         super(registry);
     }
 
-    @Override
-    protected Resilience4jTemplate<CircuitBreaker, CircuitBreakerConfig, CircuitBreakerRegistry> createTemplate(CircuitBreakerRegistry registry) {
-        return new CircuitBreakerTemplate(registry);
-    }
-
 }

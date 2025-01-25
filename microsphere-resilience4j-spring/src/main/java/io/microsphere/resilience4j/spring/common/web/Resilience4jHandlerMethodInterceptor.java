@@ -42,6 +42,7 @@ import java.util.List;
 
 import static io.microsphere.logging.LoggerFactory.getLogger;
 import static io.microsphere.reflect.MethodUtils.getSignature;
+import static io.microsphere.resilience4j.common.Resilience4jTemplate.createTemplate;
 import static org.springframework.web.context.request.RequestAttributes.SCOPE_REQUEST;
 
 /**
@@ -69,8 +70,6 @@ public abstract class Resilience4jHandlerMethodInterceptor<E, C, R extends Regis
         Assert.notNull(registry, "The 'registry' argument can't be null");
         this.template = createTemplate(registry);
     }
-
-    protected abstract Resilience4jTemplate<E, C, R> createTemplate(R registry);
 
     @Override
     public void beforeExecute(HandlerMethod handlerMethod, Object[] args, NativeWebRequest request) throws Exception {

@@ -35,9 +35,4 @@ public class TimeLimiterDruidFilter extends Resilience4jDruidFilter<TimeLimiter,
     public TimeLimiterDruidFilter(TimeLimiterRegistry registry) {
         super(registry);
     }
-
-    @Override
-    protected Resilience4jTemplate<TimeLimiter, TimeLimiterConfig, TimeLimiterRegistry> createTemplate(TimeLimiterRegistry registry) {
-        return new TimeLimiterTemplate(registry);
-    }
 }

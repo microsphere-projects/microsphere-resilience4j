@@ -24,6 +24,7 @@ import com.alibaba.druid.proxy.jdbc.JdbcParameter;
 import com.alibaba.druid.proxy.jdbc.StatementExecuteType;
 import com.alibaba.druid.proxy.jdbc.StatementProxy;
 import com.alibaba.druid.stat.JdbcSqlStat;
+import io.microsphere.resilience4j.circuitbreaker.CircuitBreakerTemplate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -37,6 +38,8 @@ import java.util.List;
 import java.util.Map;
 
 import static io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry.ofDefaults;
+import static io.github.resilience4j.circuitbreaker.event.CircuitBreakerEvent.Type.SUCCESS;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 /**
  * {@link CircuitBreakerDruidFilter} Test
@@ -50,6 +53,8 @@ public class CircuitBreakerDruidFilterTest {
 
     private CircuitBreakerDruidFilter filter;
 
+    private CircuitBreakerTemplate template;
+
     @BeforeEach
     public void init() {
         this.druidDataSource = new DruidDataSource();
@@ -58,11 +63,21 @@ public class CircuitBreakerDruidFilterTest {
 
         this.filter = new CircuitBreakerDruidFilter(ofDefaults());
         this.filter.init(druidDataSource);
+        this.template = this.filter.getTemplate();
     }
 
     @Test
     public void testDoInResilience4j() throws SQLException {
-        filter.statement_execute(new FilterChainImpl(this.druidDataSource), new StatementProxyImpl(), null);
+
+        StatementProxy statement = new StatementProxyImpl();
+
+        String entryName = this.filter.getEntryName(statement);
+
+        template.onSuccessEvent(entryName, event -> {
+            assertSame(SUCCESS, event.getEventType());
+        });
+
+        filter.statement_execute(new FilterChainImpl(this.druidDataSource), statement, null);
     }
 
 }
@@ -81,7 +96,7 @@ class StatementProxyImpl implements StatementProxy {
 
     @Override
     public Statement getRawObject() {
-        return null;
+        return this;
     }
 
     @Override

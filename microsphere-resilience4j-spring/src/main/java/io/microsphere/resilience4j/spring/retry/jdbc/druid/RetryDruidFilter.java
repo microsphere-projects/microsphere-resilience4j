@@ -20,6 +20,8 @@ import com.alibaba.druid.filter.Filter;
 import io.github.resilience4j.retry.Retry;
 import io.github.resilience4j.retry.RetryConfig;
 import io.github.resilience4j.retry.RetryRegistry;
+import io.microsphere.resilience4j.common.Resilience4jTemplate;
+import io.microsphere.resilience4j.retry.RetryTemplate;
 import io.microsphere.resilience4j.spring.common.jdbc.druid.Resilience4jDruidFilter;
 
 
@@ -38,45 +40,9 @@ public class RetryDruidFilter extends Resilience4jDruidFilter<Retry, RetryConfig
     }
 
     @Override
-    protected Retry createEntry(String name) {
-        RetryRegistry registry = super.getRegistry();
-        return registry.retry(name, super.getConfiguration(name), registry.getTags());
+    protected Resilience4jTemplate<Retry, RetryConfig, RetryRegistry> createTemplate(RetryRegistry registry) {
+        return new RetryTemplate(registry);
     }
 
-    @Override
-    protected void beforeExecute(Retry retry) {
-        Retry.Context<Object> context = retry.context();
-        contextThreadLocal.set(context);
-    }
-
-    @Override
-    protected void afterExecute(Retry retry, long duration, Object result, Throwable failure) {
-        try {
-            Retry.Context<Object> context = contextThreadLocal.get();
-            if (failure == null) {
-                if (result != null) {
-                    // Success with result
-                    context.onResult(result);
-                } else {
-                    // Success without result
-                    context.onSuccess();
-                }
-            } else {
-                // On error
-                if (failure instanceof RuntimeException) {
-                    context.onRuntimeError((RuntimeException) failure);
-                } else if (failure instanceof Exception) {
-                    context.onError((Exception) failure);
-                } else {
-                    context.onRuntimeError(new RuntimeException(failure));
-                }
-            }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        } finally {
-            contextThreadLocal.remove();
-        }
-
-    }
 }
 

@@ -20,9 +20,9 @@ import com.alibaba.druid.filter.Filter;
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
+import io.microsphere.resilience4j.circuitbreaker.CircuitBreakerTemplate;
+import io.microsphere.resilience4j.common.Resilience4jTemplate;
 import io.microsphere.resilience4j.spring.common.jdbc.druid.Resilience4jDruidFilter;
-
-import java.util.concurrent.TimeUnit;
 
 /**
  * {@link CircuitBreaker} x Druid {@link Filter}
@@ -33,27 +33,12 @@ import java.util.concurrent.TimeUnit;
 public class CircuitBreakerDruidFilter extends Resilience4jDruidFilter<CircuitBreaker, CircuitBreakerConfig, CircuitBreakerRegistry> {
 
     public CircuitBreakerDruidFilter(CircuitBreakerRegistry registry) {
-        super(registry, true);
+        super(registry);
     }
 
     @Override
-    protected CircuitBreaker createEntry(String name) {
-        CircuitBreakerRegistry registry = super.getRegistry();
-        return registry.circuitBreaker(name, super.getConfiguration(name), registry.getTags());
-    }
-
-    @Override
-    protected void beforeExecute(CircuitBreaker circuitBreaker) {
-        circuitBreaker.acquirePermission();
-    }
-
-    @Override
-    protected void afterExecute(CircuitBreaker circuitBreaker, long duration, Object result, Throwable failure) {
-        if (failure == null) {
-            circuitBreaker.onResult(duration, TimeUnit.NANOSECONDS, result);
-        } else {
-            circuitBreaker.onError(duration, TimeUnit.NANOSECONDS, failure);
-        }
+    protected Resilience4jTemplate<CircuitBreaker, CircuitBreakerConfig, CircuitBreakerRegistry> createTemplate(CircuitBreakerRegistry registry) {
+        return new CircuitBreakerTemplate(registry);
     }
 
 }

@@ -19,6 +19,8 @@ package io.microsphere.resilience4j.spring.ratelimiter.web;
 import io.github.resilience4j.ratelimiter.RateLimiter;
 import io.github.resilience4j.ratelimiter.RateLimiterConfig;
 import io.github.resilience4j.ratelimiter.RateLimiterRegistry;
+import io.microsphere.resilience4j.common.Resilience4jTemplate;
+import io.microsphere.resilience4j.ratelimiter.RateLimiterTemplate;
 import io.microsphere.resilience4j.spring.common.web.Resilience4jHandlerMethodInterceptor;
 import org.springframework.web.servlet.HandlerInterceptor;
 
@@ -37,22 +39,8 @@ public class RateLimiterHandlerMethodInterceptor extends Resilience4jHandlerMeth
     }
 
     @Override
-    protected void beforeExecute(RateLimiter rateLimiter) {
-        rateLimiter.acquirePermission();
+    protected Resilience4jTemplate<RateLimiter, RateLimiterConfig, RateLimiterRegistry> createTemplate(RateLimiterRegistry registry) {
+        return new RateLimiterTemplate(registry);
     }
 
-    @Override
-    protected void afterExecute(RateLimiter rateLimiter, Object result, Throwable failure) {
-        if (failure == null) {
-            rateLimiter.onResult(args);
-        } else {
-            rateLimiter.onError(failure);
-        }
-    }
-
-    @Override
-    protected RateLimiter createEntry(String name) {
-        RateLimiterRegistry registry = super.getRegistry();
-        return registry.rateLimiter(name, super.getConfiguration(name), registry.getTags());
-    }
 }

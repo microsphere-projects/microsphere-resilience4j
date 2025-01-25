@@ -20,11 +20,9 @@ import com.alibaba.druid.filter.Filter;
 import io.github.resilience4j.timelimiter.TimeLimiter;
 import io.github.resilience4j.timelimiter.TimeLimiterConfig;
 import io.github.resilience4j.timelimiter.TimeLimiterRegistry;
+import io.microsphere.resilience4j.common.Resilience4jTemplate;
 import io.microsphere.resilience4j.spring.common.jdbc.druid.Resilience4jDruidFilter;
-
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ForkJoinPool;
+import io.microsphere.resilience4j.timelimiter.TimeLimiterTemplate;
 
 /**
  * {@link TimeLimiter} x Druid {@link Filter}
@@ -34,36 +32,12 @@ import java.util.concurrent.ForkJoinPool;
  */
 public class TimeLimiterDruidFilter extends Resilience4jDruidFilter<TimeLimiter, TimeLimiterConfig, TimeLimiterRegistry> {
 
-    private final ExecutorService executorService;
-
     public TimeLimiterDruidFilter(TimeLimiterRegistry registry) {
-        this(registry, ForkJoinPool.commonPool());
-    }
-
-    public TimeLimiterDruidFilter(TimeLimiterRegistry registry, ExecutorService executorService) {
         super(registry);
-        this.executorService = executorService;
     }
 
     @Override
-    protected TimeLimiter createEntry(String name) {
-        TimeLimiterRegistry registry = super.getRegistry();
-        return registry.timeLimiter(name, super.getConfiguration(name), registry.getTags());
-    }
-
-    @Override
-    protected void beforeExecute(TimeLimiter timeLimiter) {
-        // DO NOTHING
-    }
-
-    @Override
-    protected <T> T execute(TimeLimiter timeLimiter, Callable<T> callable) throws Exception {
-        Callable<T> docoratedCallable = timeLimiter.decorateFutureSupplier(() -> executorService.submit(callable));
-        return docoratedCallable.call();
-    }
-
-    @Override
-    protected void afterExecute(TimeLimiter timeLimiter, long duration, Object result, Throwable failure) {
-       // DO NOTHING
+    protected Resilience4jTemplate<TimeLimiter, TimeLimiterConfig, TimeLimiterRegistry> createTemplate(TimeLimiterRegistry registry) {
+        return new TimeLimiterTemplate(registry);
     }
 }

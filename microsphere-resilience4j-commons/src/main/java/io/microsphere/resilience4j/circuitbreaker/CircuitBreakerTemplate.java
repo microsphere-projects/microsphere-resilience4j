@@ -19,6 +19,8 @@ package io.microsphere.resilience4j.circuitbreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
+import io.github.resilience4j.circuitbreaker.event.CircuitBreakerOnSuccessEvent;
+import io.github.resilience4j.core.EventConsumer;
 import io.microsphere.resilience4j.common.Resilience4jContext;
 import io.microsphere.resilience4j.common.Resilience4jTemplate;
 
@@ -83,4 +85,17 @@ public class CircuitBreakerTemplate extends Resilience4jTemplate<CircuitBreaker,
             circuitBreaker.onError(duration, timeUnit, failure);
         }
     }
+
+    /**
+     * Register the {@link EventConsumer} for {@link CircuitBreakerOnSuccessEvent}
+     *
+     * @param entryName     the name of {@link CircuitBreaker} instance
+     * @param eventConsumer the {@link EventConsumer} for {@link CircuitBreakerOnSuccessEvent}
+     * @return {@link CircuitBreakerTemplate}
+     */
+    public CircuitBreakerTemplate onSuccessEvent(String entryName, EventConsumer<CircuitBreakerOnSuccessEvent> eventConsumer) {
+        registerEntryEventConsumer(entryName, CircuitBreakerOnSuccessEvent.class, eventConsumer);
+        return this;
+    }
+
 }

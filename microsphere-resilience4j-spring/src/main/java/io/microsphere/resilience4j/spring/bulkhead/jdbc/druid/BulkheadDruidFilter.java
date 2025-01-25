@@ -20,6 +20,8 @@ import com.alibaba.druid.filter.Filter;
 import io.github.resilience4j.bulkhead.Bulkhead;
 import io.github.resilience4j.bulkhead.BulkheadConfig;
 import io.github.resilience4j.bulkhead.BulkheadRegistry;
+import io.microsphere.resilience4j.bulkhead.BulkheadTemplate;
+import io.microsphere.resilience4j.common.Resilience4jTemplate;
 import io.microsphere.resilience4j.spring.common.jdbc.druid.Resilience4jDruidFilter;
 
 /**
@@ -35,18 +37,7 @@ public class BulkheadDruidFilter extends Resilience4jDruidFilter<Bulkhead, Bulkh
     }
 
     @Override
-    protected Bulkhead createEntry(String name) {
-        BulkheadRegistry registry = super.getRegistry();
-        return registry.bulkhead(name, super.getConfiguration(name), registry.getTags());
-    }
-
-    @Override
-    protected void beforeExecute(Bulkhead bulkhead) {
-        bulkhead.acquirePermission();
-    }
-
-    @Override
-    protected void afterExecute(Bulkhead bulkhead, long duration, Object result, Throwable failure) {
-        bulkhead.onComplete();
+    protected Resilience4jTemplate<Bulkhead, BulkheadConfig, BulkheadRegistry> createTemplate(BulkheadRegistry registry) {
+        return new BulkheadTemplate(registry);
     }
 }

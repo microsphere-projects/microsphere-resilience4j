@@ -37,19 +37,16 @@ import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 import io.github.resilience4j.core.Registry;
-import io.github.resilience4j.core.lang.Nullable;
 import io.microsphere.logging.Logger;
-import io.microsphere.resilience4j.common.Resilience4jModule;
+import io.microsphere.resilience4j.common.Resilience4jTemplate;
 
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.concurrent.Callable;
 
 import static com.alibaba.druid.sql.SQLUtils.parseStatements;
 import static io.microsphere.logging.LoggerFactory.getLogger;
-import static io.microsphere.resilience4j.common.Resilience4jModule.valueOf;
 
 /**
  * Resilience4j x Druid {@link Filter}
@@ -66,27 +63,17 @@ public abstract class Resilience4jDruidFilter<E, C, R extends Registry<E, C>> ex
 
     private static final Logger logger = getLogger(Resilience4jDruidFilter.class);
 
-    protected static final long UNKNOWN_DURATION = -1L;
-
     private DataSourceProxy dataSource;
 
     private String validationSQL;
 
-    protected final R registry;
-
-    protected final Resilience4jModule module;
-
-    protected final boolean durationRecorded;
+    protected final Resilience4jTemplate<E, C, R> template;
 
     public Resilience4jDruidFilter(R registry) {
-        this(registry, false);
+        this.template = createTemplate(registry);
     }
 
-    public Resilience4jDruidFilter(R registry, boolean durationRecorded) {
-        this.registry = registry;
-        this.module = valueOf(registry.getClass());
-        this.durationRecorded = durationRecorded;
-    }
+    protected abstract Resilience4jTemplate<E, C, R> createTemplate(R registry);
 
     @Override
     public void init(DataSourceProxy dataSource) {
@@ -163,96 +150,19 @@ public abstract class Resilience4jDruidFilter<E, C, R extends Registry<E, C>> ex
     }
 
     /**
-     * Get the {@link C configuration} by the specified name
-     *
-     * @param configName the specified configuration name
-     * @return if the {@link C configuration} can't be found by the specified configuration name,
-     * {@link #getDefaultConfiguration()} will be used as default
-     */
-    protected C getConfiguration(String configName) {
-        return registry.getConfiguration(configName).orElse(getDefaultConfiguration());
-    }
-
-    /**
-     * Get the default {@link C configuration}
+     * Get the {@link Resilience4jTemplate}
      *
      * @return non-null
      */
-    public final C getDefaultConfiguration() {
-        return registry.getDefaultConfig();
-    }
-
-    /**
-     * Get the class of Resilience4j's entry
-     *
-     * @return non-null
-     */
-    public final Class<E> getEntryClass() {
-        return (Class<E>) this.module.getEntryClass();
-    }
-
-    /**
-     * Get the class of Resilience4j's configuration
-     *
-     * @return non-null
-     */
-    public final Class<C> getConfigClass() {
-        return (Class<C>) this.module.getConfigClass();
-    }
-
-    /**
-     * Get the {@link Resilience4jModule Resilience4j's module}
-     *
-     * @return non-null
-     */
-    public final Resilience4jModule getModule() {
-        return module;
-    }
-
-    public final R getRegistry() {
-        return this.registry;
-    }
-
-    protected final boolean isDurationRecorded() {
-        return durationRecorded;
+    public final <T extends Resilience4jTemplate<E, C, R>> T getTemplate() {
+        return (T) this.template;
     }
 
     protected final <T> T doInResilience4j(StatementProxy statement, Callable<T> callable) throws SQLException {
-        E entry = getEntry(statement);
-        T result = null;
-        Throwable failure = null;
-        Long startTime = isDurationRecorded() ? System.nanoTime() : null;
-        Long duration = UNKNOWN_DURATION;
-        try {
-            beforeExecute(entry);
-            result = execute(entry, callable);
-        } catch (Exception e) {
-            failure = e;
-            if (e instanceof SQLException) {
-                throw (SQLException) e;
-            } else {
-                throw new SQLException(e);
-            }
-        } finally {
-            if (startTime != null) {
-                duration = System.nanoTime() - startTime;
-            }
-            afterExecute(entry, duration, result, failure);
-        }
-        return result;
+        return this.template.execute(() -> getEntryName(statement), callable::call);
     }
 
-    protected final E getEntry(StatementProxy statement) {
-        String entryName = getEntryName(statement);
-        return getEntry(entryName);
-    }
-
-    protected final E getEntry(String name) {
-        Optional<E> optionalEntry = registry.find(name);
-        return optionalEntry.orElseGet(() -> createEntry(name));
-    }
-
-    protected final String getEntryName(StatementProxy statement) {
+    public final String getEntryName(StatementProxy statement) {
         String sql = statement.getLastExecuteSql();
         if (Objects.equals(sql, validationSQL)) {
             return sql;
@@ -270,39 +180,6 @@ public abstract class Resilience4jDruidFilter<E, C, R extends Registry<E, C>> ex
         }
         return resourceName;
     }
-
-    protected abstract E createEntry(String name);
-
-    /**
-     * Callback before execution
-     *
-     * @param entry Resilience4j's entry, e.g., {@link CircuitBreaker}
-     */
-    protected abstract void beforeExecute(E entry);
-
-    /**
-     * Execute the specified {@link Callable}
-     *
-     * @param entry    Resilience4j's entry, e.g., {@link CircuitBreaker}
-     * @param callable {@link Callable}
-     * @param <T>      the type of execution result
-     * @return {@link Callable#call()}
-     * @throws Exception if {@link Callable#call()} throws an exception
-     */
-    protected <T> T execute(E entry, Callable<T> callable) throws Exception {
-        return callable.call();
-    }
-
-    /**
-     * Callback after execution
-     *
-     * @param entry    Resilience4j's entry, e.g., {@link CircuitBreaker}
-     * @param duration duration in nana seconds if {@link #isDurationRecorded()} is <code>true</code>, or
-     *                 <code>duration</code> will be assigned to be {@link #UNKNOWN_DURATION}(value is <code>-1</code>)
-     * @param result   the execution result
-     * @param failure  optional {@link Throwable} instance, if <code>null</code>, it means the execution is successful
-     */
-    protected abstract void afterExecute(E entry, long duration, Object result, @Nullable Throwable failure);
 
     private String getEntryName(SQLStatement sqlStatement) {
         try {

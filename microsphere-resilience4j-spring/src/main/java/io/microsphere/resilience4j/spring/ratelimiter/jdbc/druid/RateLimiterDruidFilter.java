@@ -20,9 +20,9 @@ import com.alibaba.druid.filter.Filter;
 import io.github.resilience4j.ratelimiter.RateLimiter;
 import io.github.resilience4j.ratelimiter.RateLimiterConfig;
 import io.github.resilience4j.ratelimiter.RateLimiterRegistry;
+import io.microsphere.resilience4j.common.Resilience4jTemplate;
+import io.microsphere.resilience4j.ratelimiter.RateLimiterTemplate;
 import io.microsphere.resilience4j.spring.common.jdbc.druid.Resilience4jDruidFilter;
-
-import static io.github.resilience4j.ratelimiter.RateLimiter.waitForPermission;
 
 /**
  * {@link RateLimiter} x Druid {@link Filter}
@@ -37,30 +37,9 @@ public class RateLimiterDruidFilter extends Resilience4jDruidFilter<RateLimiter,
     }
 
     @Override
-    protected RateLimiter createEntry(String name) {
-        RateLimiterRegistry registry = super.getRegistry();
-        return registry.rateLimiter(name, super.getConfiguration(name), registry.getTags());
+    protected Resilience4jTemplate<RateLimiter, RateLimiterConfig, RateLimiterRegistry> createTemplate(RateLimiterRegistry registry) {
+        return new RateLimiterTemplate(registry);
     }
 
-    @Override
-    protected void beforeExecute(RateLimiter rateLimiter) {
-        waitForPermission(rateLimiter);
-    }
-
-    @Override
-    protected void afterExecute(RateLimiter rateLimiter, long duration, Object result, Throwable failure) {
-        if (failure == null) {
-            if (result != null) {
-                // Success with result
-                rateLimiter.onResult(result);
-            } else {
-                // Success without result
-                rateLimiter.onSuccess();
-            }
-        } else {
-            // On error
-            rateLimiter.onError(failure);
-        }
-    }
 }
 

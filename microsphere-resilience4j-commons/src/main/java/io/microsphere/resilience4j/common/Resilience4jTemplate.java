@@ -27,6 +27,7 @@ import io.github.resilience4j.core.lang.Nullable;
 import io.github.resilience4j.core.registry.EntryAddedEvent;
 import io.github.resilience4j.core.registry.EntryRemovedEvent;
 import io.github.resilience4j.core.registry.EntryReplacedEvent;
+import io.github.resilience4j.core.registry.RegistryEvent;
 import io.github.resilience4j.core.registry.RegistryEventConsumer;
 import io.microsphere.logging.Logger;
 import io.vavr.CheckedFunction0;
@@ -38,6 +39,7 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 import static io.microsphere.logging.LoggerFactory.getLogger;
+import static io.microsphere.reflect.MethodUtils.invokeMethod;
 import static io.microsphere.resilience4j.common.Resilience4jModule.valueOf;
 import static io.microsphere.util.Assert.assertNotNull;
 
@@ -74,7 +76,7 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> {
 
     protected final Resilience4jModule module;
 
-    protected final EventProcessor eventProcessor;
+    protected final EventProcessor registryEventProcessor;
 
     /**
      * Local Cache using {@link HashMap} with better performance,
@@ -86,7 +88,7 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> {
     public Resilience4jTemplate(R registry) {
         assertNotNull(registry, "The registry must not be null");
         this.registry = registry;
-        this.eventProcessor = (EventProcessor) registry.getEventPublisher();
+        this.registryEventProcessor = (EventProcessor) registry.getEventPublisher();
         this.module = valueOf(registry.getClass());
         this.localEntriesCache = new HashMap<>();
     }
@@ -343,7 +345,7 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> {
      * @return {@link Resilience4jTemplate}
      */
     public final Resilience4jTemplate<E, C, R> onEntryAddedEvent(EventConsumer<EntryAddedEvent<E>> entryAddedEventEventConsumer) {
-        return consumeEvent(EntryAddedEvent.class, entryAddedEventEventConsumer);
+        return registerRegistryEventConsumer(EntryAddedEvent.class, entryAddedEventEventConsumer);
     }
 
     /**
@@ -353,7 +355,7 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> {
      * @return {@link Resilience4jTemplate}
      */
     public final Resilience4jTemplate<E, C, R> onEntryRemovedEvent(EventConsumer<EntryRemovedEvent<E>> entryRemovedEventEventConsumer) {
-        return consumeEvent(EntryRemovedEvent.class, entryRemovedEventEventConsumer);
+        return registerRegistryEventConsumer(EntryRemovedEvent.class, entryRemovedEventEventConsumer);
     }
 
     /**
@@ -363,18 +365,40 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> {
      * @return {@link Resilience4jTemplate}
      */
     public final Resilience4jTemplate<E, C, R> onEntryReplacedEvent(EventConsumer<EntryReplacedEvent<E>> entryReplacedEventEventConsumer) {
-        return consumeEvent(EntryReplacedEvent.class, entryReplacedEventEventConsumer);
+        return registerRegistryEventConsumer(EntryReplacedEvent.class, entryReplacedEventEventConsumer);
     }
 
     /**
-     * Register the {@link EventConsumer}
+     * Register the {@link EventConsumer} for RegistryEvent
      *
      * @param eventType     the type of Resilience4j event
      * @param eventConsumer EventConsumer
      * @param <T>           the type of Resilience4j event
      * @return {@link Resilience4jTemplate}
      */
-    public <T> Resilience4jTemplate<E, C, R> consumeEvent(Class<? super T> eventType, EventConsumer<T> eventConsumer) {
+    protected final <T extends RegistryEvent> Resilience4jTemplate<E, C, R> registerRegistryEventConsumer(
+            Class<? super T> eventType, EventConsumer<T> eventConsumer) {
+        return registerEventConsumer(registryEventProcessor, eventType, eventConsumer);
+    }
+
+    /**
+     * Register the {@link EventConsumer} for {@link E Resilience4j's entry, e.g., {@link CircuitBreaker}}
+     *
+     * @param entryName     the name of Resilience4j's entry
+     * @param eventType     the event type of Resilience4j's entry
+     * @param eventConsumer the {@link EventConsumer event consumer} of Resilience4j's entry
+     * @param <T>           the event type of Resilience4j's entry
+     * @return {@link Resilience4jTemplate}
+     */
+    protected final <T> Resilience4jTemplate<E, C, R> registerEntryEventConsumer(String entryName,
+                                                                                 Class<? super T> eventType, EventConsumer<T> eventConsumer) {
+        E entry = getEntry(entryName);
+        EventProcessor entryEventProcessor = invokeMethod(entry, "getEventPublisher");
+        return registerEventConsumer(entryEventProcessor, eventType, eventConsumer);
+    }
+
+    private <T> Resilience4jTemplate<E, C, R> registerEventConsumer(EventProcessor eventProcessor,
+                                                                    Class<? super T> eventType, EventConsumer<T> eventConsumer) {
         eventProcessor.registerConsumer(eventType.getSimpleName(), eventConsumer);
         return this;
     }

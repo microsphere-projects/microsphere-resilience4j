@@ -32,6 +32,7 @@ import io.microsphere.resilience4j.common.Resilience4jTemplate;
  * @see Resilience4jTemplate
  * @since 1.0.0
  */
+@Deprecated
 public class RetryTemplate extends Resilience4jTemplate<Retry, RetryConfig, RetryRegistry> {
 
     public static final String RETRY_CONTEXT_ATTRIBUTE_NAME = "Retry.Context";

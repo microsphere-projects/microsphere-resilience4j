@@ -36,6 +36,7 @@ import io.vavr.CheckedRunnable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import static io.microsphere.logging.LoggerFactory.getLogger;
@@ -254,6 +255,19 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> {
      * @return {@link CheckedFunction0#apply()}
      */
     protected abstract void afterExecute(Resilience4jContext<E> context);
+
+    /**
+     * Execute the specified {@link E Resilience4j's entry} by name
+     *
+     * @param name          the name of the Resilience4j's entry
+     * @param entryConsumer the {@link Consumer} for the Resilience4j's entry
+     * @return
+     */
+    public final Resilience4jTemplate<E, C, R> executeEntry(String name, Consumer<E> entryConsumer) {
+        E entry = getEntry(name);
+        entryConsumer.accept(entry);
+        return this;
+    }
 
     /**
      * Get the Resilience4j's entry by the specified name

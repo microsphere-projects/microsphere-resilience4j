@@ -102,12 +102,4 @@ public class BulkheadTemplateTest extends AbstractResilience4jTemplateTest<Bulkh
 
         }
     }
-
-    private void await(long waitTimeInMillis) {
-        try {
-            Thread.sleep(waitTimeInMillis);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-    }
 }

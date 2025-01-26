@@ -19,8 +19,6 @@ package io.microsphere.resilience4j.spring.ratelimiter.web;
 import io.github.resilience4j.ratelimiter.RateLimiter;
 import io.github.resilience4j.ratelimiter.RateLimiterConfig;
 import io.github.resilience4j.ratelimiter.RateLimiterRegistry;
-import io.microsphere.resilience4j.common.Resilience4jTemplate;
-import io.microsphere.resilience4j.ratelimiter.RateLimiterTemplate;
 import io.microsphere.resilience4j.spring.common.web.Resilience4jHandlerMethodInterceptor;
 import org.springframework.web.servlet.HandlerInterceptor;
 

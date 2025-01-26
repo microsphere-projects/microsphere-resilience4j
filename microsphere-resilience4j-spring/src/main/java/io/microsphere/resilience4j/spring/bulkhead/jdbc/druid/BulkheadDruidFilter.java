@@ -20,8 +20,6 @@ import com.alibaba.druid.filter.Filter;
 import io.github.resilience4j.bulkhead.Bulkhead;
 import io.github.resilience4j.bulkhead.BulkheadConfig;
 import io.github.resilience4j.bulkhead.BulkheadRegistry;
-import io.microsphere.resilience4j.bulkhead.BulkheadTemplate;
-import io.microsphere.resilience4j.common.Resilience4jTemplate;
 import io.microsphere.resilience4j.spring.common.jdbc.druid.Resilience4jDruidFilter;
 
 /**

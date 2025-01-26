@@ -26,7 +26,7 @@ import static io.microsphere.resilience4j.util.Resilience4jUtils.getEntry;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
- * {@link Resilience4jUtils}
+ * {@link Resilience4jUtils} Test
  *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy<a/>
  * @see Resilience4jUtils
@@ -35,9 +35,14 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 public class Resilience4jUtilsTest {
 
     @Test
-    public void test() {
+    public void testGetEntry() {
         BulkheadRegistry bulkheadRegistry = ofDefaults();
         Bulkhead bulkhead = getEntry(bulkheadRegistry, "test");
         assertNotNull(bulkhead);
+    }
+
+    @Test
+    public void testGetEventPublisher() {
+
     }
 }

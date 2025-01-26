@@ -18,6 +18,8 @@ package io.microsphere.resilience4j.util;
 
 import io.github.resilience4j.bulkhead.Bulkhead;
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
+import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
+import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 import io.github.resilience4j.core.EventProcessor;
 import io.github.resilience4j.core.EventPublisher;
 import io.github.resilience4j.core.Registry;
@@ -25,17 +27,28 @@ import io.github.resilience4j.ratelimiter.RateLimiter;
 import io.github.resilience4j.retry.Retry;
 import io.github.resilience4j.timelimiter.TimeLimiter;
 import io.microsphere.resilience4j.common.Resilience4jModule;
+import io.microsphere.resilience4j.common.Resilience4jTemplate;
 import io.microsphere.util.BaseUtils;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Method;
+import java.net.URL;
 import java.util.Arrays;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
+import static io.microsphere.io.IOUtils.close;
 import static io.microsphere.reflect.MethodUtils.findMethod;
 import static io.microsphere.reflect.MethodUtils.invokeMethod;
 import static io.microsphere.resilience4j.common.Resilience4jModule.valueOf;
 import static io.microsphere.text.FormatUtils.format;
+import static io.microsphere.util.ClassLoaderUtils.getClassLoader;
+import static io.microsphere.util.ClassLoaderUtils.getResource;
+import static io.microsphere.util.ClassLoaderUtils.loadClass;
+import static io.microsphere.util.ClassUtils.newInstance;
 import static java.beans.Introspector.decapitalize;
 import static java.util.Collections.unmodifiableMap;
 
@@ -48,7 +61,14 @@ import static java.util.Collections.unmodifiableMap;
  */
 public abstract class Resilience4jUtils extends BaseUtils {
 
+    /**
+     * The resource-path for default templates
+     */
+    private static final String DEFAULT_TEMPLATES_RESOURCE_PATH = "META-INF/default/templates.properties";
+
     private static final Map<Resilience4jModule, Method> getEntryMethodsCache;
+
+    private static final Map<Resilience4jModule, Class<? extends Resilience4jTemplate>> defaultTemplates = loadDefaultTemplates();
 
     static {
         Resilience4jModule[] modules = Resilience4jModule.values();
@@ -129,5 +149,55 @@ public abstract class Resilience4jUtils extends BaseUtils {
         }
         String errorMessage = format("The eventPublisher should be an instance of EventProcessor, actual : {}", eventPublisher.getClass());
         throw new UnsupportedOperationException(errorMessage);
+    }
+
+    /**
+     * Create an instance of {@link Resilience4jTemplate} from the specified {@link Registry}
+     *
+     * @param registry {@link Registry}
+     * @param <E>      the type of Resilience4j's entry, e.g., {@link CircuitBreaker}
+     * @param <C>      the type of Resilience4j's entry configuration, e.g., {@link CircuitBreakerConfig}
+     * @param <R>      the type of Resilience4j's entry registry, e.g., {@link CircuitBreakerRegistry}
+     * @param <T>      the sub-type of {@link Resilience4jTemplate}
+     * @return an instance of {@link Resilience4jTemplate}
+     */
+    public static <E, C, R extends Registry<E, C>, T extends Resilience4jTemplate<E, C, R>> T createTemplate(R registry) {
+        Resilience4jModule module = valueOf(registry.getClass());
+        Class<? extends Resilience4jTemplate> templateClass = defaultTemplates.get(module);
+        return (T) newInstance(templateClass, registry);
+    }
+
+    static Map<Resilience4jModule, Class<? extends Resilience4jTemplate>> loadDefaultTemplates() {
+        Resilience4jModule[] modules = Resilience4jModule.values();
+        int size = modules.length;
+        Map<Resilience4jModule, Class<? extends Resilience4jTemplate>> defaultTemplates = new HashMap<>(size);
+
+        ClassLoader classLoader = getClassLoader(Resilience4jTemplate.class);
+        Properties properties = loadDefaultTemplatesProperties(classLoader);
+        new EnumMap<>(Resilience4jModule.class);
+        for (Resilience4jModule module : Resilience4jModule.values()) {
+            String moduleName = module.name().toLowerCase();
+            String templateClassName = properties.getProperty(moduleName);
+            Class<? extends Resilience4jTemplate> templateClass =
+                    (Class<? extends Resilience4jTemplate>) loadClass(templateClassName, classLoader);
+            defaultTemplates.put(module, templateClass);
+        }
+
+        return defaultTemplates;
+    }
+
+    static Properties loadDefaultTemplatesProperties(ClassLoader classLoader) {
+        Properties properties = new Properties();
+        URL url = getResource(classLoader, DEFAULT_TEMPLATES_RESOURCE_PATH);
+        InputStream inputStream = null;
+        try {
+            inputStream = url.openStream();
+            properties.load(inputStream);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } finally {
+            close(inputStream);
+        }
+        return properties;
     }
 }

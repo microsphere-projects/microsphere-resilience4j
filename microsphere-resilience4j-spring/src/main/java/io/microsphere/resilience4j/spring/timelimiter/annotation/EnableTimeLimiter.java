@@ -18,8 +18,8 @@ package io.microsphere.resilience4j.spring.timelimiter.annotation;
 
 import io.github.resilience4j.timelimiter.TimeLimiter;
 import io.github.resilience4j.timelimiter.configure.TimeLimiterConfigurationProperties;
-import io.microsphere.spring.beans.factory.annotation.EnableConfigurationBeanBinding;
 import io.microsphere.resilience4j.spring.common.annotation.EnableResilience4jExtension;
+import io.microsphere.spring.beans.factory.annotation.EnableConfigurationBeanBinding;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.annotation.AliasFor;
 

@@ -18,11 +18,11 @@ package io.microsphere.resilience4j.spring.common.annotation;
 
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.configure.CircuitBreakerConfiguration;
-import io.microsphere.spring.context.annotation.BeanCapableImportCandidate;
-import io.microsphere.spring.core.annotation.ResolvablePlaceholderAnnotationAttributes;
 import io.microsphere.resilience4j.spring.circuitbreaker.annotation.EnableCircuitBreaker;
 import io.microsphere.resilience4j.spring.common.event.Resilience4jEventApplicationEventPublisher;
 import io.microsphere.resilience4j.spring.common.event.Resilience4jEventConsumerBeanRegistrar;
+import io.microsphere.spring.context.annotation.BeanCapableImportCandidate;
+import io.microsphere.spring.core.annotation.ResolvablePlaceholderAnnotationAttributes;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
 import org.springframework.core.ResolvableType;

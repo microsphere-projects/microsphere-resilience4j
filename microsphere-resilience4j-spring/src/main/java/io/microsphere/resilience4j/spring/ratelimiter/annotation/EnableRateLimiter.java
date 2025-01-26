@@ -18,8 +18,8 @@ package io.microsphere.resilience4j.spring.ratelimiter.annotation;
 
 import io.github.resilience4j.ratelimiter.RateLimiter;
 import io.github.resilience4j.ratelimiter.configure.RateLimiterConfigurationProperties;
-import io.microsphere.spring.beans.factory.annotation.EnableConfigurationBeanBinding;
 import io.microsphere.resilience4j.spring.common.annotation.EnableResilience4jExtension;
+import io.microsphere.spring.beans.factory.annotation.EnableConfigurationBeanBinding;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.annotation.AliasFor;
 

@@ -47,7 +47,7 @@ import java.util.concurrent.Callable;
 
 import static com.alibaba.druid.sql.SQLUtils.parseStatements;
 import static io.microsphere.logging.LoggerFactory.getLogger;
-import static io.microsphere.resilience4j.common.Resilience4jTemplate.createTemplate;
+import static io.microsphere.resilience4j.util.Resilience4jUtils.createTemplate;
 
 /**
  * Resilience4j x Druid {@link Filter}

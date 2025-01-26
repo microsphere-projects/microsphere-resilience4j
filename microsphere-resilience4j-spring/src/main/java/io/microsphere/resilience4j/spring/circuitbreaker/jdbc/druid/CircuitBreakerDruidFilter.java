@@ -20,8 +20,6 @@ import com.alibaba.druid.filter.Filter;
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
-import io.microsphere.resilience4j.circuitbreaker.CircuitBreakerTemplate;
-import io.microsphere.resilience4j.common.Resilience4jTemplate;
 import io.microsphere.resilience4j.spring.common.jdbc.druid.Resilience4jDruidFilter;
 
 /**

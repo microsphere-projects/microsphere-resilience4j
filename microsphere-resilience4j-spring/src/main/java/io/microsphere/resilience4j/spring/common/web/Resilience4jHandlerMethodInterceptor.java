@@ -42,7 +42,7 @@ import java.util.List;
 
 import static io.microsphere.logging.LoggerFactory.getLogger;
 import static io.microsphere.reflect.MethodUtils.getSignature;
-import static io.microsphere.resilience4j.common.Resilience4jTemplate.createTemplate;
+import static io.microsphere.resilience4j.util.Resilience4jUtils.createTemplate;
 import static org.springframework.web.context.request.RequestAttributes.SCOPE_REQUEST;
 
 /**

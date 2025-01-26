@@ -20,8 +20,6 @@ import com.alibaba.druid.filter.Filter;
 import io.github.resilience4j.retry.Retry;
 import io.github.resilience4j.retry.RetryConfig;
 import io.github.resilience4j.retry.RetryRegistry;
-import io.microsphere.resilience4j.common.Resilience4jTemplate;
-import io.microsphere.resilience4j.retry.RetryTemplate;
 import io.microsphere.resilience4j.spring.common.jdbc.druid.Resilience4jDruidFilter;
 
 

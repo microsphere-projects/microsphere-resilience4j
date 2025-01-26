@@ -18,8 +18,8 @@ package io.microsphere.resilience4j.spring.circuitbreaker.annotation;
 
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.configure.CircuitBreakerConfigurationProperties;
-import io.microsphere.spring.beans.factory.annotation.EnableConfigurationBeanBinding;
 import io.microsphere.resilience4j.spring.common.annotation.EnableResilience4jExtension;
+import io.microsphere.spring.beans.factory.annotation.EnableConfigurationBeanBinding;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.annotation.AliasFor;
 

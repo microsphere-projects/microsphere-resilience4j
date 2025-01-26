@@ -20,8 +20,6 @@ import com.alibaba.druid.filter.Filter;
 import io.github.resilience4j.ratelimiter.RateLimiter;
 import io.github.resilience4j.ratelimiter.RateLimiterConfig;
 import io.github.resilience4j.ratelimiter.RateLimiterRegistry;
-import io.microsphere.resilience4j.common.Resilience4jTemplate;
-import io.microsphere.resilience4j.ratelimiter.RateLimiterTemplate;
 import io.microsphere.resilience4j.spring.common.jdbc.druid.Resilience4jDruidFilter;
 
 /**

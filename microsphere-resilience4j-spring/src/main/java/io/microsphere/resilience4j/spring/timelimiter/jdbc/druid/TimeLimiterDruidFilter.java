@@ -20,9 +20,7 @@ import com.alibaba.druid.filter.Filter;
 import io.github.resilience4j.timelimiter.TimeLimiter;
 import io.github.resilience4j.timelimiter.TimeLimiterConfig;
 import io.github.resilience4j.timelimiter.TimeLimiterRegistry;
-import io.microsphere.resilience4j.common.Resilience4jTemplate;
 import io.microsphere.resilience4j.spring.common.jdbc.druid.Resilience4jDruidFilter;
-import io.microsphere.resilience4j.timelimiter.TimeLimiterTemplate;
 
 /**
  * {@link TimeLimiter} x Druid {@link Filter}

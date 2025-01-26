@@ -66,6 +66,8 @@ public abstract class AbstractResilience4jTemplateTest<E, C, R extends Registry<
 
     protected R registry;
 
+    protected C entryConfig;
+
     protected RT template;
 
     protected String entryName = "test-entry";
@@ -84,9 +86,28 @@ public abstract class AbstractResilience4jTemplateTest<E, C, R extends Registry<
     @BeforeEach
     public final void init() throws Throwable {
         this.registry = createRegistry();
+        this.entryConfig = createEntryConfig();
         this.template = createTemplate(registry);
+        this.template.configuration(this.entryName, entryConfig);
         logger.debug("The instance of Registry(class : '{}') was created.", this.registry.getClass().getName());
         logger.debug("The instance of Resilience4jTemplate(class : '{}') was created.", this.template.getClass().getName());
+        postInit();
+    }
+
+    /**
+     * Create an instance of {@link C Entry Configure} for testing
+     *
+     * @return non-null
+     */
+    protected C createEntryConfig() {
+        return registry.getDefaultConfig();
+    }
+
+    /**
+     * Post-initialization callback method
+     */
+    protected void postInit() {
+        // DO NOTHING, The subclass can override it
     }
 
     protected Supplier<String> getEntryNameGenerator() {
@@ -179,6 +200,14 @@ public abstract class AbstractResilience4jTemplateTest<E, C, R extends Registry<
 
     @AfterEach
     public void destroy() {
+        preDestroy();
         this.template.destroy();
+    }
+
+    /**
+     * Pre-destroy callback method
+     */
+    protected void preDestroy() {
+        // DO NOTHING, The subclass can override it
     }
 }

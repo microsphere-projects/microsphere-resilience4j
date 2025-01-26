@@ -195,12 +195,16 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> {
             result = execute(context, callback);
             context.result = result;
         } catch (Throwable e) {
-            context.failure = e;
+            if (context != null) {
+                context.failure = e;
+            }
             if (logger.isDebugEnabled()) {
                 logger.debug("It's failed to execute callback", e);
             }
         } finally {
-            end(context);
+            if (context != null) {
+                end(context);
+            }
         }
         return result;
     }

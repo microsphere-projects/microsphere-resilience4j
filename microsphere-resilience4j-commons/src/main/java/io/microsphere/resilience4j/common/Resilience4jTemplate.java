@@ -33,25 +33,15 @@ import io.microsphere.logging.Logger;
 import io.vavr.CheckedFunction0;
 import io.vavr.CheckedRunnable;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Properties;
 import java.util.function.Supplier;
 
-import static io.microsphere.io.IOUtils.close;
 import static io.microsphere.logging.LoggerFactory.getLogger;
 import static io.microsphere.resilience4j.common.Resilience4jModule.valueOf;
 import static io.microsphere.resilience4j.util.Resilience4jUtils.getEventProcessor;
 import static io.microsphere.util.Assert.assertNotNull;
-import static io.microsphere.util.ClassLoaderUtils.getClassLoader;
-import static io.microsphere.util.ClassLoaderUtils.getResource;
-import static io.microsphere.util.ClassLoaderUtils.loadClass;
-import static io.microsphere.util.ClassUtils.newInstance;
 
 /**
  * The abstract template class for Resilience4j supports the common operations:

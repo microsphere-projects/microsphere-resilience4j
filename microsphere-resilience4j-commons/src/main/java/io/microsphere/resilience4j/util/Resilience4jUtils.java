@@ -186,7 +186,7 @@ public abstract class Resilience4jUtils extends BaseUtils {
         return defaultTemplates;
     }
 
-    static Properties loadDefaultTemplatesProperties(ClassLoader classLoader) {
+    private static Properties loadDefaultTemplatesProperties(ClassLoader classLoader) {
         Properties properties = new Properties();
         URL url = getResource(classLoader, DEFAULT_TEMPLATES_RESOURCE_PATH);
         InputStream inputStream = null;

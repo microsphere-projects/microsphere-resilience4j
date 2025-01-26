@@ -24,7 +24,6 @@ import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import static io.github.resilience4j.bulkhead.event.BulkheadEvent.Type.CALL_FINISHED;

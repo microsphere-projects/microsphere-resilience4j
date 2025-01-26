@@ -23,7 +23,17 @@ import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 import io.microsphere.resilience4j.common.AbstractResilience4jTemplateTest;
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
+import java.util.Random;
+
+import static io.github.resilience4j.circuitbreaker.CircuitBreakerConfig.SlidingWindowType.COUNT_BASED;
+import static io.github.resilience4j.circuitbreaker.event.CircuitBreakerEvent.Type.FAILURE_RATE_EXCEEDED;
+import static io.github.resilience4j.circuitbreaker.event.CircuitBreakerEvent.Type.NOT_PERMITTED;
+import static io.github.resilience4j.circuitbreaker.event.CircuitBreakerEvent.Type.STATE_TRANSITION;
+import static io.github.resilience4j.circuitbreaker.event.CircuitBreakerEvent.Type.SUCCESS;
+import static java.time.Duration.ofMillis;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 /**
  * {@link CircuitBreakerTemplate} Test
@@ -35,9 +45,102 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class CircuitBreakerTemplateTest extends AbstractResilience4jTemplateTest<CircuitBreaker, CircuitBreakerConfig,
         CircuitBreakerRegistry, CircuitBreakerTemplate> {
 
+    private static final Random random = new Random();
+
+    private final Class<? extends Throwable> exceptionClass = RuntimeException.class;
+
+    private final int rateThreshold = 20;
+
+    private final Duration duration = ofMillis(50);
+
+    private final int permitted = 2;
+
+    /**
+     * Create an instance of {@link CircuitBreakerConfig} for testing
+     *
+     * @return non-null
+     */
+    @Override
+    protected CircuitBreakerConfig createEntryConfig() {
+        return CircuitBreakerConfig.custom()
+                .slidingWindow(1, 1, COUNT_BASED)
+                .failureRateThreshold(rateThreshold)
+                .maxWaitDurationInHalfOpenState(duration)
+                .recordExceptions(exceptionClass)
+                .slowCallDurationThreshold(duration)
+                .permittedNumberOfCallsInHalfOpenState(permitted)
+                .slowCallRateThreshold(rateThreshold)
+                .writableStackTraceEnabled(false)
+                .automaticTransitionFromOpenToHalfOpenEnabled(true)
+                .build();
+    }
+
     @Test
     public void testExecute() throws Throwable {
-        String result = this.template.execute(getEntryNameGenerator(), () -> this.entryName);
-        assertEquals(this.entryName, result);
+        String entryName = this.entryName;
+        CircuitBreakerTemplate template = this.template;
+
+        template.onSuccessEvent(entryName, event -> {
+            log(event);
+            assertEquals(entryName, event.getCircuitBreakerName());
+            assertSame(SUCCESS, event.getEventType());
+        });
+        String result = template.execute(getEntryNameGenerator(), () -> entryName);
+        assertEquals(entryName, result);
+    }
+
+    @Test
+    public void testExecuteOverFailureRate() {
+        String entryName = this.entryName;
+        CircuitBreakerTemplate template = this.template;
+
+        template.onFailureRateExceededEvent(entryName, event -> {
+            log(event);
+            assertEquals(entryName, event.getCircuitBreakerName());
+            assertSame(FAILURE_RATE_EXCEEDED, event.getEventType());
+        });
+
+        template.onStateTransitionEvent(entryName, event -> {
+            log(event);
+            assertEquals(entryName, event.getCircuitBreakerName());
+            assertSame(STATE_TRANSITION, event.getEventType());
+        });
+
+        template.onCallNotPermittedEvent(entryName, event -> {
+            log(event);
+            assertEquals(entryName, event.getCircuitBreakerName());
+            assertSame(NOT_PERMITTED, event.getEventType());
+        });
+
+        template.execute(getEntryNameGenerator(), () -> {
+            executeRandomly(() -> {
+                throw new RuntimeException("testing");
+            }, rateThreshold);
+        });
+
+        template.execute(getEntryNameGenerator(), () -> {
+        });
+
+        // wait
+        await(duration);
+
+        for (int i = 0; i < permitted; i++) {
+            template.execute(getEntryNameGenerator(), () -> {
+            });
+        }
+
+        template.execute(getEntryNameGenerator(), () -> {
+        });
+
+    }
+
+    private void executeRandomly(Runnable runnable, int rateThreshold) {
+        if (random.nextInt(100) >= rateThreshold) {
+            runnable.run();
+        }
+    }
+
+    private void log(Object event) {
+        logger.debug("the event of CircuitBreaker ({}) was received.", event);
     }
 }

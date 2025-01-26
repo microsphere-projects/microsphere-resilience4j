@@ -19,6 +19,13 @@ package io.microsphere.resilience4j.circuitbreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
+import io.github.resilience4j.circuitbreaker.event.CircuitBreakerOnCallNotPermittedEvent;
+import io.github.resilience4j.circuitbreaker.event.CircuitBreakerOnErrorEvent;
+import io.github.resilience4j.circuitbreaker.event.CircuitBreakerOnFailureRateExceededEvent;
+import io.github.resilience4j.circuitbreaker.event.CircuitBreakerOnIgnoredErrorEvent;
+import io.github.resilience4j.circuitbreaker.event.CircuitBreakerOnResetEvent;
+import io.github.resilience4j.circuitbreaker.event.CircuitBreakerOnSlowCallRateExceededEvent;
+import io.github.resilience4j.circuitbreaker.event.CircuitBreakerOnStateTransitionEvent;
 import io.github.resilience4j.circuitbreaker.event.CircuitBreakerOnSuccessEvent;
 import io.github.resilience4j.core.EventConsumer;
 import io.microsphere.resilience4j.common.Resilience4jContext;
@@ -87,6 +94,90 @@ public class CircuitBreakerTemplate extends Resilience4jTemplate<CircuitBreaker,
     }
 
     /**
+     * Register the {@link EventConsumer} for {@link CircuitBreakerOnCallNotPermittedEvent}
+     *
+     * @param entryName     the name of {@link CircuitBreaker} instance
+     * @param eventConsumer the {@link EventConsumer} for {@link CircuitBreakerOnCallNotPermittedEvent}
+     * @return {@link CircuitBreakerTemplate}
+     */
+    public CircuitBreakerTemplate onCallNotPermittedEvent(String entryName, EventConsumer<CircuitBreakerOnCallNotPermittedEvent> eventConsumer) {
+        registerEntryEventConsumer(entryName, CircuitBreakerOnCallNotPermittedEvent.class, eventConsumer);
+        return this;
+    }
+
+    /**
+     * Register the {@link EventConsumer} for {@link CircuitBreakerOnErrorEvent}
+     *
+     * @param entryName     the name of {@link CircuitBreaker} instance
+     * @param eventConsumer the {@link EventConsumer} for {@link CircuitBreakerOnErrorEvent}
+     * @return {@link CircuitBreakerTemplate}
+     */
+    public CircuitBreakerTemplate onErrorEvent(String entryName, EventConsumer<CircuitBreakerOnErrorEvent> eventConsumer) {
+        registerEntryEventConsumer(entryName, CircuitBreakerOnErrorEvent.class, eventConsumer);
+        return this;
+    }
+
+    /**
+     * Register the {@link EventConsumer} for {@link CircuitBreakerOnFailureRateExceededEvent}
+     *
+     * @param entryName     the name of {@link CircuitBreaker} instance
+     * @param eventConsumer the {@link EventConsumer} for {@link CircuitBreakerOnFailureRateExceededEvent}
+     * @return {@link CircuitBreakerTemplate}
+     */
+    public CircuitBreakerTemplate onFailureRateExceededEvent(String entryName, EventConsumer<CircuitBreakerOnFailureRateExceededEvent> eventConsumer) {
+        registerEntryEventConsumer(entryName, CircuitBreakerOnFailureRateExceededEvent.class, eventConsumer);
+        return this;
+    }
+
+    /**
+     * Register the {@link EventConsumer} for {@link CircuitBreakerOnIgnoredErrorEvent}
+     *
+     * @param entryName     the name of {@link CircuitBreaker} instance
+     * @param eventConsumer the {@link EventConsumer} for {@link CircuitBreakerOnIgnoredErrorEvent}
+     * @return {@link CircuitBreakerTemplate}
+     */
+    public CircuitBreakerTemplate onIgnoredErrorEvent(String entryName, EventConsumer<CircuitBreakerOnIgnoredErrorEvent> eventConsumer) {
+        registerEntryEventConsumer(entryName, CircuitBreakerOnIgnoredErrorEvent.class, eventConsumer);
+        return this;
+    }
+
+    /**
+     * Register the {@link EventConsumer} for {@link CircuitBreakerOnResetEvent}
+     *
+     * @param entryName     the name of {@link CircuitBreaker} instance
+     * @param eventConsumer the {@link EventConsumer} for {@link CircuitBreakerOnResetEvent}
+     * @return {@link CircuitBreakerTemplate}
+     */
+    public CircuitBreakerTemplate onResetEvent(String entryName, EventConsumer<CircuitBreakerOnResetEvent> eventConsumer) {
+        registerEntryEventConsumer(entryName, CircuitBreakerOnResetEvent.class, eventConsumer);
+        return this;
+    }
+
+    /**
+     * Register the {@link EventConsumer} for {@link CircuitBreakerOnSlowCallRateExceededEvent}
+     *
+     * @param entryName     the name of {@link CircuitBreaker} instance
+     * @param eventConsumer the {@link EventConsumer} for {@link CircuitBreakerOnSlowCallRateExceededEvent}
+     * @return {@link CircuitBreakerTemplate}
+     */
+    public CircuitBreakerTemplate onSlowCallRateExceededEvent(String entryName, EventConsumer<CircuitBreakerOnSlowCallRateExceededEvent> eventConsumer) {
+        registerEntryEventConsumer(entryName, CircuitBreakerOnSlowCallRateExceededEvent.class, eventConsumer);
+        return this;
+    }
+
+    /**
+     * Register the {@link EventConsumer} for {@link CircuitBreakerOnSlowCallRateExceededEvent}
+     *
+     * @param entryName     the name of {@link CircuitBreaker} instance
+     * @param eventConsumer the {@link EventConsumer} for {@link CircuitBreakerOnSlowCallRateExceededEvent}
+     * @return {@link CircuitBreakerTemplate}
+     */
+    public CircuitBreakerTemplate onStateTransitionEvent(String entryName, EventConsumer<CircuitBreakerOnStateTransitionEvent> eventConsumer) {
+        registerEntryEventConsumer(entryName, CircuitBreakerOnStateTransitionEvent.class, eventConsumer);
+        return this;
+    }
+
+    /**
      * Register the {@link EventConsumer} for {@link CircuitBreakerOnSuccessEvent}
      *
      * @param entryName     the name of {@link CircuitBreaker} instance
@@ -97,5 +188,4 @@ public class CircuitBreakerTemplate extends Resilience4jTemplate<CircuitBreaker,
         registerEntryEventConsumer(entryName, CircuitBreakerOnSuccessEvent.class, eventConsumer);
         return this;
     }
-
 }

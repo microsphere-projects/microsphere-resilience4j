@@ -22,8 +22,16 @@ import io.github.resilience4j.bulkhead.BulkheadRegistry;
 import io.microsphere.resilience4j.common.AbstractResilience4jTemplateTest;
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
 import static io.github.resilience4j.bulkhead.event.BulkheadEvent.Type.CALL_FINISHED;
 import static io.github.resilience4j.bulkhead.event.BulkheadEvent.Type.CALL_PERMITTED;
+import static io.github.resilience4j.bulkhead.event.BulkheadEvent.Type.CALL_REJECTED;
+import static java.time.Duration.ofMillis;
+import static java.util.concurrent.Executors.newFixedThreadPool;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
@@ -36,24 +44,71 @@ import static org.junit.jupiter.api.Assertions.assertNull;
  */
 public class BulkheadTemplateTest extends AbstractResilience4jTemplateTest<Bulkhead, BulkheadConfig, BulkheadRegistry, BulkheadTemplate> {
 
+    private int maxConcurrentCalls = 1;
+
+    private Duration maxWaitDuration = ofMillis(100);
+
+    @Override
+    protected BulkheadConfig createEntryConfig() {
+        return BulkheadConfig.custom()
+                .maxConcurrentCalls(maxConcurrentCalls)
+                .maxWaitDuration(maxWaitDuration)
+                .build();
+    }
+
     @Test
     public void testExecute() {
         String entryName = this.entryName;
         BulkheadTemplate template = this.template;
 
         template.onCallPermittedEvent(entryName, event -> {
-            logger.debug("the event of Bulkhead {} was received.", event);
+            logger.debug("the event of Bulkhead ({}) was received.", event);
             assertEquals(entryName, event.getBulkheadName());
             assertEquals(CALL_PERMITTED, event.getEventType());
         });
 
         template.onCallFinishedEvent(entryName, event -> {
-            logger.debug("the event of Bulkhead {} was received.", event);
+            logger.debug("the event of Bulkhead ({}) was received.", event);
             assertEquals(entryName, event.getBulkheadName());
             assertEquals(CALL_FINISHED, event.getEventType());
         });
 
         Object result = template.execute(() -> entryName, () -> null);
         assertNull(result);
+    }
+
+    @Test
+    public void testExecuteOnCallRejected() throws InterruptedException {
+        String entryName = this.entryName;
+        BulkheadTemplate template = this.template;
+
+        template.onCallRejectedEvent(entryName, event -> {
+            logger.debug("the event of Bulkhead ({}) was received.", event);
+            assertEquals(entryName, event.getBulkheadName());
+            assertEquals(CALL_REJECTED, event.getEventType());
+        });
+
+        int times = 3;
+        ExecutorService executorService = newFixedThreadPool(times);
+
+        for (int i = 0; i < times; i++) {
+            executorService.execute(() -> {
+                template.execute(() -> entryName, () -> await(maxWaitDuration.toMillis()));
+            });
+        }
+
+        executorService.shutdown();
+
+        while (!executorService.awaitTermination(100, TimeUnit.MILLISECONDS)) {
+
+        }
+    }
+
+    private void await(long waitTimeInMillis) {
+        try {
+            Thread.sleep(waitTimeInMillis);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

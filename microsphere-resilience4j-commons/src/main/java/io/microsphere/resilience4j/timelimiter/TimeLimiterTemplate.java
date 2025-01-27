@@ -16,15 +16,20 @@
  */
 package io.microsphere.resilience4j.timelimiter;
 
+import io.github.resilience4j.core.EventConsumer;
 import io.github.resilience4j.timelimiter.TimeLimiter;
 import io.github.resilience4j.timelimiter.TimeLimiterConfig;
 import io.github.resilience4j.timelimiter.TimeLimiterRegistry;
+import io.github.resilience4j.timelimiter.event.TimeLimiterOnErrorEvent;
+import io.github.resilience4j.timelimiter.event.TimeLimiterOnSuccessEvent;
+import io.github.resilience4j.timelimiter.event.TimeLimiterOnTimeoutEvent;
 import io.microsphere.resilience4j.common.Resilience4jContext;
 import io.microsphere.resilience4j.common.Resilience4jTemplate;
 import io.vavr.CheckedFunction0;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
+import java.util.function.Consumer;
 
 import static java.util.concurrent.ForkJoinPool.commonPool;
 
@@ -92,4 +97,42 @@ public class TimeLimiterTemplate extends Resilience4jTemplate<TimeLimiter, TimeL
     @Override
     protected void afterExecute(Resilience4jContext<TimeLimiter> context) {
     }
+
+    /**
+     * Register the {@link EventConsumer} for {@link TimeLimiterOnSuccessEvent}.
+     *
+     * @param entryName     the name of the entry
+     * @param eventConsumer the {@link EventConsumer} for {@link TimeLimiterOnSuccessEvent}
+     * @return {@link TimeLimiterTemplate}
+     */
+    public TimeLimiterTemplate onSuccessEvent(String entryName, EventConsumer<TimeLimiterOnSuccessEvent> eventConsumer) {
+        registerEntryEventConsumer(entryName, TimeLimiterOnSuccessEvent.class, eventConsumer);
+        return this;
+    }
+
+    /**
+     * Register the {@link EventConsumer} for {@link TimeLimiterOnErrorEvent}.
+     *
+     * @param entryName     the name of the entry
+     * @param eventConsumer the {@link EventConsumer} for {@link TimeLimiterOnErrorEvent}
+     * @return {@link TimeLimiterTemplate}
+     */
+    public TimeLimiterTemplate onErrorEvent(String entryName, EventConsumer<TimeLimiterOnErrorEvent> eventConsumer) {
+        registerEntryEventConsumer(entryName, TimeLimiterOnErrorEvent.class, eventConsumer);
+        return this;
+    }
+
+    /**
+     * Register the {@link EventConsumer} for {@link TimeLimiterOnTimeoutEvent}.
+     *
+     * @param entryName     the name of the entry
+     * @param eventConsumer the {@link EventConsumer} for {@link TimeLimiterOnTimeoutEvent}
+     * @return {@link TimeLimiterTemplate}
+     */
+    public TimeLimiterTemplate onTimeoutEvent(String entryName, EventConsumer<TimeLimiterOnTimeoutEvent> eventConsumer) {
+        registerEntryEventConsumer(entryName, TimeLimiterOnTimeoutEvent.class, eventConsumer);
+        return this;
+    }
+
+
 }

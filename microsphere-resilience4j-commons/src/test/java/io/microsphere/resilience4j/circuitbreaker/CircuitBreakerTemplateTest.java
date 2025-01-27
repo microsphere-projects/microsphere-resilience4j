@@ -25,9 +25,12 @@ import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
 import java.util.Random;
+import java.util.function.Supplier;
 
 import static io.github.resilience4j.circuitbreaker.CircuitBreakerConfig.SlidingWindowType.COUNT_BASED;
+import static io.github.resilience4j.circuitbreaker.event.CircuitBreakerEvent.Type.ERROR;
 import static io.github.resilience4j.circuitbreaker.event.CircuitBreakerEvent.Type.FAILURE_RATE_EXCEEDED;
+import static io.github.resilience4j.circuitbreaker.event.CircuitBreakerEvent.Type.IGNORED_ERROR;
 import static io.github.resilience4j.circuitbreaker.event.CircuitBreakerEvent.Type.NOT_PERMITTED;
 import static io.github.resilience4j.circuitbreaker.event.CircuitBreakerEvent.Type.STATE_TRANSITION;
 import static io.github.resilience4j.circuitbreaker.event.CircuitBreakerEvent.Type.SUCCESS;
@@ -47,8 +50,6 @@ public class CircuitBreakerTemplateTest extends AbstractResilience4jTemplateTest
 
     private static final Random random = new Random();
 
-    private final Class<? extends Throwable> exceptionClass = RuntimeException.class;
-
     private final int rateThreshold = 20;
 
     private final Duration duration = ofMillis(50);
@@ -66,7 +67,8 @@ public class CircuitBreakerTemplateTest extends AbstractResilience4jTemplateTest
                 .slidingWindow(1, 1, COUNT_BASED)
                 .failureRateThreshold(rateThreshold)
                 .maxWaitDurationInHalfOpenState(duration)
-                .recordExceptions(exceptionClass)
+                .ignoreExceptions(RuntimeException.class)
+                .recordExceptions(Exception.class)
                 .slowCallDurationThreshold(duration)
                 .permittedNumberOfCallsInHalfOpenState(permitted)
                 .slowCallRateThreshold(rateThreshold)
@@ -90,7 +92,7 @@ public class CircuitBreakerTemplateTest extends AbstractResilience4jTemplateTest
     }
 
     @Test
-    public void testExecuteOverFailureRate() {
+    public void testExecuteOnCallFailure() {
         String entryName = this.entryName;
         CircuitBreakerTemplate template = this.template;
 
@@ -112,26 +114,45 @@ public class CircuitBreakerTemplateTest extends AbstractResilience4jTemplateTest
             assertSame(NOT_PERMITTED, event.getEventType());
         });
 
-        template.execute(getEntryNameGenerator(), () -> {
-            executeRandomly(() -> {
-                throw new RuntimeException("testing");
-            }, rateThreshold);
+        template.onErrorEvent(entryName, event -> {
+            log(event);
+            assertEquals(entryName, event.getCircuitBreakerName());
+            assertSame(ERROR, event.getEventType());
         });
 
-        template.execute(getEntryNameGenerator(), () -> {
+        template.onIgnoredErrorEvent(entryName, event -> {
+            log(event);
+            assertEquals(entryName, event.getCircuitBreakerName());
+            assertSame(IGNORED_ERROR, event.getEventType());
         });
 
-        // wait
-        await(duration);
-
-        for (int i = 0; i < permitted; i++) {
-            template.execute(getEntryNameGenerator(), () -> {
-            });
+        for (int i = 0; i < 10; i++) {
+            executeNothing();
         }
 
+        executeThrowing(RuntimeException::new);
+
+        template.executeEntry(entryName, CircuitBreaker::reset);
+
+        executeThrowing(Exception::new);
+        executeThrowing(RuntimeException::new);
+        executeThrowing(RuntimeException::new);
+
+    }
+
+    private void executeNothing() {
         template.execute(getEntryNameGenerator(), () -> {
         });
+    }
 
+    private void executeThrowing(Supplier<? extends Throwable> throwableSupplier) {
+        try {
+            template.execute(getEntryNameGenerator(), () -> {
+                throw throwableSupplier.get();
+            });
+        } catch (RuntimeException e) {
+
+        }
     }
 
     private void executeRandomly(Runnable runnable, int rateThreshold) {

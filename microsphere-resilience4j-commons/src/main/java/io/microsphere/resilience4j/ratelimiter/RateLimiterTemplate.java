@@ -83,7 +83,7 @@ public class RateLimiterTemplate extends Resilience4jTemplate<RateLimiter, RateL
     }
 
     /**
-     * Register the {@link EventConsumer} of {@link RateLimiterOnSuccessEvent}
+     * Register the {@link EventConsumer} of {@link RateLimiterOnSuccessEvent}.
      *
      * @param entryName     the name of entry
      * @param eventConsumer the {@link EventConsumer} of {@link RateLimiterOnSuccessEvent}
@@ -95,7 +95,7 @@ public class RateLimiterTemplate extends Resilience4jTemplate<RateLimiter, RateL
     }
 
     /**
-     * Register the {@link EventConsumer} of {@link RateLimiterOnFailureEvent}
+     * Register the {@link EventConsumer} of {@link RateLimiterOnFailureEvent}.
      *
      * @param entryName     the name of entry
      * @param eventConsumer the {@link EventConsumer} of {@link RateLimiterOnFailureEvent}
@@ -107,7 +107,7 @@ public class RateLimiterTemplate extends Resilience4jTemplate<RateLimiter, RateL
     }
 
     /**
-     * Register the {@link EventConsumer} of {@link RateLimiterOnDrainedEvent}
+     * Register the {@link EventConsumer} of {@link RateLimiterOnDrainedEvent}.
      *
      * @param entryName     the name of entry
      * @param eventConsumer the {@link EventConsumer} of {@link RateLimiterOnFailureEvent}

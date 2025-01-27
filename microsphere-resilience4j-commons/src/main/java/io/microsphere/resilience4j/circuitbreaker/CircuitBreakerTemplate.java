@@ -94,7 +94,7 @@ public class CircuitBreakerTemplate extends Resilience4jTemplate<CircuitBreaker,
     }
 
     /**
-     * Register the {@link EventConsumer} for {@link CircuitBreakerOnCallNotPermittedEvent}
+     * Register the {@link EventConsumer} for {@link CircuitBreakerOnCallNotPermittedEvent}.
      *
      * @param entryName     the name of {@link CircuitBreaker} instance
      * @param eventConsumer the {@link EventConsumer} for {@link CircuitBreakerOnCallNotPermittedEvent}
@@ -106,7 +106,7 @@ public class CircuitBreakerTemplate extends Resilience4jTemplate<CircuitBreaker,
     }
 
     /**
-     * Register the {@link EventConsumer} for {@link CircuitBreakerOnErrorEvent}
+     * Register the {@link EventConsumer} for {@link CircuitBreakerOnErrorEvent}.
      *
      * @param entryName     the name of {@link CircuitBreaker} instance
      * @param eventConsumer the {@link EventConsumer} for {@link CircuitBreakerOnErrorEvent}
@@ -118,7 +118,7 @@ public class CircuitBreakerTemplate extends Resilience4jTemplate<CircuitBreaker,
     }
 
     /**
-     * Register the {@link EventConsumer} for {@link CircuitBreakerOnFailureRateExceededEvent}
+     * Register the {@link EventConsumer} for {@link CircuitBreakerOnFailureRateExceededEvent}.
      *
      * @param entryName     the name of {@link CircuitBreaker} instance
      * @param eventConsumer the {@link EventConsumer} for {@link CircuitBreakerOnFailureRateExceededEvent}
@@ -130,7 +130,7 @@ public class CircuitBreakerTemplate extends Resilience4jTemplate<CircuitBreaker,
     }
 
     /**
-     * Register the {@link EventConsumer} for {@link CircuitBreakerOnIgnoredErrorEvent}
+     * Register the {@link EventConsumer} for {@link CircuitBreakerOnIgnoredErrorEvent}.
      *
      * @param entryName     the name of {@link CircuitBreaker} instance
      * @param eventConsumer the {@link EventConsumer} for {@link CircuitBreakerOnIgnoredErrorEvent}
@@ -142,7 +142,7 @@ public class CircuitBreakerTemplate extends Resilience4jTemplate<CircuitBreaker,
     }
 
     /**
-     * Register the {@link EventConsumer} for {@link CircuitBreakerOnResetEvent}
+     * Register the {@link EventConsumer} for {@link CircuitBreakerOnResetEvent}.
      *
      * @param entryName     the name of {@link CircuitBreaker} instance
      * @param eventConsumer the {@link EventConsumer} for {@link CircuitBreakerOnResetEvent}
@@ -154,7 +154,7 @@ public class CircuitBreakerTemplate extends Resilience4jTemplate<CircuitBreaker,
     }
 
     /**
-     * Register the {@link EventConsumer} for {@link CircuitBreakerOnSlowCallRateExceededEvent}
+     * Register the {@link EventConsumer} for {@link CircuitBreakerOnSlowCallRateExceededEvent}.
      *
      * @param entryName     the name of {@link CircuitBreaker} instance
      * @param eventConsumer the {@link EventConsumer} for {@link CircuitBreakerOnSlowCallRateExceededEvent}
@@ -166,7 +166,7 @@ public class CircuitBreakerTemplate extends Resilience4jTemplate<CircuitBreaker,
     }
 
     /**
-     * Register the {@link EventConsumer} for {@link CircuitBreakerOnSlowCallRateExceededEvent}
+     * Register the {@link EventConsumer} for {@link CircuitBreakerOnSlowCallRateExceededEvent}.
      *
      * @param entryName     the name of {@link CircuitBreaker} instance
      * @param eventConsumer the {@link EventConsumer} for {@link CircuitBreakerOnSlowCallRateExceededEvent}
@@ -178,7 +178,7 @@ public class CircuitBreakerTemplate extends Resilience4jTemplate<CircuitBreaker,
     }
 
     /**
-     * Register the {@link EventConsumer} for {@link CircuitBreakerOnSuccessEvent}
+     * Register the {@link EventConsumer} for {@link CircuitBreakerOnSuccessEvent}.
      *
      * @param entryName     the name of {@link CircuitBreaker} instance
      * @param eventConsumer the {@link EventConsumer} for {@link CircuitBreakerOnSuccessEvent}

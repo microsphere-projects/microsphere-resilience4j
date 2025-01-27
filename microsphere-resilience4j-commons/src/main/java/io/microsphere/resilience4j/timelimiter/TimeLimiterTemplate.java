@@ -29,7 +29,6 @@ import io.vavr.CheckedFunction0;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
-import java.util.function.Consumer;
 
 import static java.util.concurrent.ForkJoinPool.commonPool;
 

@@ -32,6 +32,8 @@ import static io.github.resilience4j.circuitbreaker.event.CircuitBreakerEvent.Ty
 import static io.github.resilience4j.circuitbreaker.event.CircuitBreakerEvent.Type.FAILURE_RATE_EXCEEDED;
 import static io.github.resilience4j.circuitbreaker.event.CircuitBreakerEvent.Type.IGNORED_ERROR;
 import static io.github.resilience4j.circuitbreaker.event.CircuitBreakerEvent.Type.NOT_PERMITTED;
+import static io.github.resilience4j.circuitbreaker.event.CircuitBreakerEvent.Type.RESET;
+import static io.github.resilience4j.circuitbreaker.event.CircuitBreakerEvent.Type.SLOW_CALL_RATE_EXCEEDED;
 import static io.github.resilience4j.circuitbreaker.event.CircuitBreakerEvent.Type.STATE_TRANSITION;
 import static io.github.resilience4j.circuitbreaker.event.CircuitBreakerEvent.Type.SUCCESS;
 import static java.time.Duration.ofMillis;
@@ -45,12 +47,9 @@ import static org.junit.jupiter.api.Assertions.assertSame;
  * @see CircuitBreakerTemplate
  * @since 1.0.0
  */
-public class CircuitBreakerTemplateTest extends AbstractResilience4jTemplateTest<CircuitBreaker, CircuitBreakerConfig,
-        CircuitBreakerRegistry, CircuitBreakerTemplate> {
+public class CircuitBreakerTemplateTest extends AbstractResilience4jTemplateTest<CircuitBreaker, CircuitBreakerConfig, CircuitBreakerRegistry, CircuitBreakerTemplate> {
 
-    private static final Random random = new Random();
-
-    private final int rateThreshold = 20;
+    private final int rateThreshold = 10;
 
     private final Duration duration = ofMillis(50);
 
@@ -126,6 +125,12 @@ public class CircuitBreakerTemplateTest extends AbstractResilience4jTemplateTest
             assertSame(IGNORED_ERROR, event.getEventType());
         });
 
+        template.onResetEvent(entryName, event -> {
+            log(event);
+            assertEquals(entryName, event.getCircuitBreakerName());
+            assertSame(RESET, event.getEventType());
+        });
+
         for (int i = 0; i < 10; i++) {
             executeNothing();
         }
@@ -140,6 +145,33 @@ public class CircuitBreakerTemplateTest extends AbstractResilience4jTemplateTest
 
     }
 
+    @Test
+    public void testExecuteOnSlowCall() {
+        String entryName = this.entryName;
+        CircuitBreakerTemplate template = this.template;
+
+        template.onSlowCallRateExceededEvent(entryName, event -> {
+            log(event);
+            assertEquals(entryName, event.getCircuitBreakerName());
+            assertSame(SLOW_CALL_RATE_EXCEEDED, event.getEventType());
+        });
+
+        template.onCallNotPermittedEvent(entryName, event -> {
+            log(event);
+            assertEquals(entryName, event.getCircuitBreakerName());
+            assertSame(NOT_PERMITTED, event.getEventType());
+        });
+
+        for (int i = 0; i < 10; i++) {
+            executeNothing();
+        }
+
+        await(duration, this::executeNothing);
+        await(duration.toMillis() * 2, this::executeNothing);
+        await(duration.toMillis() * 2, this::executeNothing);
+        await(duration.toMillis() * 2, this::executeNothing);
+    }
+
     private void executeNothing() {
         template.execute(getEntryNameGenerator(), () -> {
         });
@@ -152,12 +184,6 @@ public class CircuitBreakerTemplateTest extends AbstractResilience4jTemplateTest
             });
         } catch (RuntimeException e) {
 
-        }
-    }
-
-    private void executeRandomly(Runnable runnable, int rateThreshold) {
-        if (random.nextInt(100) >= rateThreshold) {
-            runnable.run();
         }
     }
 

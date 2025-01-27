@@ -92,7 +92,8 @@ public class BulkheadTemplateTest extends AbstractResilience4jTemplateTest<Bulkh
 
         for (int i = 0; i < times; i++) {
             executorService.execute(() -> {
-                template.execute(() -> entryName, () -> await(maxWaitDuration.toMillis()));
+                await(maxWaitDuration, () -> template.execute(() -> entryName, () -> {
+                }));
             });
         }
 

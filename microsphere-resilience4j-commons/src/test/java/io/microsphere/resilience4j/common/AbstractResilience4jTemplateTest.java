@@ -29,6 +29,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.time.Duration;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
 import static io.github.resilience4j.core.registry.RegistryEvent.Type.ADDED;
@@ -212,13 +213,14 @@ public abstract class AbstractResilience4jTemplateTest<E, C, R extends Registry<
         // DO NOTHING, The subclass can override it
     }
 
-    protected void await(Duration waitDuration) {
-        this.await(waitDuration.toMillis());
+    protected void await(Duration waitDuration, Runnable runnable) {
+        this.await(waitDuration.toMillis(), runnable);
     }
 
-    protected void await(long waitTimeInMillis) {
+    protected void await(long waitTimeInMillis, Runnable runnable) {
         try {
-            Thread.sleep(waitTimeInMillis);
+            TimeUnit.MILLISECONDS.sleep(waitTimeInMillis);
+            runnable.run();
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }

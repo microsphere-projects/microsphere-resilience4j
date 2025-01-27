@@ -73,7 +73,7 @@ public class BulkheadTemplate extends Resilience4jTemplate<Bulkhead, BulkheadCon
     }
 
     /**
-     * Register the {@link EventConsumer} of {@link BulkheadOnCallPermittedEvent}
+     * Register the {@link EventConsumer} of {@link BulkheadOnCallPermittedEvent}.
      *
      * @param entryName     the name of Resilience4j's entry
      * @param eventConsumer the {@link EventConsumer} of {@link BulkheadOnCallPermittedEvent}
@@ -85,7 +85,7 @@ public class BulkheadTemplate extends Resilience4jTemplate<Bulkhead, BulkheadCon
     }
 
     /**
-     * Register the {@link EventConsumer} of {@link BulkheadOnCallRejectedEvent}
+     * Register the {@link EventConsumer} of {@link BulkheadOnCallRejectedEvent}.
      *
      * @param entryName     the name of Resilience4j's entry
      * @param eventConsumer the {@link EventConsumer} of {@link BulkheadOnCallRejectedEvent}
@@ -97,7 +97,7 @@ public class BulkheadTemplate extends Resilience4jTemplate<Bulkhead, BulkheadCon
     }
 
     /**
-     * Register the {@link EventConsumer} of {@link BulkheadOnCallFinishedEvent}
+     * Register the {@link EventConsumer} of {@link BulkheadOnCallFinishedEvent}.
      *
      * @param entryName     the name of Resilience4j's entry
      * @param eventConsumer the {@link EventConsumer} of {@link BulkheadOnCallFinishedEvent}

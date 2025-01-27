@@ -24,7 +24,6 @@ import io.microsphere.resilience4j.common.AbstractResilience4jTemplateTest;
 import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
-import java.util.Random;
 import java.util.function.Supplier;
 
 import static io.github.resilience4j.circuitbreaker.CircuitBreakerConfig.SlidingWindowType.COUNT_BASED;

@@ -225,4 +225,8 @@ public abstract class AbstractResilience4jTemplateTest<E, C, R extends Registry<
             throw new RuntimeException(e);
         }
     }
+
+    protected void logEvent(Object event) {
+        logger.debug("the event of {}({}) was received.", entryClass.getSimpleName(), event);
+    }
 }

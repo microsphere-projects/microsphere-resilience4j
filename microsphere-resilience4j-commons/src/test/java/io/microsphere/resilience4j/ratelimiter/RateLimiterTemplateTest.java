@@ -20,6 +20,15 @@ import io.github.resilience4j.ratelimiter.RateLimiter;
 import io.github.resilience4j.ratelimiter.RateLimiterConfig;
 import io.github.resilience4j.ratelimiter.RateLimiterRegistry;
 import io.microsphere.resilience4j.common.AbstractResilience4jTemplateTest;
+import org.junit.jupiter.api.Test;
+
+import java.time.Duration;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
+import static java.time.Duration.ofMillis;
+import static java.util.concurrent.Executors.newFixedThreadPool;
 
 /**
  * {@link RateLimiterTemplate} Test
@@ -29,4 +38,66 @@ import io.microsphere.resilience4j.common.AbstractResilience4jTemplateTest;
  * @since 1.0.0
  */
 public class RateLimiterTemplateTest extends AbstractResilience4jTemplateTest<RateLimiter, RateLimiterConfig, RateLimiterRegistry, RateLimiterTemplate> {
+
+    private final long durationInMills = 50;
+
+    private final Duration duration = ofMillis(durationInMills);
+
+    @Override
+    protected RateLimiterConfig createEntryConfig() {
+        return RateLimiterConfig.custom()
+                .limitForPeriod(1)
+                .limitRefreshPeriod(duration)
+                .timeoutDuration(duration)
+                .build();
+    }
+
+    @Test
+    public void execute() {
+        String entryName = this.entryName;
+        RateLimiterTemplate template = this.template;
+
+        template.onSuccessEvent(entryName, event -> {
+            logEvent(event);
+        });
+
+        for (int i = 0; i < 10; i++) {
+            template.execute(entryName, () -> {
+            });
+        }
+    }
+
+    @Test
+    public void executeOnFailed() throws InterruptedException {
+
+        String entryName = this.entryName;
+        RateLimiterTemplate template = this.template;
+
+        template.onSuccessEvent(entryName, event -> {
+            logEvent(event);
+        });
+
+        template.onFailureEvent(entryName, event -> {
+            logEvent(event);
+        });
+
+        template.onDrainedEvent(entryName, event -> {
+            logEvent(event);
+        });
+
+        ExecutorService executorService = newFixedThreadPool(2);
+
+        for (int i = 0; i < 10; i++) {
+            executorService.execute(() -> {
+                template.execute(entryName, () -> {
+                });
+            });
+        }
+
+        executorService.shutdown();
+
+        executorService.awaitTermination(3, TimeUnit.SECONDS);
+
+    }
+
 }

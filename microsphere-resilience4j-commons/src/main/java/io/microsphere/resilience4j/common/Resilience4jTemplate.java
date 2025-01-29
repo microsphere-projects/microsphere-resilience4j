@@ -174,7 +174,17 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> {
      * @param callback           the callback to be executed
      */
     public final void execute(Supplier<String> entryNameGenerator, CheckedRunnable callback) {
-        execute(entryNameGenerator, () -> {
+        execute(entryNameGenerator.get(), callback);
+    }
+
+    /**
+     * Execute the target callback
+     *
+     * @param entryName the entry name
+     * @param callback  the callback to be executed
+     */
+    public final void execute(String entryName, CheckedRunnable callback) {
+        execute(entryName, () -> {
             callback.run();
             return null;
         });
@@ -189,7 +199,19 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> {
      * @return {@link CheckedFunction0#apply()}
      */
     public final <V> V execute(Supplier<String> entryNameGenerator, CheckedFunction0<V> callback) {
-        Resilience4jContext<E> context = begin(entryNameGenerator);
+        return execute(entryNameGenerator.get(), callback);
+    }
+
+    /**
+     * Execute the target callback
+     *
+     * @param entryName the entry name
+     * @param callback  the callback to be executed
+     * @param <V>       the type of result
+     * @return {@link CheckedFunction0#apply()}
+     */
+    public final <V> V execute(String entryName, CheckedFunction0<V> callback) {
+        Resilience4jContext<E> context = begin(entryName);
         V result = null;
         try {
             result = execute(context, callback);
@@ -216,7 +238,16 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> {
      * @return {@link Resilience4jContext} with the entry and its name
      */
     public final Resilience4jContext<E> begin(Supplier<String> entryNameGenerator) {
-        String entryName = entryNameGenerator.get();
+        return begin(entryNameGenerator.get());
+    }
+
+    /**
+     * Begin the execution as the first phase.
+     *
+     * @param entryName the entry name
+     * @return {@link Resilience4jContext} with the entry and its name
+     */
+    public final Resilience4jContext<E> begin(String entryName) {
         E entry = getEntry(entryName);
         Resilience4jContext<E> context = new Resilience4jContext(entryName, entry);
         beforeExecute(context);

@@ -26,8 +26,11 @@ import java.time.Duration;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import static io.github.resilience4j.ratelimiter.event.RateLimiterEvent.Type.SUCCESSFUL_ACQUIRE;
 import static java.time.Duration.ofMillis;
 import static java.util.concurrent.Executors.newFixedThreadPool;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 /**
  * {@link RateLimiterTemplate} Test
@@ -58,12 +61,23 @@ public class RateLimiterTemplateTest extends AbstractResilience4jTemplateTest<Ra
 
         template.onSuccessEvent(entryName, event -> {
             logEvent(event);
+            assertEquals(entryName, event.getRateLimiterName());
+            assertSame(SUCCESSFUL_ACQUIRE, event.getEventType());
+            assertEquals(1, event.getNumberOfPermits());
         });
 
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 5; i++) {
             template.execute(entryName, () -> {
             });
         }
+
+        for (int i = 0; i < 5; i++) {
+            template.execute(entryName, () -> "For testing");
+        }
+
+        template.execute(entryName, () -> new RuntimeException("For testing"));
+
+
     }
 
     @Test

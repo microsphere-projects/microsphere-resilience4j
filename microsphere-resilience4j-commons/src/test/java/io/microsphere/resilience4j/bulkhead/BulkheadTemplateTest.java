@@ -61,13 +61,13 @@ public class BulkheadTemplateTest extends AbstractResilience4jTemplateTest<Bulkh
         BulkheadTemplate template = this.template;
 
         template.onCallPermittedEvent(entryName, event -> {
-            logger.debug("the event of Bulkhead ({}) was received.", event);
+            logEvent(event);
             assertEquals(entryName, event.getBulkheadName());
             assertEquals(CALL_PERMITTED, event.getEventType());
         });
 
         template.onCallFinishedEvent(entryName, event -> {
-            logger.debug("the event of Bulkhead ({}) was received.", event);
+            logEvent(event);
             assertEquals(entryName, event.getBulkheadName());
             assertEquals(CALL_FINISHED, event.getEventType());
         });
@@ -82,7 +82,7 @@ public class BulkheadTemplateTest extends AbstractResilience4jTemplateTest<Bulkh
         BulkheadTemplate template = this.template;
 
         template.onCallRejectedEvent(entryName, event -> {
-            logger.debug("the event of Bulkhead ({}) was received.", event);
+            logEvent(event);
             assertEquals(entryName, event.getBulkheadName());
             assertEquals(CALL_REJECTED, event.getEventType());
         });

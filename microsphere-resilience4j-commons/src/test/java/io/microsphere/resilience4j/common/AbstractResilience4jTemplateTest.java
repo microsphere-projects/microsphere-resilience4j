@@ -218,9 +218,13 @@ public abstract class AbstractResilience4jTemplateTest<E, C, R extends Registry<
     }
 
     protected void await(long waitTimeInMillis, Runnable runnable) {
+        await(waitTimeInMillis);
+        runnable.run();
+    }
+
+    protected void await(long waitTimeInMillis) {
         try {
             TimeUnit.MILLISECONDS.sleep(waitTimeInMillis);
-            runnable.run();
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }

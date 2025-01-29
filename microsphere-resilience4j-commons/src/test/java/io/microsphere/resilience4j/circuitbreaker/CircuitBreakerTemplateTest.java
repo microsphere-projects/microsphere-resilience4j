@@ -81,7 +81,7 @@ public class CircuitBreakerTemplateTest extends AbstractResilience4jTemplateTest
         CircuitBreakerTemplate template = this.template;
 
         template.onSuccessEvent(entryName, event -> {
-            log(event);
+            logEvent(event);
             assertEquals(entryName, event.getCircuitBreakerName());
             assertSame(SUCCESS, event.getEventType());
         });
@@ -95,37 +95,37 @@ public class CircuitBreakerTemplateTest extends AbstractResilience4jTemplateTest
         CircuitBreakerTemplate template = this.template;
 
         template.onFailureRateExceededEvent(entryName, event -> {
-            log(event);
+            logEvent(event);
             assertEquals(entryName, event.getCircuitBreakerName());
             assertSame(FAILURE_RATE_EXCEEDED, event.getEventType());
         });
 
         template.onStateTransitionEvent(entryName, event -> {
-            log(event);
+            logEvent(event);
             assertEquals(entryName, event.getCircuitBreakerName());
             assertSame(STATE_TRANSITION, event.getEventType());
         });
 
         template.onCallNotPermittedEvent(entryName, event -> {
-            log(event);
+            logEvent(event);
             assertEquals(entryName, event.getCircuitBreakerName());
             assertSame(NOT_PERMITTED, event.getEventType());
         });
 
         template.onErrorEvent(entryName, event -> {
-            log(event);
+            logEvent(event);
             assertEquals(entryName, event.getCircuitBreakerName());
             assertSame(ERROR, event.getEventType());
         });
 
         template.onIgnoredErrorEvent(entryName, event -> {
-            log(event);
+            logEvent(event);
             assertEquals(entryName, event.getCircuitBreakerName());
             assertSame(IGNORED_ERROR, event.getEventType());
         });
 
         template.onResetEvent(entryName, event -> {
-            log(event);
+            logEvent(event);
             assertEquals(entryName, event.getCircuitBreakerName());
             assertSame(RESET, event.getEventType());
         });
@@ -150,13 +150,13 @@ public class CircuitBreakerTemplateTest extends AbstractResilience4jTemplateTest
         CircuitBreakerTemplate template = this.template;
 
         template.onSlowCallRateExceededEvent(entryName, event -> {
-            log(event);
+            logEvent(event);
             assertEquals(entryName, event.getCircuitBreakerName());
             assertSame(SLOW_CALL_RATE_EXCEEDED, event.getEventType());
         });
 
         template.onCallNotPermittedEvent(entryName, event -> {
-            log(event);
+            logEvent(event);
             assertEquals(entryName, event.getCircuitBreakerName());
             assertSame(NOT_PERMITTED, event.getEventType());
         });
@@ -184,9 +184,5 @@ public class CircuitBreakerTemplateTest extends AbstractResilience4jTemplateTest
         } catch (RuntimeException e) {
 
         }
-    }
-
-    private void log(Object event) {
-        logger.debug("the event of CircuitBreaker ({}) was received.", event);
     }
 }

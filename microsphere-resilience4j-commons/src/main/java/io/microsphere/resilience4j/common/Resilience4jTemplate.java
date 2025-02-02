@@ -91,7 +91,7 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> {
         this.registry = registry;
         this.registryEventProcessor = getEventProcessor(registry);
         this.module = valueOf(registry.getClass());
-        this.localEntriesCache = new HashMap<>();
+        this.localEntriesCache = createLocalEntriesCache();
     }
 
     /**
@@ -162,8 +162,13 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> {
      * @param entryName the name of entry
      */
     public final Resilience4jTemplate<E, C, R> initLocalEntriesCache(String entryName) {
-        E entry = getEntry(entryName);
-        localEntriesCache.put(entryName, entry);
+        if (isLocalEntriesCachePresent()) {
+            E entry = getEntry(entryName);
+            localEntriesCache.put(entryName, entry);
+        } else {
+            logger.warn("The local entries cache is not required, please review the #createLocalEntriesCache() method implementation.");
+            return this;
+        }
         return this;
     }
 
@@ -322,14 +327,36 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> {
         return optionalEntry.orElseGet(() -> createEntry(name));
     }
 
+
     /**
-     * Get the Resilience4j's entry from cache by the specified name
+     * Default, an instance of {@link HashMap} will be created as a local cache to enhance better performance ,
+     * it's no thread-safe and can be thread-safe if and only if it's initialized by
+     * {@link #initLocalEntriesCache(String)} at the initialization phase.
+     *
+     * @return {@link HashMap} as default, <code>null</code> means the local cache is not required.
+     */
+    @NonNull
+    protected Map<String, E> createLocalEntriesCache() {
+        return new HashMap<>();
+    }
+
+    /**
+     * Is local entries caches present or not?
+     *
+     * @return <code>true</code> if present, otherwise <code>false</code>
+     */
+    protected boolean isLocalEntriesCachePresent() {
+        return this.localEntriesCache != null;
+    }
+
+    /**
+     * Get the Resilience4j's entry from cache by the specified name.
      *
      * @param name the name of the Resilience4j's entry
-     * @return <code>null</code> if can't be found
+     * @return <code>null</code> if can't be found or the local cache is not required
      */
     protected final E getEntryFromCache(String name) {
-        return localEntriesCache.get(name);
+        return isLocalEntriesCachePresent() ? localEntriesCache.get(name) : null;
     }
 
     /**
@@ -457,11 +484,12 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> {
     /**
      * Destroy :
      * <ul>
-     *     <li>clear the local entries cache</li>
+     *     <li>clear the local entries cache if required</li>
      * </ul>
      */
     public void destroy() {
-        localEntriesCache.clear();
+        if (isLocalEntriesCachePresent()) {
+            localEntriesCache.clear();
+        }
     }
-
 }

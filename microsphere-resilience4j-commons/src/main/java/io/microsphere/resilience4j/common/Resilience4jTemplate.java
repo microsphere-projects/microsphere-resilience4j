@@ -268,7 +268,8 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> {
      *
      * @param context {@link Resilience4jContext}
      */
-    protected abstract void beforeExecute(Resilience4jContext<E> context);
+    protected void beforeExecute(Resilience4jContext<E> context) {
+    }
 
     /**
      * Call the target callback, for instance, the result maybe be wrapped.
@@ -289,7 +290,8 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> {
      * @param context {@link Resilience4jContext}
      * @return {@link CheckedFunction0#apply()}
      */
-    protected abstract void afterExecute(Resilience4jContext<E> context);
+    protected void afterExecute(Resilience4jContext<E> context) {
+    }
 
     /**
      * Execute the specified {@link E Resilience4j's entry} by name

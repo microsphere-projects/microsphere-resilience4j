@@ -49,11 +49,6 @@ import static java.lang.ThreadLocal.withInitial;
  */
 public class RetryTemplate extends Resilience4jTemplate<Retry, RetryConfig, RetryRegistry> {
 
-    /**
-     * Local caching for {@link EventProcessor} of {@link Retry}
-     */
-    private final ConcurrentMap<String, EventProcessor<RetryEvent>> namedEntryProcessorsMap = new ConcurrentHashMap<>();
-
     public RetryTemplate(RetryRegistry registry) {
         super(registry);
     }
@@ -66,18 +61,9 @@ public class RetryTemplate extends Resilience4jTemplate<Retry, RetryConfig, Retr
     @Override
     protected Retry createEntry(String name) {
         RetryRegistry registry = super.getRegistry();
-        return Retry.of(name, super.getConfiguration(name), registry.getTags());
+        return registry.retry(name, super.getConfiguration(name), registry.getTags());
     }
 
-    /**
-     * Get the {@link EventProcessor} of {@link Retry} by the specified name
-     *
-     * @param name the specified name
-     * @return non-null
-     */
-    protected final EventProcessor<RetryEvent> getEventProcessor(String name) {
-        return namedEntryProcessorsMap.computeIfAbsent(name, n -> new EventProcessor<>());
-    }
 
     /**
      * {@inheritDoc}
@@ -85,14 +71,6 @@ public class RetryTemplate extends Resilience4jTemplate<Retry, RetryConfig, Retr
     @Override
     protected <V> V execute(Resilience4jContext<Retry> context, CheckedFunction0<V> callback) throws Throwable {
         Retry retry = context.getEntry();
-        String name = retry.getName();
-        EventProcessor<RetryEvent> eventProcessor = getEventProcessor(name);
-        if (eventProcessor.hasConsumers()) {
-            Retry.EventPublisher eventPublisher = retry.getEventPublisher();
-            eventPublisher.onEvent(event -> {
-                eventProcessor.processEvent(event);
-            });
-        }
         Retry.Context<V> ctx = retry.context();
         do {
             try {
@@ -116,7 +94,8 @@ public class RetryTemplate extends Resilience4jTemplate<Retry, RetryConfig, Retr
      * @return {@link RetryTemplate}
      */
     public RetryTemplate onErrorEvent(String entryName, EventConsumer<RetryOnErrorEvent> eventConsumer) {
-        return doRegisterEntryEventConsumer(entryName, RetryOnErrorEvent.class, eventConsumer);
+        registerEntryEventConsumer(entryName, RetryOnErrorEvent.class, eventConsumer);
+        return this;
     }
 
     /**
@@ -127,7 +106,8 @@ public class RetryTemplate extends Resilience4jTemplate<Retry, RetryConfig, Retr
      * @return {@link RetryTemplate}
      */
     public RetryTemplate onIgnoredErrorEvent(String entryName, EventConsumer<RetryOnIgnoredErrorEvent> eventConsumer) {
-        return doRegisterEntryEventConsumer(entryName, RetryOnIgnoredErrorEvent.class, eventConsumer);
+        registerEntryEventConsumer(entryName, RetryOnIgnoredErrorEvent.class, eventConsumer);
+        return this;
     }
 
     /**
@@ -138,7 +118,8 @@ public class RetryTemplate extends Resilience4jTemplate<Retry, RetryConfig, Retr
      * @return {@link RetryTemplate}
      */
     public RetryTemplate onRetryEvent(String entryName, EventConsumer<RetryOnRetryEvent> eventConsumer) {
-        return doRegisterEntryEventConsumer(entryName, RetryOnRetryEvent.class, eventConsumer);
+        registerEntryEventConsumer(entryName, RetryOnRetryEvent.class, eventConsumer);
+        return this;
     }
 
     /**
@@ -149,18 +130,7 @@ public class RetryTemplate extends Resilience4jTemplate<Retry, RetryConfig, Retr
      * @return {@link RetryTemplate}
      */
     public RetryTemplate onSuccessEvent(String entryName, EventConsumer<RetryOnSuccessEvent> eventConsumer) {
-        return doRegisterEntryEventConsumer(entryName, RetryOnSuccessEvent.class, eventConsumer);
-    }
-
-    protected RetryTemplate doRegisterEntryEventConsumer(String entryName, Class<? extends RetryEvent> eventType, EventConsumer<? extends RetryEvent> eventConsumer) {
-        EventProcessor<RetryEvent> eventProcessor = getEventProcessor(entryName);
-        eventProcessor.registerConsumer(eventType.getSimpleName(), eventConsumer);
+        registerEntryEventConsumer(entryName, RetryOnSuccessEvent.class, eventConsumer);
         return this;
-    }
-
-    @Override
-    public void destroy() {
-        super.destroy();
-        this.namedEntryProcessorsMap.clear();
     }
 }

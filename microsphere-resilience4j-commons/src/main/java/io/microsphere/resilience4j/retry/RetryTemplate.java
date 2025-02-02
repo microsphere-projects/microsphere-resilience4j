@@ -30,6 +30,8 @@ import io.vavr.CheckedFunction0;
 
 import java.util.Map;
 
+import static io.github.resilience4j.retry.Retry.decorateCheckedSupplier;
+
 /**
  * {@link Resilience4jTemplate} for {@link Retry}
  *
@@ -64,19 +66,8 @@ public class RetryTemplate extends Resilience4jTemplate<Retry, RetryConfig, Retr
     @Override
     protected <V> V execute(Resilience4jContext<Retry> context, CheckedFunction0<V> callback) throws Throwable {
         Retry retry = context.getEntry();
-        Retry.Context<V> ctx = retry.context();
-        do {
-            try {
-                V result = callback.apply();
-                final boolean validationOfResult = ctx.onResult(result);
-                if (!validationOfResult) {
-                    ctx.onComplete();
-                    return result;
-                }
-            } catch (Exception exception) {
-                ctx.onError(exception);
-            }
-        } while (true);
+        CheckedFunction0<V> delegate = decorateCheckedSupplier(retry, callback);
+        return delegate.apply();
     }
 
     /**

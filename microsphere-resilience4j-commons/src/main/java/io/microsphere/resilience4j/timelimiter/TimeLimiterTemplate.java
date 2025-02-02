@@ -71,13 +71,6 @@ public class TimeLimiterTemplate extends Resilience4jTemplate<TimeLimiter, TimeL
      * {@inheritDoc}
      */
     @Override
-    protected void beforeExecute(Resilience4jContext<TimeLimiter> context) {
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     protected <V> V execute(Resilience4jContext<TimeLimiter> context, CheckedFunction0<V> callback) throws Throwable {
         TimeLimiter timeLimiter = context.getEntry();
         Callable<V> docoratedCallable = timeLimiter.decorateFutureSupplier(() -> executorService.submit(() -> {
@@ -88,13 +81,6 @@ public class TimeLimiterTemplate extends Resilience4jTemplate<TimeLimiter, TimeL
             }
         }));
         return docoratedCallable.call();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void afterExecute(Resilience4jContext<TimeLimiter> context) {
     }
 
     /**

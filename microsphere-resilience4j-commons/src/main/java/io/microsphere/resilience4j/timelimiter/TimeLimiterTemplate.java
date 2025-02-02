@@ -25,6 +25,7 @@ import io.github.resilience4j.timelimiter.event.TimeLimiterOnSuccessEvent;
 import io.github.resilience4j.timelimiter.event.TimeLimiterOnTimeoutEvent;
 import io.microsphere.resilience4j.common.Resilience4jContext;
 import io.microsphere.resilience4j.common.Resilience4jTemplate;
+import io.microsphere.util.ExceptionUtils;
 import io.vavr.CheckedFunction0;
 
 import java.util.concurrent.Callable;
@@ -65,6 +66,16 @@ public class TimeLimiterTemplate extends Resilience4jTemplate<TimeLimiter, TimeL
     protected TimeLimiter createEntry(String name) {
         TimeLimiterRegistry registry = super.getRegistry();
         return registry.timeLimiter(name, super.getConfiguration(name), registry.getTags());
+    }
+
+    @Override
+    public Resilience4jContext<TimeLimiter> begin(String entryName) {
+        throw ExceptionUtils.create(UnsupportedOperationException.class, "TimeLimiter does not support begin operation");
+    }
+
+    @Override
+    public void end(Resilience4jContext<TimeLimiter> context) {
+        throw ExceptionUtils.create(UnsupportedOperationException.class, "TimeLimiter does not support end operation");
     }
 
     /**

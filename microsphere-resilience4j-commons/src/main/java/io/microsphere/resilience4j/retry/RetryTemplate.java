@@ -16,11 +16,13 @@
  */
 package io.microsphere.resilience4j.retry;
 
+import io.github.resilience4j.ratelimiter.RateLimiterRegistry;
 import io.github.resilience4j.retry.Retry;
 import io.github.resilience4j.retry.RetryConfig;
 import io.github.resilience4j.retry.RetryRegistry;
 import io.microsphere.resilience4j.common.Resilience4jContext;
 import io.microsphere.resilience4j.common.Resilience4jTemplate;
+import io.vavr.CheckedFunction0;
 
 /**
  * {@link Resilience4jTemplate} for {@link Retry}
@@ -32,61 +34,37 @@ import io.microsphere.resilience4j.common.Resilience4jTemplate;
  * @see Resilience4jTemplate
  * @since 1.0.0
  */
-@Deprecated
 public class RetryTemplate extends Resilience4jTemplate<Retry, RetryConfig, RetryRegistry> {
-
-    public static final String RETRY_CONTEXT_ATTRIBUTE_NAME = "Retry.Context";
 
     public RetryTemplate(RetryRegistry registry) {
         super(registry);
     }
 
-    /**
-     * Create the {@link Retry}
-     *
-     * @param name the name of the Resilience4j's entry
-     * @return non-null
-     */
     @Override
     protected Retry createEntry(String name) {
         RetryRegistry registry = super.getRegistry();
-        return registry.retry(name, super.getConfiguration(name), registry.getTags());
+        return Retry.of(name, super.getConfiguration(name), registry.getTags());
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    protected void beforeExecute(Resilience4jContext<Retry> context) {
+    protected <V> V execute(Resilience4jContext<Retry> context, CheckedFunction0<V> callback) throws Throwable {
         Retry retry = context.getEntry();
-        Retry.Context retryContext = retry.context();
-        context.setAttribute(RETRY_CONTEXT_ATTRIBUTE_NAME, retryContext);
+        Retry.Context<V> ctx = retry.context();
+        do {
+            try {
+                V result = callback.apply();
+                final boolean validationOfResult = ctx.onResult(result);
+                if (!validationOfResult) {
+                    ctx.onComplete();
+                    return result;
+                }
+            } catch (Exception exception) {
+                ctx.onError(exception);
+            }
+        } while (true);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void afterExecute(Resilience4jContext<Retry> context) {
-        Retry.Context retryContext = context.getAttribute(RETRY_CONTEXT_ATTRIBUTE_NAME);
-        Throwable failure = context.getFailure();
-        if (failure == null) {
-            Object result = context.getResult();
-            if (result == null) {
-                retryContext.onSuccess();
-            } else {
-                retryContext.onResult(result);
-            }
-        } else {
-            if (failure instanceof RuntimeException) {
-                retryContext.onRuntimeError((RuntimeException) failure);
-            } else if (failure instanceof Exception) {
-                try {
-                    retryContext.onError((Exception) failure);
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }
-    }
 }

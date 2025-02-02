@@ -17,11 +17,9 @@
 package io.microsphere.resilience4j.retry;
 
 import io.github.resilience4j.core.EventConsumer;
-import io.github.resilience4j.core.EventProcessor;
 import io.github.resilience4j.retry.Retry;
 import io.github.resilience4j.retry.RetryConfig;
 import io.github.resilience4j.retry.RetryRegistry;
-import io.github.resilience4j.retry.event.RetryEvent;
 import io.github.resilience4j.retry.event.RetryOnErrorEvent;
 import io.github.resilience4j.retry.event.RetryOnIgnoredErrorEvent;
 import io.github.resilience4j.retry.event.RetryOnRetryEvent;
@@ -30,12 +28,7 @@ import io.microsphere.resilience4j.common.Resilience4jContext;
 import io.microsphere.resilience4j.common.Resilience4jTemplate;
 import io.vavr.CheckedFunction0;
 
-import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-
-import static java.lang.ThreadLocal.withInitial;
 
 /**
  * {@link Resilience4jTemplate} for {@link Retry}

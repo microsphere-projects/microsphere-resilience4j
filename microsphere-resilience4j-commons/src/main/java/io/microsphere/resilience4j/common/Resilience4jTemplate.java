@@ -29,6 +29,8 @@ import io.github.resilience4j.core.registry.EntryRemovedEvent;
 import io.github.resilience4j.core.registry.EntryReplacedEvent;
 import io.github.resilience4j.core.registry.RegistryEvent;
 import io.github.resilience4j.core.registry.RegistryEventConsumer;
+import io.github.resilience4j.retry.Retry;
+import io.github.resilience4j.timelimiter.TimeLimiter;
 import io.microsphere.logging.Logger;
 import io.vavr.CheckedFunction0;
 import io.vavr.CheckedRunnable;
@@ -49,12 +51,12 @@ import static io.microsphere.util.Assert.assertNotNull;
  * <ul>
  *     <li>One-Time Operation :
  *      <ul>
- *          <li>{@link #execute(Supplier, CheckedFunction0)} : execution with result</li>
- *          <li>{@link #execute(Supplier, CheckedRunnable)} : execution without result</li>
+ *          <li>{@link #execute(Supplier, CheckedFunction0)} or {@link #execute(String, CheckedFunction0)} : execution with result</li>
+ *          <li>{@link #execute(Supplier, CheckedRunnable)} or {@link #execute(String, CheckedRunnable)} : execution without result</li>
  *      </ul>
  *     </li>
- *     <li>Two-Phase Operation :
- *        <li>{@link #begin(Supplier)} : the first phase</li>
+ *     <li>Two-Phase Operation (unsupported in those cases : {@link Retry} and {@link TimeLimiter}) :
+ *        <li>{@link #begin(Supplier)} or {@link #begin(String)} : the first phase</li>
  *        <li>{@link #end(Resilience4jContext)} :  the second phase</li>
  *     </li>
  * </ul>
@@ -216,7 +218,7 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> {
      * @return {@link CheckedFunction0#apply()}
      */
     public final <V> V execute(String entryName, CheckedFunction0<V> callback) {
-        Resilience4jContext<E> context = begin(entryName);
+        Resilience4jContext<E> context = beforeExecute(entryName);
         V result = null;
         try {
             result = execute(context, callback);
@@ -230,7 +232,7 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> {
             }
         } finally {
             if (context != null) {
-                end(context);
+                afterExecute(context);
             }
         }
         return result;
@@ -252,11 +254,8 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> {
      * @param entryName the entry name
      * @return {@link Resilience4jContext} with the entry and its name
      */
-    public final Resilience4jContext<E> begin(String entryName) {
-        E entry = getEntry(entryName);
-        Resilience4jContext<E> context = new Resilience4jContext(entryName, entry);
-        beforeExecute(context);
-        return context;
+    public Resilience4jContext<E> begin(String entryName) {
+        return beforeExecute(entryName);
     }
 
     /**
@@ -264,12 +263,26 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> {
      *
      * @param context {@link Resilience4jContext}
      */
-    public final void end(Resilience4jContext<E> context) {
+    public void end(Resilience4jContext<E> context) {
         afterExecute(context);
     }
 
     /**
-     * Callback before {@link #execute(Resilience4jContext, CheckedFunction0) execution}
+     * Callback before {@link #execute(Resilience4jContext, CheckedFunction0) execution}.
+     *
+     * @param entryName the entry name
+     * @return {@link Resilience4jContext} with the entry and its name
+     * @see #beforeExecute(Resilience4jContext)
+     */
+    protected final Resilience4jContext<E> beforeExecute(String entryName) {
+        E entry = getEntry(entryName);
+        Resilience4jContext<E> context = new Resilience4jContext(entryName, entry);
+        beforeExecute(context);
+        return context;
+    }
+
+    /**
+     * Callback before {@link #execute(Resilience4jContext, CheckedFunction0) execution}.
      *
      * @param context {@link Resilience4jContext}
      */
@@ -335,7 +348,7 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> {
      *
      * @return {@link HashMap} as default, <code>null</code> means the local cache is not required.
      */
-    @NonNull
+    @Nullable
     protected Map<String, E> createLocalEntriesCache() {
         return new HashMap<>();
     }

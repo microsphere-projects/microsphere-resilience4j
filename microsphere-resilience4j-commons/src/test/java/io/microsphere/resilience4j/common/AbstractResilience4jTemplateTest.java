@@ -173,13 +173,12 @@ public abstract class AbstractResilience4jTemplateTest<E, C, R extends Registry<
             assertNotNull(event.getAddedEntry());
             assertEquals(ADDED, event.getEventType());
         });
+
         template.initLocalEntriesCache(entryName);
         E entry = template.getEntry(entryName);
         assertNotNull(entry);
-        if (template.isLocalEntriesCachePresent()) {
-            E foundEntry = template.getEntry(entryName);
-            assertSame(entry, foundEntry);
-        }
+        E foundEntry = template.getEntry(entryName);
+        assertSame(entry, foundEntry);
 
         // Test REPLACED
         template.onEntryReplacedEvent(event -> {
@@ -192,7 +191,7 @@ public abstract class AbstractResilience4jTemplateTest<E, C, R extends Registry<
         E newEntry = template.createEntry(newEntryName);
         E oldEntry = template.replaceEntry(entryName, newEntry);
         assertNotNull(newEntry);
-        // assertNotNull(oldEntry);
+        assertNotNull(oldEntry);
 
         // Test REMOVED
         template.onEntryRemovedEvent(event -> {

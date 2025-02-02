@@ -20,6 +20,15 @@ import io.github.resilience4j.retry.Retry;
 import io.github.resilience4j.retry.RetryConfig;
 import io.github.resilience4j.retry.RetryRegistry;
 import io.microsphere.resilience4j.common.AbstractResilience4jTemplateTest;
+import org.junit.jupiter.api.Test;
+
+import java.util.concurrent.atomic.AtomicInteger;
+
+import static io.github.resilience4j.retry.event.RetryEvent.Type.ERROR;
+import static io.github.resilience4j.retry.event.RetryEvent.Type.RETRY;
+import static io.github.resilience4j.retry.event.RetryEvent.Type.SUCCESS;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 /**
  * {@link RetryTemplate} Test
@@ -29,4 +38,54 @@ import io.microsphere.resilience4j.common.AbstractResilience4jTemplateTest;
  * @since 1.0.0
  */
 public class RetryTemplateTest extends AbstractResilience4jTemplateTest<Retry, RetryConfig, RetryRegistry, RetryTemplate> {
+
+    private final int maxAttempts = 3;
+
+    @Override
+    protected RetryConfig createEntryConfig() {
+        return RetryConfig.custom()
+                .maxAttempts(maxAttempts)
+                .ignoreExceptions(RuntimeException.class)
+                .retryExceptions(Exception.class)
+                .build();
+    }
+
+    @Test
+    public void testExecute() {
+        String entryName = this.entryName;
+        RetryTemplate template = super.template;
+        String result = "OK";
+
+        AtomicInteger attempts = new AtomicInteger(maxAttempts);
+
+        template.onSuccessEvent(entryName, event -> {
+            logEvent(event);
+            assertEquals(entryName, event.getName());
+            assertSame(SUCCESS, event.getEventType());
+            // assertEquals(maxAttempts - attempts.get(), event.getNumberOfRetryAttempts());
+        });
+
+        template.onRetryEvent(entryName, event -> {
+            logEvent(event);
+            assertEquals(entryName, event.getName());
+            assertSame(RETRY, event.getEventType());
+            // assertEquals(maxAttempts - attempts.get(), event.getNumberOfRetryAttempts());
+        });
+
+        template.onErrorEvent(entryName, event -> {
+            logEvent(event);
+            assertEquals(entryName, event.getName());
+            assertSame(ERROR, event.getEventType());
+            // assertEquals(maxAttempts - attempts.get(), event.getNumberOfRetryAttempts());
+        });
+
+        assertEquals(result, template.execute(entryName, () -> {
+            if (attempts.decrementAndGet() == 0) {
+                return result;
+            } else {
+                throw new Exception("For testing");
+            }
+        }));
+    }
+
 }

@@ -16,10 +16,13 @@
  */
 package io.microsphere.resilience4j.retry;
 
-import io.github.resilience4j.ratelimiter.RateLimiterRegistry;
+import io.github.resilience4j.core.EventConsumer;
 import io.github.resilience4j.retry.Retry;
 import io.github.resilience4j.retry.RetryConfig;
 import io.github.resilience4j.retry.RetryRegistry;
+import io.github.resilience4j.retry.event.RetryOnErrorEvent;
+import io.github.resilience4j.retry.event.RetryOnIgnoredErrorEvent;
+import io.github.resilience4j.retry.event.RetryOnRetryEvent;
 import io.microsphere.resilience4j.common.Resilience4jContext;
 import io.microsphere.resilience4j.common.Resilience4jTemplate;
 import io.vavr.CheckedFunction0;
@@ -65,6 +68,42 @@ public class RetryTemplate extends Resilience4jTemplate<Retry, RetryConfig, Retr
                 ctx.onError(exception);
             }
         } while (true);
+    }
+
+    /**
+     * Register the {@link EventConsumer} for {@link RetryOnErrorEvent}.
+     *
+     * @param entryName     the name of the entry
+     * @param eventConsumer the {@link EventConsumer} for {@link RetryOnErrorEvent}
+     * @return {@link RetryTemplate}
+     */
+    public RetryTemplate onErrorEvent(String entryName, EventConsumer<RetryOnErrorEvent> eventConsumer) {
+        registerEntryEventConsumer(entryName, RetryOnErrorEvent.class, eventConsumer);
+        return this;
+    }
+
+    /**
+     * Register the {@link EventConsumer} for {@link RetryOnIgnoredErrorEvent}.
+     *
+     * @param entryName     the name of the entry
+     * @param eventConsumer the {@link EventConsumer} for {@link RetryOnIgnoredErrorEvent}
+     * @return {@link RetryTemplate}
+     */
+    public RetryTemplate onIgnoredErrorEvent(String entryName, EventConsumer<RetryOnIgnoredErrorEvent> eventConsumer) {
+        registerEntryEventConsumer(entryName, RetryOnIgnoredErrorEvent.class, eventConsumer);
+        return this;
+    }
+
+    /**
+     * Register the {@link EventConsumer} for {@link RetryOnRetryEvent}.
+     *
+     * @param entryName     the name of the entry
+     * @param eventConsumer the {@link EventConsumer} for {@link RetryOnRetryEvent}
+     * @return {@link RetryTemplate}
+     */
+    public RetryTemplate onRetryEvent(String entryName, EventConsumer<RetryOnRetryEvent> eventConsumer) {
+        registerEntryEventConsumer(entryName, RetryOnRetryEvent.class, eventConsumer);
+        return this;
     }
 
 }

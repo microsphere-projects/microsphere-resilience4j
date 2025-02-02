@@ -26,9 +26,8 @@ import io.github.resilience4j.retry.event.RetryOnRetryEvent;
 import io.github.resilience4j.retry.event.RetryOnSuccessEvent;
 import io.microsphere.resilience4j.common.Resilience4jContext;
 import io.microsphere.resilience4j.common.Resilience4jTemplate;
+import io.microsphere.util.ExceptionUtils;
 import io.vavr.CheckedFunction0;
-
-import java.util.Map;
 
 import static io.github.resilience4j.retry.Retry.decorateCheckedSupplier;
 
@@ -49,8 +48,13 @@ public class RetryTemplate extends Resilience4jTemplate<Retry, RetryConfig, Retr
     }
 
     @Override
-    protected Map<String, Retry> createLocalEntriesCache() {
-        return null;
+    public Resilience4jContext<Retry> begin(String entryName) {
+        throw ExceptionUtils.create(UnsupportedOperationException.class, "RetryTemplate does not support begin operation");
+    }
+
+    @Override
+    public void end(Resilience4jContext<Retry> context) {
+        throw ExceptionUtils.create(UnsupportedOperationException.class, "RetryTemplate does not support end operation");
     }
 
     @Override
@@ -58,7 +62,6 @@ public class RetryTemplate extends Resilience4jTemplate<Retry, RetryConfig, Retr
         RetryRegistry registry = super.getRegistry();
         return registry.retry(name, super.getConfiguration(name), registry.getTags());
     }
-
 
     /**
      * {@inheritDoc}

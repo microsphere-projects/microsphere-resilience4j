@@ -28,10 +28,12 @@ import io.github.resilience4j.circuitbreaker.event.CircuitBreakerOnSlowCallRateE
 import io.github.resilience4j.circuitbreaker.event.CircuitBreakerOnStateTransitionEvent;
 import io.github.resilience4j.circuitbreaker.event.CircuitBreakerOnSuccessEvent;
 import io.github.resilience4j.core.EventConsumer;
+import io.microsphere.lang.function.ThrowableSupplier;
 import io.microsphere.resilience4j.common.Resilience4jContext;
 import io.microsphere.resilience4j.common.Resilience4jTemplate;
 
-import java.util.concurrent.TimeUnit;
+import static java.lang.System.nanoTime;
+import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
 /**
  * {@link Resilience4jTemplate} for {@link CircuitBreaker}
@@ -56,40 +58,33 @@ public class CircuitBreakerTemplate extends Resilience4jTemplate<CircuitBreaker,
      * @return non-null
      */
     @Override
-    protected CircuitBreaker createEntry(String name) {
+    public CircuitBreaker createEntry(String name) {
         CircuitBreakerRegistry registry = super.getRegistry();
-        return registry.circuitBreaker(name, super.getConfiguration(name), registry.getTags());
+        return registry.circuitBreaker(name, super.getConfiguration(name));
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    protected void beforeExecute(Resilience4jContext<CircuitBreaker> context) {
+    public <T> T call(String name, ThrowableSupplier<T> callback) throws Throwable {
+        CircuitBreaker circuitBreaker = getEntry(name);
+        return circuitBreaker.decorateCheckedSupplier(callback::get).apply();
+    }
+
+    @Override
+    protected void begin(Resilience4jContext<CircuitBreaker> context) {
         CircuitBreaker circuitBreaker = context.getEntry();
         circuitBreaker.acquirePermission();
-        context.setStartTime(circuitBreaker.getCurrentTimestamp());
+        context.setStartTime(nanoTime());
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    protected void afterExecute(Resilience4jContext<CircuitBreaker> context) {
+    public void end(Resilience4jContext<CircuitBreaker> context) {
+        long durationTime = nanoTime() - context.getStartTime();
         CircuitBreaker circuitBreaker = context.getEntry();
         Throwable failure = context.getFailure();
-        long startTime = context.getStartTime();
-        long duration = circuitBreaker.getCurrentTimestamp() - startTime;
-        TimeUnit timeUnit = circuitBreaker.getTimestampUnit();
         if (failure == null) {
-            Object result = context.getResult();
-            if (result == null) {
-                circuitBreaker.onSuccess(duration, timeUnit);
-            } else {
-                circuitBreaker.onResult(duration, timeUnit, result);
-            }
+            circuitBreaker.onSuccess(durationTime, NANOSECONDS);
         } else {
-            circuitBreaker.onError(duration, timeUnit, failure);
+            circuitBreaker.onError(durationTime, NANOSECONDS, failure);
         }
     }
 

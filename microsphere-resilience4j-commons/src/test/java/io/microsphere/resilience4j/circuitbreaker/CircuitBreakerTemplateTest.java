@@ -26,13 +26,10 @@ import org.junit.jupiter.api.Test;
 import java.time.Duration;
 import java.util.function.Supplier;
 
-import static io.github.resilience4j.circuitbreaker.CircuitBreakerConfig.SlidingWindowType.COUNT_BASED;
 import static io.github.resilience4j.circuitbreaker.event.CircuitBreakerEvent.Type.ERROR;
-import static io.github.resilience4j.circuitbreaker.event.CircuitBreakerEvent.Type.FAILURE_RATE_EXCEEDED;
 import static io.github.resilience4j.circuitbreaker.event.CircuitBreakerEvent.Type.IGNORED_ERROR;
 import static io.github.resilience4j.circuitbreaker.event.CircuitBreakerEvent.Type.NOT_PERMITTED;
 import static io.github.resilience4j.circuitbreaker.event.CircuitBreakerEvent.Type.RESET;
-import static io.github.resilience4j.circuitbreaker.event.CircuitBreakerEvent.Type.SLOW_CALL_RATE_EXCEEDED;
 import static io.github.resilience4j.circuitbreaker.event.CircuitBreakerEvent.Type.STATE_TRANSITION;
 import static io.github.resilience4j.circuitbreaker.event.CircuitBreakerEvent.Type.SUCCESS;
 import static java.time.Duration.ofMillis;
@@ -62,15 +59,12 @@ public class CircuitBreakerTemplateTest extends AbstractResilience4jTemplateTest
     @Override
     protected CircuitBreakerConfig createEntryConfig() {
         return CircuitBreakerConfig.custom()
-                .slidingWindow(1, 1, COUNT_BASED)
                 .failureRateThreshold(rateThreshold)
-                .maxWaitDurationInHalfOpenState(duration)
                 .ignoreExceptions(RuntimeException.class)
                 .recordExceptions(Exception.class)
                 .slowCallDurationThreshold(duration)
                 .permittedNumberOfCallsInHalfOpenState(permitted)
                 .slowCallRateThreshold(rateThreshold)
-                .writableStackTraceEnabled(false)
                 .automaticTransitionFromOpenToHalfOpenEnabled(true)
                 .build();
     }
@@ -85,7 +79,7 @@ public class CircuitBreakerTemplateTest extends AbstractResilience4jTemplateTest
             assertEquals(entryName, event.getCircuitBreakerName());
             assertSame(SUCCESS, event.getEventType());
         });
-        String result = template.execute(getEntryNameGenerator(), () -> entryName);
+        String result = template.execute(entryName, () -> entryName);
         assertEquals(entryName, result);
     }
 
@@ -97,7 +91,6 @@ public class CircuitBreakerTemplateTest extends AbstractResilience4jTemplateTest
         template.onFailureRateExceededEvent(entryName, event -> {
             logEvent(event);
             assertEquals(entryName, event.getCircuitBreakerName());
-            assertSame(FAILURE_RATE_EXCEEDED, event.getEventType());
         });
 
         template.onStateTransitionEvent(entryName, event -> {
@@ -136,7 +129,7 @@ public class CircuitBreakerTemplateTest extends AbstractResilience4jTemplateTest
 
         executeThrowing(RuntimeException::new);
 
-        template.executeEntry(entryName, CircuitBreaker::reset);
+        template.execute(entryName, CircuitBreaker::reset);
 
         executeThrowing(Exception::new);
         executeThrowing(RuntimeException::new);
@@ -152,7 +145,6 @@ public class CircuitBreakerTemplateTest extends AbstractResilience4jTemplateTest
         template.onSlowCallRateExceededEvent(entryName, event -> {
             logEvent(event);
             assertEquals(entryName, event.getCircuitBreakerName());
-            assertSame(SLOW_CALL_RATE_EXCEEDED, event.getEventType());
         });
 
         template.onCallNotPermittedEvent(entryName, event -> {
@@ -172,16 +164,16 @@ public class CircuitBreakerTemplateTest extends AbstractResilience4jTemplateTest
     }
 
     private void executeNothing() {
-        template.execute(getEntryNameGenerator(), () -> {
+        template.execute(entryName, () -> {
         });
     }
 
     private void executeThrowing(Supplier<? extends Throwable> throwableSupplier) {
         try {
-            template.execute(getEntryNameGenerator(), () -> {
+            template.call(entryName, () -> {
                 throw throwableSupplier.get();
             });
-        } catch (RuntimeException e) {
+        } catch (Throwable e) {
 
         }
     }

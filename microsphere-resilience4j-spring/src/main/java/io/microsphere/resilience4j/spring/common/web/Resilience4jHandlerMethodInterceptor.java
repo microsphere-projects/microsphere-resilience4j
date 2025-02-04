@@ -73,13 +73,15 @@ public abstract class Resilience4jHandlerMethodInterceptor<E, C, R extends Regis
 
     @Override
     public void beforeExecute(HandlerMethod handlerMethod, Object[] args, NativeWebRequest request) throws Exception {
-        Resilience4jContext<E> context = template.begin(() -> getEntryName(handlerMethod));
+        Resilience4jContext<E> context = template.begin(getEntryName(handlerMethod));
         request.setAttribute(RESILIENCE4J_CONTEXT_ATTRIBUTE_NAME, context, SCOPE_REQUEST);
     }
 
     @Override
     public void afterExecute(HandlerMethod handlerMethod, Object[] args, Object returnValue, Throwable error, NativeWebRequest request) throws Exception {
         Resilience4jContext<E> context = (Resilience4jContext<E>) request.getAttribute(RESILIENCE4J_CONTEXT_ATTRIBUTE_NAME, SCOPE_REQUEST);
+        context.setResult(returnValue)
+                .setFailure(error);
         this.template.end(context);
     }
 

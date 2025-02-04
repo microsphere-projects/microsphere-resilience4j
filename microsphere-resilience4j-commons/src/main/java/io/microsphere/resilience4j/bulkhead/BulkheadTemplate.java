@@ -23,6 +23,7 @@ import io.github.resilience4j.bulkhead.event.BulkheadOnCallFinishedEvent;
 import io.github.resilience4j.bulkhead.event.BulkheadOnCallPermittedEvent;
 import io.github.resilience4j.bulkhead.event.BulkheadOnCallRejectedEvent;
 import io.github.resilience4j.core.EventConsumer;
+import io.microsphere.lang.function.ThrowableSupplier;
 import io.microsphere.resilience4j.common.Resilience4jContext;
 import io.microsphere.resilience4j.common.Resilience4jTemplate;
 
@@ -49,25 +50,19 @@ public class BulkheadTemplate extends Resilience4jTemplate<Bulkhead, BulkheadCon
      * @return non-null
      */
     @Override
-    protected Bulkhead createEntry(String name) {
+    public Bulkhead createEntry(String name) {
         BulkheadRegistry registry = super.getRegistry();
-        return registry.bulkhead(name, super.getConfiguration(name), registry.getTags());
+        return registry.bulkhead(name, super.getConfiguration(name));
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    protected void beforeExecute(Resilience4jContext<Bulkhead> context) {
+    protected void begin(Resilience4jContext<Bulkhead> context) {
         Bulkhead bulkhead = context.getEntry();
         bulkhead.acquirePermission();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    protected void afterExecute(Resilience4jContext<Bulkhead> context) {
+    public void end(Resilience4jContext<Bulkhead> context) {
         Bulkhead bulkhead = context.getEntry();
         bulkhead.onComplete();
     }

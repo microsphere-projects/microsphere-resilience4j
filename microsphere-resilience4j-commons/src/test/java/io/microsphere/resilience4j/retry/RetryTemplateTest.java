@@ -22,6 +22,7 @@ import io.github.resilience4j.retry.RetryRegistry;
 import io.microsphere.resilience4j.common.AbstractResilience4jTemplateTest;
 import org.junit.jupiter.api.Test;
 
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static io.github.resilience4j.retry.event.RetryEvent.Type.ERROR;
@@ -47,13 +48,13 @@ public class RetryTemplateTest extends AbstractResilience4jTemplateTest<Retry, R
     protected RetryConfig createEntryConfig() {
         return RetryConfig.custom()
                 .maxAttempts(maxAttempts)
-                .ignoreExceptions(RuntimeException.class)
-                .retryExceptions(Exception.class)
+                .ignoreExceptions(IllegalStateException.class)
+                .retryExceptions(TimeoutException.class)
                 .build();
     }
 
     @Test
-    public void testExecute() {
+    public void testExecute() throws Throwable {
         String entryName = this.entryName;
         RetryTemplate template = super.template;
         String result = "OK";
@@ -81,17 +82,17 @@ public class RetryTemplateTest extends AbstractResilience4jTemplateTest<Retry, R
             assertEquals(maxAttempts - attempts.get(), event.getNumberOfRetryAttempts());
         });
 
-        assertEquals(result, template.execute(entryName, () -> {
+        assertEquals(result, template.call(entryName, () -> {
             if (attempts.decrementAndGet() == 0) {
                 return result;
             } else {
-                throw new Exception("For testing");
+                throw new TimeoutException("For testing");
             }
         }));
     }
 
     @Test
-    public void testExecuteOnIgnoredException() {
+    public void testExecuteOnIgnoredException() throws Throwable {
         String entryName = this.entryName;
         RetryTemplate template = super.template;
         String result = "OK";
@@ -105,11 +106,11 @@ public class RetryTemplateTest extends AbstractResilience4jTemplateTest<Retry, R
             assertEquals(attempts.get(), event.getNumberOfRetryAttempts());
         });
 
-        assertNull(template.execute(entryName, () -> {
+        assertNull(template.call(entryName, () -> {
             if (attempts.decrementAndGet() == 0) {
                 return result;
             } else {
-                throw new RuntimeException("For testing");
+                throw new IllegalStateException("For testing");
             }
         }));
     }

@@ -71,7 +71,7 @@ public class Resilience4jModuleTest {
     }
 
     private void assertModule(Resilience4jModule module, Class<?> entryClass, Class<?> configClass,
-                              Class<? extends CommonProperties> configurationPropertiesClass, Class<?> eventClass,
+                              Class<?> configurationPropertiesClass, Class<?> eventClass,
                               Class<? extends Registry> registryClass, int defaultAspectOrder) {
         assertEquals(entryClass, module.getEntryClass());
         assertEquals(configClass, module.getConfigClass());

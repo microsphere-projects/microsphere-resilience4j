@@ -22,6 +22,8 @@ import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 import io.github.resilience4j.core.EventConsumer;
 import io.github.resilience4j.core.EventProcessor;
 import io.github.resilience4j.core.Registry;
+import io.github.resilience4j.core.functions.CheckedRunnable;
+import io.github.resilience4j.core.functions.CheckedSupplier;
 import io.github.resilience4j.core.lang.NonNull;
 import io.github.resilience4j.core.lang.Nullable;
 import io.github.resilience4j.core.registry.EntryAddedEvent;
@@ -32,8 +34,6 @@ import io.github.resilience4j.core.registry.RegistryEventConsumer;
 import io.github.resilience4j.retry.Retry;
 import io.github.resilience4j.timelimiter.TimeLimiter;
 import io.microsphere.logging.Logger;
-import io.vavr.CheckedFunction0;
-import io.vavr.CheckedRunnable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -51,7 +51,7 @@ import static io.microsphere.util.Assert.assertNotNull;
  * <ul>
  *     <li>One-Time Operation :
  *      <ul>
- *          <li>{@link #execute(Supplier, CheckedFunction0)} or {@link #execute(String, CheckedFunction0)} : execution with result</li>
+ *          <li>{@link #execute(Supplier, CheckedSupplier)} or {@link #execute(String, CheckedSupplier)} : execution with result</li>
  *          <li>{@link #execute(Supplier, CheckedRunnable)} or {@link #execute(String, CheckedRunnable)} : execution without result</li>
  *      </ul>
  *     </li>
@@ -203,9 +203,9 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> {
      * @param entryNameGenerator the generator of entry name
      * @param callback           the callback to be executed
      * @param <V>                the type of result
-     * @return {@link CheckedFunction0#apply()}
+     * @return {@link CheckedSupplier#get()}
      */
-    public final <V> V execute(Supplier<String> entryNameGenerator, CheckedFunction0<V> callback) {
+    public final <V> V execute(Supplier<String> entryNameGenerator, CheckedSupplier<V> callback) {
         return execute(entryNameGenerator.get(), callback);
     }
 
@@ -215,9 +215,9 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> {
      * @param entryName the entry name
      * @param callback  the callback to be executed
      * @param <V>       the type of result
-     * @return {@link CheckedFunction0#apply()}
+     * @return {@link CheckedSupplier#get()}
      */
-    public final <V> V execute(String entryName, CheckedFunction0<V> callback) {
+    public final <V> V execute(String entryName, CheckedSupplier<V> callback) {
         Resilience4jContext<E> context = beforeExecute(entryName);
         V result = null;
         try {
@@ -268,7 +268,7 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> {
     }
 
     /**
-     * Callback before {@link #execute(Resilience4jContext, CheckedFunction0) execution}.
+     * Callback before {@link #execute(Resilience4jContext, CheckedSupplier) execution}.
      *
      * @param entryName the entry name
      * @return {@link Resilience4jContext} with the entry and its name
@@ -282,7 +282,7 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> {
     }
 
     /**
-     * Callback before {@link #execute(Resilience4jContext, CheckedFunction0) execution}.
+     * Callback before {@link #execute(Resilience4jContext, CheckedSupplier) execution}.
      *
      * @param context {@link Resilience4jContext}
      */
@@ -294,19 +294,19 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> {
      *
      * @param <V>      the type of result
      * @param context  {@link Resilience4jContext}
-     * @param callback {@link CheckedFunction0}
-     * @return {@link CheckedFunction0#apply()}
-     * @throws Throwable if {@link CheckedFunction0#apply()} throws an exception
+     * @param callback {@link CheckedSupplier}
+     * @return {@link CheckedSupplier#get()}
+     * @throws Throwable if {@link CheckedSupplier#get()} throws an exception
      */
-    protected <V> V execute(Resilience4jContext<E> context, CheckedFunction0<V> callback) throws Throwable {
-        return callback.apply();
+    protected <V> V execute(Resilience4jContext<E> context, CheckedSupplier<V> callback) throws Throwable {
+        return callback.get();
     }
 
     /**
-     * Callback after {@link #execute(Resilience4jContext, CheckedFunction0) execution}
+     * Callback after {@link #execute(Resilience4jContext, CheckedSupplier) execution}
      *
      * @param context {@link Resilience4jContext}
-     * @return {@link CheckedFunction0#apply()}
+     * @return {@link CheckedSupplier#get()}
      */
     protected void afterExecute(Resilience4jContext<E> context) {
     }

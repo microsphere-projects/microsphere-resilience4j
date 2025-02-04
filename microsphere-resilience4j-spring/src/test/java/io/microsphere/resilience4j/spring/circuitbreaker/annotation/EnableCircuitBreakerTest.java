@@ -20,6 +20,7 @@ import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 import io.github.resilience4j.circuitbreaker.configure.CircuitBreakerConfigurationProperties;
 import io.github.resilience4j.circuitbreaker.event.CircuitBreakerOnSuccessEvent;
+import io.github.resilience4j.common.circuitbreaker.configuration.CommonCircuitBreakerConfigurationProperties;
 import io.microsphere.spring.core.convert.annotation.EnableSpringConverterAdapter;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -67,7 +68,7 @@ public class EnableCircuitBreakerTest {
         circuitBreaker.acquirePermission();
         circuitBreaker.onSuccess(100, TimeUnit.MILLISECONDS);
 
-        io.github.resilience4j.common.circuitbreaker.configuration.CircuitBreakerConfigurationProperties.InstanceProperties instanceProperties = properties.getInstances().get("test");
+        CommonCircuitBreakerConfigurationProperties.InstanceProperties instanceProperties = properties.getInstances().get("test");
         assertEquals(Float.valueOf(0.7f), instanceProperties.getSlowCallRateThreshold());
         assertEquals(Integer.valueOf(100), instanceProperties.getSlidingWindowSize());
         assertEquals(Duration.ofSeconds(30), instanceProperties.getWaitDurationInOpenState());

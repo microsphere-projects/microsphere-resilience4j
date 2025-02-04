@@ -17,6 +17,7 @@
 package io.microsphere.resilience4j.retry;
 
 import io.github.resilience4j.core.EventConsumer;
+import io.github.resilience4j.core.functions.CheckedSupplier;
 import io.github.resilience4j.retry.Retry;
 import io.github.resilience4j.retry.RetryConfig;
 import io.github.resilience4j.retry.RetryRegistry;
@@ -27,7 +28,6 @@ import io.github.resilience4j.retry.event.RetryOnSuccessEvent;
 import io.microsphere.resilience4j.common.Resilience4jContext;
 import io.microsphere.resilience4j.common.Resilience4jTemplate;
 import io.microsphere.util.ExceptionUtils;
-import io.vavr.CheckedFunction0;
 
 import static io.github.resilience4j.retry.Retry.decorateCheckedSupplier;
 
@@ -67,10 +67,10 @@ public class RetryTemplate extends Resilience4jTemplate<Retry, RetryConfig, Retr
      * {@inheritDoc}
      */
     @Override
-    protected <V> V execute(Resilience4jContext<Retry> context, CheckedFunction0<V> callback) throws Throwable {
+    protected <V> V execute(Resilience4jContext<Retry> context, CheckedSupplier<V> callback) throws Throwable {
         Retry retry = context.getEntry();
-        CheckedFunction0<V> delegate = decorateCheckedSupplier(retry, callback);
-        return delegate.apply();
+        CheckedSupplier<V> delegate = decorateCheckedSupplier(retry, callback);
+        return delegate.get();
     }
 
     /**

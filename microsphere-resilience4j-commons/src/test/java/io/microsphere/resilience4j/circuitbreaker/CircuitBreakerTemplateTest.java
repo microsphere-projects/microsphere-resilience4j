@@ -64,7 +64,6 @@ public class CircuitBreakerTemplateTest extends AbstractResilience4jTemplateTest
     @Override
     protected CircuitBreakerConfig createEntryConfig() {
         return CircuitBreakerConfig.custom()
-                .slidingWindow(1, 1, COUNT_BASED, SYNCHRONIZED)
                 .failureRateThreshold(rateThreshold)
                 .maxWaitDurationInHalfOpenState(duration)
                 .ignoreExceptions(RuntimeException.class)

@@ -21,7 +21,6 @@
     <properties>
         <microsphere-spring-cloud.version>0.2.0</microsphere-spring-cloud.version>
         <!-- Third-party versions -->
-        <resilience4j.version>2.3.0</resilience4j.version>
         <mybatis.version>3.5.19</mybatis.version>
         <mybatis-starter.version>3.0.4</mybatis-starter.version>
         <p6spy.version>3.9.1</p6spy.version>
@@ -135,6 +134,37 @@
                 <spring-boot.version>3.4.0</spring-boot.version>
                 <spring-cloud.version>2024.0.0</spring-cloud.version>
                 <spring-cloud-alibaba.version>2023.0.3.2</spring-cloud-alibaba.version>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>resilience4j-2.0</id>
+            <properties>
+                <resilience4j.version>2.0.0</resilience4j.version>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>resilience4j-2.1</id>
+            <properties>
+                <resilience4j.version>2.1.0</resilience4j.version>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>resilience4j-2.2</id>
+            <properties>
+                <resilience4j.version>2.2.0</resilience4j.version>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>resilience4j-2.3</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <resilience4j.version>2.3.0</resilience4j.version>
             </properties>
         </profile>
 

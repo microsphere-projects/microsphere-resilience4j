@@ -21,6 +21,7 @@ jobs:
       matrix:
         java: [ '17' , '21' ]
         maven-profile-spring-cloud: [ 'spring-cloud-2022' , 'spring-cloud-2023' , 'spring-cloud-2024' ]
+        maven-profile-resilience4j: [ 'resilience4j-2.0' , 'resilience4j-2.1' , 'resilience4j-2.2' , 'resilience4j-2.3' ]
     steps:
       - name: Checkout Source
         uses: actions/checkout@v4
@@ -39,7 +40,7 @@ jobs:
           --file pom.xml
           -Drevision=0.0.1-SNAPSHOT
           test
-          --activate-profiles test,coverage,${{ matrix.maven-profile-spring-cloud }}
+          --activate-profiles test,coverage,${{ matrix.maven-profile-spring-cloud }},${{ matrix.maven-profile-resilience4j }}
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v5

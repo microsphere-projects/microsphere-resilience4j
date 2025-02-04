@@ -25,11 +25,11 @@ import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 import io.github.resilience4j.circuitbreaker.event.CircuitBreakerEvent;
 import io.github.resilience4j.common.CommonProperties;
-import io.github.resilience4j.common.bulkhead.configuration.BulkheadConfigurationProperties;
-import io.github.resilience4j.common.circuitbreaker.configuration.CircuitBreakerConfigurationProperties;
-import io.github.resilience4j.common.ratelimiter.configuration.RateLimiterConfigurationProperties;
-import io.github.resilience4j.common.retry.configuration.RetryConfigurationProperties;
-import io.github.resilience4j.common.timelimiter.configuration.TimeLimiterConfigurationProperties;
+import io.github.resilience4j.common.bulkhead.configuration.CommonBulkheadConfigurationProperties;
+import io.github.resilience4j.common.circuitbreaker.configuration.CommonCircuitBreakerConfigurationProperties;
+import io.github.resilience4j.common.ratelimiter.configuration.CommonRateLimiterConfigurationProperties;
+import io.github.resilience4j.common.retry.configuration.CommonRetryConfigurationProperties;
+import io.github.resilience4j.common.timelimiter.configuration.CommonTimeLimiterConfigurationProperties;
 import io.github.resilience4j.core.Registry;
 import io.github.resilience4j.ratelimiter.RateLimiter;
 import io.github.resilience4j.ratelimiter.RateLimiterConfig;
@@ -63,11 +63,11 @@ public class Resilience4jModuleTest {
 
     @Test
     public void test() {
-        assertModule(RETRY, Retry.class, RetryConfig.class, RetryConfigurationProperties.class, RetryEvent.class, RetryRegistry.class, 0);
-        assertModule(CIRCUIT_BREAKER, CircuitBreaker.class, CircuitBreakerConfig.class, CircuitBreakerConfigurationProperties.class, CircuitBreakerEvent.class, CircuitBreakerRegistry.class, 1);
-        assertModule(RATE_LIMITER, RateLimiter.class, RateLimiterConfig.class, RateLimiterConfigurationProperties.class, RateLimiterEvent.class, RateLimiterRegistry.class, 2);
-        assertModule(TIME_LIMITER, TimeLimiter.class, TimeLimiterConfig.class, TimeLimiterConfigurationProperties.class, TimeLimiterEvent.class, TimeLimiterRegistry.class, 3);
-        assertModule(BULKHEAD, Bulkhead.class, BulkheadConfig.class, BulkheadConfigurationProperties.class, BulkheadEvent.class, BulkheadRegistry.class, 4);
+        assertModule(RETRY, Retry.class, RetryConfig.class, CommonRetryConfigurationProperties.class, RetryEvent.class, RetryRegistry.class, 0);
+        assertModule(CIRCUIT_BREAKER, CircuitBreaker.class, CircuitBreakerConfig.class, CommonCircuitBreakerConfigurationProperties.class, CircuitBreakerEvent.class, CircuitBreakerRegistry.class, 1);
+        assertModule(RATE_LIMITER, RateLimiter.class, RateLimiterConfig.class, CommonRateLimiterConfigurationProperties.class, RateLimiterEvent.class, RateLimiterRegistry.class, 2);
+        assertModule(TIME_LIMITER, TimeLimiter.class, TimeLimiterConfig.class, CommonTimeLimiterConfigurationProperties.class, TimeLimiterEvent.class, TimeLimiterRegistry.class, 3);
+        assertModule(BULKHEAD, Bulkhead.class, BulkheadConfig.class, CommonBulkheadConfigurationProperties.class, BulkheadEvent.class, BulkheadRegistry.class, 4);
     }
 
     private void assertModule(Resilience4jModule module, Class<?> entryClass, Class<?> configClass,

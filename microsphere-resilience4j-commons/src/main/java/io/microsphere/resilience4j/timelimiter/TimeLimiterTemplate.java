@@ -17,6 +17,7 @@
 package io.microsphere.resilience4j.timelimiter;
 
 import io.github.resilience4j.core.EventConsumer;
+import io.github.resilience4j.core.functions.CheckedSupplier;
 import io.github.resilience4j.timelimiter.TimeLimiter;
 import io.github.resilience4j.timelimiter.TimeLimiterConfig;
 import io.github.resilience4j.timelimiter.TimeLimiterRegistry;
@@ -26,7 +27,6 @@ import io.github.resilience4j.timelimiter.event.TimeLimiterOnTimeoutEvent;
 import io.microsphere.resilience4j.common.Resilience4jContext;
 import io.microsphere.resilience4j.common.Resilience4jTemplate;
 import io.microsphere.util.ExceptionUtils;
-import io.vavr.CheckedFunction0;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -82,11 +82,11 @@ public class TimeLimiterTemplate extends Resilience4jTemplate<TimeLimiter, TimeL
      * {@inheritDoc}
      */
     @Override
-    protected <V> V execute(Resilience4jContext<TimeLimiter> context, CheckedFunction0<V> callback) throws Throwable {
+    protected <V> V execute(Resilience4jContext<TimeLimiter> context, CheckedSupplier<V> callback) throws Throwable {
         TimeLimiter timeLimiter = context.getEntry();
         Callable<V> docoratedCallable = timeLimiter.decorateFutureSupplier(() -> executorService.submit(() -> {
             try {
-                return callback.apply();
+                return callback.get();
             } catch (Throwable t) {
                 throw new Exception(t);
             }

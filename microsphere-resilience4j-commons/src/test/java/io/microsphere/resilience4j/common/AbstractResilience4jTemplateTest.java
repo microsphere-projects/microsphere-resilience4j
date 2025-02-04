@@ -22,7 +22,6 @@ import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 import io.github.resilience4j.core.Registry;
 import io.microsphere.logging.Logger;
 import io.microsphere.util.ValueHolder;
-import io.vavr.control.Try;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -211,14 +210,12 @@ public abstract class AbstractResilience4jTemplateTest<E, C, R extends Registry<
         RT template = this.template;
         Resilience4jModule module = template.getModule();
         ValueHolder<Object> resultHolder = new ValueHolder<>();
-        Try.of(() -> {
+        try {
             Resilience4jContext<E> context = template.begin(getEntryNameGenerator());
-            return context.getEntry();
-        }).onSuccess(entry -> {
-            resultHolder.setValue(entry);
-        }).onFailure(e -> {
+            resultHolder.setValue(context.getEntry());
+        } catch (Throwable e) {
             resultHolder.setValue(e);
-        });
+        }
 
         switch (module) {
             case RETRY:
@@ -236,15 +233,14 @@ public abstract class AbstractResilience4jTemplateTest<E, C, R extends Registry<
         RT template = this.template;
         Resilience4jModule module = template.getModule();
         ValueHolder<Object> resultHolder = new ValueHolder<>();
-        Try.of(() -> {
+
+        try {
             Resilience4jContext<E> context = template.beforeExecute(entryName);
             template.end(context);
-            return context.getEntry();
-        }).onSuccess(entry -> {
-            resultHolder.setValue(entry);
-        }).onFailure(e -> {
+            resultHolder.setValue(context.getEntry());
+        } catch (Throwable e) {
             resultHolder.setValue(e);
-        });
+        }
 
         switch (module) {
             case RETRY:

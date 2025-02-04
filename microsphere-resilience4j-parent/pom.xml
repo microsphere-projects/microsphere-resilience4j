@@ -19,13 +19,11 @@
     <description>Microsphere Resilience4j Parent</description>
 
     <properties>
-        <microsphere-spring-boot.version>0.1.1</microsphere-spring-boot.version>
-        <microsphere-spring-cloud.version>0.0.1</microsphere-spring-cloud.version>
-        <microsphere-redis-spring.version>0.0.1</microsphere-redis-spring.version>
+        <microsphere-spring-cloud.version>0.2.0</microsphere-spring-cloud.version>
         <!-- Third-party versions -->
-        <resilience4j.version>1.7.0</resilience4j.version>
-        <mybatis-starter.version>3.0.1</mybatis-starter.version>
-        <mybatis.version>3.5.11</mybatis.version>
+        <resilience4j.version>2.3.0</resilience4j.version>
+        <mybatis.version>3.5.19</mybatis.version>
+        <mybatis-starter.version>3.0.4</mybatis-starter.version>
         <p6spy.version>3.9.1</p6spy.version>
         <druid.version>1.2.20</druid.version>
     </properties>
@@ -33,11 +31,38 @@
     <dependencyManagement>
         <dependencies>
 
-            <!-- Microsphere Spring Boot Dependencies -->
+            <!-- Resilience4j Dependencies -->
             <dependency>
-                <groupId>io.github.microsphere-projects</groupId>
-                <artifactId>microsphere-spring-boot-dependencies</artifactId>
-                <version>${microsphere-spring-boot.version}</version>
+                <groupId>io.github.resilience4j</groupId>
+                <artifactId>resilience4j-bom</artifactId>
+                <version>${resilience4j.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <!-- Spring Boot Dependencies -->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring-boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <!-- Spring Cloud Dependencies -->
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <!-- Spring Cloud Alibaba Dependencies -->
+            <dependency>
+                <groupId>com.alibaba.cloud</groupId>
+                <artifactId>spring-cloud-alibaba-dependencies</artifactId>
+                <version>${spring-cloud-alibaba.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -51,34 +76,17 @@
                 <scope>import</scope>
             </dependency>
 
-            <!-- Microsphere Spring Redis -->
-            <dependency>
-                <groupId>io.github.microsphere-projects</groupId>
-                <artifactId>microsphere-redis-spring</artifactId>
-                <version>${microsphere-redis-spring.version}</version>
-                <optional>true</optional>
-            </dependency>
-
-            <!-- Resilience4j Dependencies -->
-            <dependency>
-                <groupId>io.github.resilience4j</groupId>
-                <artifactId>resilience4j-bom</artifactId>
-                <version>${resilience4j.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-
             <!-- Mybatis -->
-            <dependency>
-                <groupId>org.mybatis.spring.boot</groupId>
-                <artifactId>mybatis-spring-boot-starter</artifactId>
-                <version>${mybatis-starter.version}</version>
-            </dependency>
-
             <dependency>
                 <groupId>org.mybatis</groupId>
                 <artifactId>mybatis</artifactId>
                 <version>${mybatis.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.mybatis.spring.boot</groupId>
+                <artifactId>mybatis-spring-boot-starter</artifactId>
+                <version>${mybatis-starter.version}</version>
             </dependency>
 
             <!-- JDBC -->
@@ -97,5 +105,39 @@
 
         </dependencies>
     </dependencyManagement>
+
+    <profiles>
+
+        <profile>
+            <id>spring-cloud-2022</id>
+            <properties>
+                <spring-boot.version>3.0.13</spring-boot.version>
+                <spring-cloud.version>2022.0.5</spring-cloud.version>
+                <spring-cloud-alibaba.version>2022.0.0.2</spring-cloud-alibaba.version>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>spring-cloud-2023</id>
+            <properties>
+                <spring-boot.version>3.2.12</spring-boot.version>
+                <spring-cloud.version>2023.0.5</spring-cloud.version>
+                <spring-cloud-alibaba.version>2023.0.3.2</spring-cloud-alibaba.version>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>spring-cloud-2024</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <spring-boot.version>3.4.0</spring-boot.version>
+                <spring-cloud.version>2024.0.0</spring-cloud.version>
+                <spring-cloud-alibaba.version>2023.0.3.2</spring-cloud-alibaba.version>
+            </properties>
+        </profile>
+
+    </profiles>
 
 </project>

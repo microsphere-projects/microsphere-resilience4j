@@ -30,16 +30,9 @@
 
         <!-- Servlet API -->
         <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
             <scope>provided</scope>
-        </dependency>
-
-        <!-- Java Caching -->
-        <dependency>
-            <groupId>javax.cache</groupId>
-            <artifactId>cache-api</artifactId>
-            <optional>true</optional>
         </dependency>
 
         <!-- Spring WebMVC -->
@@ -86,13 +79,6 @@
         <dependency>
             <groupId>io.github.microsphere-projects</groupId>
             <artifactId>microsphere-spring-webmvc</artifactId>
-            <optional>true</optional>
-        </dependency>
-
-        <!-- Microsphere Spring Redis -->
-        <dependency>
-            <groupId>io.github.microsphere-projects</groupId>
-            <artifactId>microsphere-redis-spring</artifactId>
             <optional>true</optional>
         </dependency>
 

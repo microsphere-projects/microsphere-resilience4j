@@ -20,6 +20,7 @@ import io.github.resilience4j.bulkhead.Bulkhead;
 import io.github.resilience4j.bulkhead.BulkheadRegistry;
 import io.github.resilience4j.bulkhead.configure.BulkheadConfigurationProperties;
 import io.github.resilience4j.bulkhead.event.BulkheadOnCallPermittedEvent;
+import io.github.resilience4j.common.bulkhead.configuration.CommonBulkheadConfigurationProperties;
 import io.microsphere.spring.core.convert.annotation.EnableSpringConverterAdapter;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -61,7 +62,7 @@ public class EnableBulkheadTest {
         Bulkhead circuitBreaker = registry.bulkhead("test");
         circuitBreaker.acquirePermission();
 
-        io.github.resilience4j.common.bulkhead.configuration.BulkheadConfigurationProperties.InstanceProperties instanceProperties = properties.getInstances().get("test");
+        CommonBulkheadConfigurationProperties.InstanceProperties instanceProperties = properties.getInstances().get("test");
         assertEquals(Integer.valueOf(10), instanceProperties.getMaxConcurrentCalls());
         assertEquals(Integer.valueOf(100), instanceProperties.getEventConsumerBufferSize());
         assertEquals(Duration.ofSeconds(30), instanceProperties.getMaxWaitDuration());

@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       revision:
-        description: 'The version to publish'
+        description: 'The version to publish for JDK 17+'
         required: true
         default: '2.0.0-SNAPSHOT'
 

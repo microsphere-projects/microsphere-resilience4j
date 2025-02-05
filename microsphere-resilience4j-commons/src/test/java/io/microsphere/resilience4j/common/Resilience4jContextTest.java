@@ -19,6 +19,7 @@ package io.microsphere.resilience4j.common;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import static java.lang.System.nanoTime;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -49,6 +50,14 @@ public class Resilience4jContextTest {
     public void testProperties() {
         assertEquals(entryName, context.getEntryName());
         assertEquals(entry, context.getEntry());
+
+        Long startTime = nanoTime();
+        assertSame(startTime, context.setStartTime(startTime).getStartTime());
+
+        assertSame(entryName, context.setResult(entryName).getResult());
+
+        Exception exception = new Exception();
+        assertSame(exception, context.setFailure(exception).getFailure());
     }
 
     @Test
@@ -73,5 +82,10 @@ public class Resilience4jContextTest {
         assertSame(context, context.setAttribute(name, defaultValue));
         assertSame(context, context.removeAttributes());
         assertFalse(context.hasAttribute(name));
+    }
+
+    @Test
+    public void testToString() {
+        assertNotNull(context.toString());
     }
 }

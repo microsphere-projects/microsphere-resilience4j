@@ -69,6 +69,16 @@ public class TimeLimiterTemplate extends Resilience4jTemplate<TimeLimiter, TimeL
     }
 
     @Override
+    public boolean isBeginSupported() {
+        return false;
+    }
+
+    @Override
+    public boolean isEndSupported() {
+        return false;
+    }
+
+    @Override
     public void end(Resilience4jContext<TimeLimiter> context) {
         throw create(UnsupportedOperationException.class, "TimeLimiter does not support end operation");
     }

@@ -42,7 +42,7 @@ import static io.microsphere.util.Assert.assertNotNull;
 import static io.microsphere.util.ExceptionUtils.create;
 
 /**
- * The abstract template class for {@link Resilience4jOperations Resilience4j operations}.
+ * The abstract template class for {@link AdvancedResilience4jOperations Resilience4j operations}.
  *
  * @param <E> the type of Resilience4j's entry, e.g., {@link CircuitBreaker}
  * @param <C> the type of Resilience4j's entry configuration, e.g., {@link CircuitBreakerConfig}
@@ -54,7 +54,7 @@ import static io.microsphere.util.ExceptionUtils.create;
  * @see RegistryEventConsumer
  * @since 1.0.0
  */
-public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> implements Resilience4jOperations<E, C, R> {
+public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> implements AdvancedResilience4jOperations<E, C, R> {
 
     protected final Logger logger = getLogger(getClass());
 
@@ -71,12 +71,15 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> imple
      */
     protected final Map<String, E> localEntriesCache;
 
+    private int priority;
+
     public Resilience4jTemplate(R registry) {
         assertNotNull(registry, "The registry must not be null");
         this.registry = registry;
         this.registryEventProcessor = getEventProcessor(registry);
         this.module = valueOf(registry.getClass());
         this.localEntriesCache = createLocalEntriesCache();
+        this.priority = this.module.getDefaultAspectOrder();
     }
 
     /**
@@ -106,7 +109,7 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> imple
      */
     @NonNull
     public final C getDefaultConfig() {
-        return Resilience4jOperations.super.getDefaultConfig();
+        return AdvancedResilience4jOperations.super.getDefaultConfig();
     }
 
     /**
@@ -116,7 +119,7 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> imple
      */
     @NonNull
     public final Class<E> getEntryClass() {
-        return Resilience4jOperations.super.getEntryClass();
+        return AdvancedResilience4jOperations.super.getEntryClass();
     }
 
     /**
@@ -126,7 +129,7 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> imple
      */
     @NonNull
     public final Class<C> getConfigClass() {
-        return Resilience4jOperations.super.getConfigClass();
+        return AdvancedResilience4jOperations.super.getConfigClass();
     }
 
     /**
@@ -169,7 +172,7 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> imple
         if (entry != null) {
             return entry;
         }
-        return Resilience4jOperations.super.getEntry(name);
+        return AdvancedResilience4jOperations.super.getEntry(name);
     }
 
     /**
@@ -211,8 +214,8 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> imple
      * @return {@link Resilience4jTemplate}
      */
     @Override
-    public final Resilience4jOperations<E, C, R> addConfiguration(String configName, C configuration) {
-        return Resilience4jOperations.super.addConfiguration(configName, configuration);
+    public final AdvancedResilience4jOperations<E, C, R> addConfiguration(String configName, C configuration) {
+        return AdvancedResilience4jOperations.super.addConfiguration(configName, configuration);
     }
 
     /**
@@ -224,7 +227,7 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> imple
      */
     @NonNull
     public final C getConfiguration(String configName) {
-        return Resilience4jOperations.super.getConfiguration(configName);
+        return AdvancedResilience4jOperations.super.getConfiguration(configName);
     }
 
     @Override
@@ -301,6 +304,22 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> imple
     private <T> Resilience4jTemplate<E, C, R> registerEventConsumer(EventProcessor eventProcessor,
                                                                     Class<? super T> eventType, EventConsumer<T> eventConsumer) {
         eventProcessor.registerConsumer(eventType.getSimpleName(), eventConsumer);
+        return this;
+    }
+
+    @Override
+    public final int getPriority() {
+        return priority;
+    }
+
+    /**
+     * Set the priority
+     *
+     * @param priority
+     * @return {@link Resilience4jTemplate}
+     */
+    public final Resilience4jTemplate<E, C, R> setPriority(int priority) {
+        this.priority = priority;
         return this;
     }
 

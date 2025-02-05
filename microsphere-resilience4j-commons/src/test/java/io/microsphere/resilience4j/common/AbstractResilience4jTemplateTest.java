@@ -278,6 +278,15 @@ public abstract class AbstractResilience4jTemplateTest<E, C, R extends Registry<
         }
     }
 
+    @Test
+    public final void testPriority() {
+        RT template = this.template;
+        assertEquals(template.getPriority(), template.getModule().getDefaultAspectOrder());
+
+        int priority = 1;
+        assertEquals(priority, template.setPriority(priority).getPriority());
+    }
+
 
     @AfterEach
     public void destroy() {

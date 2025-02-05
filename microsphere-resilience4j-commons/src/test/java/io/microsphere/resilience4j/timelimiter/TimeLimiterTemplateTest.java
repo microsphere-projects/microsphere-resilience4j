@@ -22,13 +22,17 @@ import io.github.resilience4j.timelimiter.TimeLimiterRegistry;
 import io.microsphere.resilience4j.common.AbstractResilience4jTemplateTest;
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.Constructor;
 import java.time.Duration;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeoutException;
 
 import static io.github.resilience4j.timelimiter.event.TimeLimiterEvent.Type.ERROR;
 import static io.github.resilience4j.timelimiter.event.TimeLimiterEvent.Type.SUCCESS;
 import static io.github.resilience4j.timelimiter.event.TimeLimiterEvent.Type.TIMEOUT;
 import static java.time.Duration.ofMillis;
+import static java.util.concurrent.Executors.newFixedThreadPool;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -47,6 +51,14 @@ public class TimeLimiterTemplateTest extends AbstractResilience4jTemplateTest<Ti
 
     private final Duration timeoutDuration = ofMillis(timeoutDurationInMills);
 
+    private ExecutorService executorService;
+
+    @Override
+    protected TimeLimiterTemplate createTemplate(TimeLimiterRegistry registry) throws Throwable {
+        executorService = newFixedThreadPool(1);
+        return new TimeLimiterTemplate(registry, executorService);
+    }
+
     /**
      * Create an instance of {@link TimeLimiterConfig} for testing
      *
@@ -58,6 +70,11 @@ public class TimeLimiterTemplateTest extends AbstractResilience4jTemplateTest<Ti
                 .cancelRunningFuture(true)
                 .timeoutDuration(timeoutDuration)
                 .build();
+    }
+
+    @Override
+    protected void preDestroy() {
+        executorService.shutdown();
     }
 
     @Test
@@ -107,7 +124,7 @@ public class TimeLimiterTemplateTest extends AbstractResilience4jTemplateTest<Ti
 
         assertThrows(TimeoutException.class, () -> {
             template.call(entryName, () -> {
-                await(timeoutDurationInMills * 2);
+                await(timeoutDurationInMills * 3);
             });
         });
     }

@@ -31,13 +31,13 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Supplier;
 
 import static io.github.resilience4j.core.registry.RegistryEvent.Type.ADDED;
 import static io.github.resilience4j.core.registry.RegistryEvent.Type.REMOVED;
 import static io.github.resilience4j.core.registry.RegistryEvent.Type.REPLACED;
 import static io.microsphere.logging.LoggerFactory.getLogger;
 import static io.microsphere.reflect.MethodUtils.invokeStaticMethod;
+import static java.lang.System.nanoTime;
 import static java.util.Arrays.asList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -91,7 +91,7 @@ public abstract class AbstractResilience4jTemplateTest<E, C, R extends Registry<
         this.registry = createRegistry();
         this.entryConfig = createEntryConfig();
         this.template = createTemplate(registry);
-        this.template.configuration(this.entryName, entryConfig);
+        this.template.addConfiguration(this.entryName, entryConfig);
         logger.debug("The instance of Registry(class : '{}') was created.", this.registry.getClass().getName());
         logger.debug("The instance of Resilience4jTemplate(class : '{}') was created.", this.template.getClass().getName());
         postInit();
@@ -111,10 +111,6 @@ public abstract class AbstractResilience4jTemplateTest<E, C, R extends Registry<
      */
     protected void postInit() {
         // DO NOTHING, The subclass can override it
-    }
-
-    protected Supplier<String> getEntryNameGenerator() {
-        return () -> entryName;
     }
 
     protected RT createTemplate(R registry) throws Throwable {
@@ -208,10 +204,11 @@ public abstract class AbstractResilience4jTemplateTest<E, C, R extends Registry<
     @Test
     public final void testBegin() {
         RT template = this.template;
+        String entryName = this.entryName;
         Resilience4jModule module = template.getModule();
         ValueHolder<Object> resultHolder = new ValueHolder<>();
         try {
-            Resilience4jContext<E> context = template.begin(getEntryNameGenerator());
+            Resilience4jContext<E> context = template.begin(entryName);
             resultHolder.setValue(context.getEntry());
         } catch (Throwable e) {
             resultHolder.setValue(e);
@@ -230,12 +227,14 @@ public abstract class AbstractResilience4jTemplateTest<E, C, R extends Registry<
 
     @Test
     public final void testEnd() {
+        String entryName = this.entryName;
         RT template = this.template;
         Resilience4jModule module = template.getModule();
         ValueHolder<Object> resultHolder = new ValueHolder<>();
 
         try {
-            Resilience4jContext<E> context = template.beforeExecute(entryName);
+            Resilience4jContext<E> context = new Resilience4jContext<>(entryName, template.getEntry(entryName));
+            context.setStartTime(nanoTime());
             template.end(context);
             resultHolder.setValue(context.getEntry());
         } catch (Throwable e) {

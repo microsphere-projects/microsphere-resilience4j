@@ -56,9 +56,9 @@ public class BulkheadTemplateTest extends AbstractResilience4jTemplateTest<Bulkh
     }
 
     @Test
-    public void testExecute() {
-        String entryName = this.entryName;
-        BulkheadTemplate template = this.template;
+    public void testExecute() throws Throwable {
+        String entryName = super.entryName;
+        BulkheadTemplate template = super.template;
 
         template.onCallPermittedEvent(entryName, event -> {
             logEvent(event);
@@ -72,14 +72,14 @@ public class BulkheadTemplateTest extends AbstractResilience4jTemplateTest<Bulkh
             assertEquals(CALL_FINISHED, event.getEventType());
         });
 
-        Object result = template.execute(() -> entryName, () -> null);
+        Object result = template.execute(entryName, () -> null);
         assertNull(result);
     }
 
     @Test
     public void testExecuteOnCallRejected() throws InterruptedException {
-        String entryName = this.entryName;
-        BulkheadTemplate template = this.template;
+        String entryName = super.entryName;
+        BulkheadTemplate template = super.template;
 
         template.onCallRejectedEvent(entryName, event -> {
             logEvent(event);
@@ -92,7 +92,7 @@ public class BulkheadTemplateTest extends AbstractResilience4jTemplateTest<Bulkh
 
         for (int i = 0; i < times; i++) {
             executorService.execute(() -> {
-                await(maxWaitDuration, () -> template.execute(() -> entryName, () -> {
+                await(maxWaitDuration, () -> template.execute(entryName, () -> {
                 }));
             });
         }

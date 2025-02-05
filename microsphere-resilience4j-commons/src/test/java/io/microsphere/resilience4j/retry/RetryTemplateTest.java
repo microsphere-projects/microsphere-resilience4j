@@ -22,6 +22,7 @@ import io.github.resilience4j.retry.RetryRegistry;
 import io.microsphere.resilience4j.common.AbstractResilience4jTemplateTest;
 import org.junit.jupiter.api.Test;
 
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static io.github.resilience4j.retry.event.RetryEvent.Type.ERROR;
@@ -29,8 +30,8 @@ import static io.github.resilience4j.retry.event.RetryEvent.Type.IGNORED_ERROR;
 import static io.github.resilience4j.retry.event.RetryEvent.Type.RETRY;
 import static io.github.resilience4j.retry.event.RetryEvent.Type.SUCCESS;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * {@link RetryTemplate} Test
@@ -47,14 +48,14 @@ public class RetryTemplateTest extends AbstractResilience4jTemplateTest<Retry, R
     protected RetryConfig createEntryConfig() {
         return RetryConfig.custom()
                 .maxAttempts(maxAttempts)
-                .ignoreExceptions(RuntimeException.class)
-                .retryExceptions(Exception.class)
+                .ignoreExceptions(IllegalStateException.class)
+                .retryExceptions(TimeoutException.class)
                 .build();
     }
 
     @Test
-    public void testExecute() {
-        String entryName = this.entryName;
+    public void testExecute() throws Throwable {
+        String entryName = super.entryName;
         RetryTemplate template = super.template;
         String result = "OK";
 
@@ -81,37 +82,30 @@ public class RetryTemplateTest extends AbstractResilience4jTemplateTest<Retry, R
             assertEquals(maxAttempts - attempts.get(), event.getNumberOfRetryAttempts());
         });
 
-        assertEquals(result, template.execute(entryName, () -> {
+        assertEquals(result, template.call(entryName, () -> {
             if (attempts.decrementAndGet() == 0) {
                 return result;
             } else {
-                throw new Exception("For testing");
+                throw new TimeoutException("For testing");
             }
         }));
     }
 
     @Test
-    public void testExecuteOnIgnoredException() {
-        String entryName = this.entryName;
+    public void testExecuteOnIgnoredException() throws Throwable {
+        String entryName = super.entryName;
         RetryTemplate template = super.template;
-        String result = "OK";
-
-        AtomicInteger attempts = new AtomicInteger(maxAttempts);
 
         template.onIgnoredErrorEvent(entryName, event -> {
             logEvent(event);
             assertEquals(entryName, event.getName());
             assertSame(IGNORED_ERROR, event.getEventType());
-            assertEquals(attempts.get(), event.getNumberOfRetryAttempts());
         });
 
-        assertNull(template.execute(entryName, () -> {
-            if (attempts.decrementAndGet() == 0) {
-                return result;
-            } else {
-                throw new RuntimeException("For testing");
-            }
+        assertThrows(IllegalStateException.class, () -> template.call(entryName, () -> {
+            throw new IllegalStateException("For testing");
         }));
+
     }
 
 }

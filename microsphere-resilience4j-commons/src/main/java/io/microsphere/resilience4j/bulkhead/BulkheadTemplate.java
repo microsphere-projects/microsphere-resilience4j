@@ -49,25 +49,19 @@ public class BulkheadTemplate extends Resilience4jTemplate<Bulkhead, BulkheadCon
      * @return non-null
      */
     @Override
-    protected Bulkhead createEntry(String name) {
+    public Bulkhead createEntry(String name) {
         BulkheadRegistry registry = super.getRegistry();
         return registry.bulkhead(name, super.getConfiguration(name), registry.getTags());
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    protected void beforeExecute(Resilience4jContext<Bulkhead> context) {
+    protected void begin(Resilience4jContext<Bulkhead> context) {
         Bulkhead bulkhead = context.getEntry();
         bulkhead.acquirePermission();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    protected void afterExecute(Resilience4jContext<Bulkhead> context) {
+    public void end(Resilience4jContext<Bulkhead> context) {
         Bulkhead bulkhead = context.getEntry();
         bulkhead.onComplete();
     }

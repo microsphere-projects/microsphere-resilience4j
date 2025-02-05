@@ -26,9 +26,6 @@ import org.junit.jupiter.api.Test;
 import java.time.Duration;
 import java.util.function.Supplier;
 
-import static io.github.resilience4j.circuitbreaker.CircuitBreakerConfig.SlidingWindowSynchronizationStrategy.LOCK_FREE;
-import static io.github.resilience4j.circuitbreaker.CircuitBreakerConfig.SlidingWindowSynchronizationStrategy.SYNCHRONIZED;
-import static io.github.resilience4j.circuitbreaker.CircuitBreakerConfig.SlidingWindowType.COUNT_BASED;
 import static io.github.resilience4j.circuitbreaker.event.CircuitBreakerEvent.Type.ERROR;
 import static io.github.resilience4j.circuitbreaker.event.CircuitBreakerEvent.Type.FAILURE_RATE_EXCEEDED;
 import static io.github.resilience4j.circuitbreaker.event.CircuitBreakerEvent.Type.IGNORED_ERROR;
@@ -64,7 +61,6 @@ public class CircuitBreakerTemplateTest extends AbstractResilience4jTemplateTest
     @Override
     protected CircuitBreakerConfig createEntryConfig() {
         return CircuitBreakerConfig.custom()
-                .slidingWindow(1, 1, COUNT_BASED, SYNCHRONIZED)
                 .failureRateThreshold(rateThreshold)
                 .maxWaitDurationInHalfOpenState(duration)
                 .ignoreExceptions(RuntimeException.class)
@@ -79,22 +75,22 @@ public class CircuitBreakerTemplateTest extends AbstractResilience4jTemplateTest
 
     @Test
     public void testExecute() throws Throwable {
-        String entryName = this.entryName;
-        CircuitBreakerTemplate template = this.template;
+        String entryName = super.entryName;
+        CircuitBreakerTemplate template = super.template;
 
         template.onSuccessEvent(entryName, event -> {
             logEvent(event);
             assertEquals(entryName, event.getCircuitBreakerName());
             assertSame(SUCCESS, event.getEventType());
         });
-        String result = template.execute(getEntryNameGenerator(), () -> entryName);
+        String result = template.execute(entryName, () -> entryName);
         assertEquals(entryName, result);
     }
 
     @Test
     public void testExecuteOnCallFailure() {
-        String entryName = this.entryName;
-        CircuitBreakerTemplate template = this.template;
+        String entryName = super.entryName;
+        CircuitBreakerTemplate template = super.template;
 
         template.onFailureRateExceededEvent(entryName, event -> {
             logEvent(event);
@@ -138,7 +134,7 @@ public class CircuitBreakerTemplateTest extends AbstractResilience4jTemplateTest
 
         executeThrowing(RuntimeException::new);
 
-        template.executeEntry(entryName, CircuitBreaker::reset);
+        template.execute(entryName, CircuitBreaker::reset);
 
         executeThrowing(Exception::new);
         executeThrowing(RuntimeException::new);
@@ -149,7 +145,7 @@ public class CircuitBreakerTemplateTest extends AbstractResilience4jTemplateTest
     @Test
     public void testExecuteOnSlowCall() {
         String entryName = this.entryName;
-        CircuitBreakerTemplate template = this.template;
+        CircuitBreakerTemplate template = super.template;
 
         template.onSlowCallRateExceededEvent(entryName, event -> {
             logEvent(event);
@@ -174,16 +170,16 @@ public class CircuitBreakerTemplateTest extends AbstractResilience4jTemplateTest
     }
 
     private void executeNothing() {
-        template.execute(getEntryNameGenerator(), () -> {
+        template.execute(entryName, () -> {
         });
     }
 
     private void executeThrowing(Supplier<? extends Throwable> throwableSupplier) {
         try {
-            template.execute(getEntryNameGenerator(), () -> {
+            template.call(entryName, () -> {
                 throw throwableSupplier.get();
             });
-        } catch (RuntimeException e) {
+        } catch (Throwable e) {
 
         }
     }

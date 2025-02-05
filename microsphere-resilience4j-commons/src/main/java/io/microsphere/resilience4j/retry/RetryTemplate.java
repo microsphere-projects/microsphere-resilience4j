@@ -17,7 +17,6 @@
 package io.microsphere.resilience4j.retry;
 
 import io.github.resilience4j.core.EventConsumer;
-import io.github.resilience4j.core.functions.CheckedSupplier;
 import io.github.resilience4j.retry.Retry;
 import io.github.resilience4j.retry.RetryConfig;
 import io.github.resilience4j.retry.RetryRegistry;
@@ -25,6 +24,7 @@ import io.github.resilience4j.retry.event.RetryOnErrorEvent;
 import io.github.resilience4j.retry.event.RetryOnIgnoredErrorEvent;
 import io.github.resilience4j.retry.event.RetryOnRetryEvent;
 import io.github.resilience4j.retry.event.RetryOnSuccessEvent;
+import io.microsphere.lang.function.ThrowableSupplier;
 import io.microsphere.resilience4j.common.Resilience4jContext;
 import io.microsphere.resilience4j.common.Resilience4jTemplate;
 import io.microsphere.util.ExceptionUtils;
@@ -48,29 +48,20 @@ public class RetryTemplate extends Resilience4jTemplate<Retry, RetryConfig, Retr
     }
 
     @Override
-    public Resilience4jContext<Retry> begin(String entryName) {
-        throw ExceptionUtils.create(UnsupportedOperationException.class, "RetryTemplate does not support begin operation");
+    public Retry createEntry(String name) {
+        RetryRegistry registry = super.getRegistry();
+        return registry.retry(name, super.getConfiguration(name));
+    }
+
+    @Override
+    public <T> T call(String name, ThrowableSupplier<T> callback) throws Throwable {
+        Retry retry = getEntry(name);
+        return decorateCheckedSupplier(retry, callback::get).get();
     }
 
     @Override
     public void end(Resilience4jContext<Retry> context) {
         throw ExceptionUtils.create(UnsupportedOperationException.class, "RetryTemplate does not support end operation");
-    }
-
-    @Override
-    protected Retry createEntry(String name) {
-        RetryRegistry registry = super.getRegistry();
-        return registry.retry(name, super.getConfiguration(name), registry.getTags());
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected <V> V execute(Resilience4jContext<Retry> context, CheckedSupplier<V> callback) throws Throwable {
-        Retry retry = context.getEntry();
-        CheckedSupplier<V> delegate = decorateCheckedSupplier(retry, callback);
-        return delegate.get();
     }
 
     /**

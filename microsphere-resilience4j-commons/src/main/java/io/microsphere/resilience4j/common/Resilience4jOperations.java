@@ -29,25 +29,20 @@ import io.microsphere.lang.function.ThrowableConsumer;
 import io.microsphere.lang.function.ThrowableFunction;
 import io.microsphere.lang.function.ThrowableSupplier;
 
-import java.lang.reflect.Method;
-import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import static io.microsphere.reflect.MethodUtils.findMethod;
-import static io.microsphere.reflect.MethodUtils.invokeMethod;
 import static io.microsphere.util.ExceptionUtils.wrap;
-import static java.util.Collections.emptyMap;
 
 /**
  * The common operations for the single {@link Resilience4jModule Resilience4j module}:
  * <ul>
  *     <li>One-Time Operation :
  *      <ul>
- *          <li>{@link #execute(String, ThrowableSupplier)} or {@link #call(String, Supplier)} : execution with result</li>
- *          <li>{@link #execute(String, ThrowableAction)} or {@link #call(String, Runnable)} : execution without result</li>
+ *          <li>{@link #call(String, ThrowableSupplier)} or {@link #execute(String, Supplier)} : execution with result</li>
+ *          <li>{@link #call(String, ThrowableAction)} or {@link #execute(String, Runnable)} : execution without result</li>
  *      </ul>
  *     </li>
  *     <li>Two-Phase Operation (unsupported in those cases : {@link Retry} and {@link TimeLimiter}) :
@@ -103,19 +98,6 @@ public interface Resilience4jOperations<E, C, R extends Registry<E, C>> {
         return (Class<C>) getModule().getConfigClass();
     }
 
-    /**
-     * Get the tags of Resilience4j's registry
-     *
-     * @return non-null
-     */
-    @NonNull
-    default Map<String, String> getTags() {
-        Method method = findMethod(Registry.class, "getTags");
-        if (method != null) {
-            return invokeMethod(getRegistry(), method);
-        }
-        return emptyMap();
-    }
 
     // The Operations for Resilience4j's Configuration
 
@@ -203,7 +185,7 @@ public interface Resilience4jOperations<E, C, R extends Registry<E, C>> {
     // The One-Time Operations
 
     /**
-     * Execute the callback with result
+     * Execute the callback without result
      *
      * @param name     the name of the Resilience4j's entry
      * @param callback the callback to be executed
@@ -255,7 +237,7 @@ public interface Resilience4jOperations<E, C, R extends Registry<E, C>> {
     }
 
     /**
-     * Execute the callback without result, and may throw any error
+     * Call the callback without result, and may throw any error
      *
      * @param name     the name of the Resilience4j's entry
      * @param callback the callback to be executed
@@ -269,7 +251,7 @@ public interface Resilience4jOperations<E, C, R extends Registry<E, C>> {
     }
 
     /**
-     * Execute the callback with result, and may throw any error
+     * Call the callback with result, and may throw any error
      *
      * @param name     the name of the Resilience4j's entry
      * @param callback the callback to be executed
@@ -286,7 +268,7 @@ public interface Resilience4jOperations<E, C, R extends Registry<E, C>> {
     }
 
     /**
-     * Execute the {@link Consumer consumer} of the Resilience4j's entry without result
+     * Call the {@link Consumer consumer} of the Resilience4j's entry without result
      *
      * @param name          the name of the Resilience4j's entry
      * @param entryConsumer the {@link Consumer consumer} of the Resilience4j's entry
@@ -299,7 +281,7 @@ public interface Resilience4jOperations<E, C, R extends Registry<E, C>> {
     }
 
     /**
-     * Execute the {@link Function function} of the Resilience4j's entry with result
+     * Call the {@link Function function} of the Resilience4j's entry with result
      *
      * @param name          the name of the Resilience4j's entry
      * @param entryFunction the {@link Function function} of the Resilience4j's entry

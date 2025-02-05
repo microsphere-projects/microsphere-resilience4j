@@ -17,8 +17,6 @@
 package io.microsphere.resilience4j.common;
 
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
-import io.github.resilience4j.retry.Retry;
-import io.github.resilience4j.timelimiter.TimeLimiter;
 import io.microsphere.lang.function.ThrowableAction;
 import io.microsphere.lang.function.ThrowableSupplier;
 

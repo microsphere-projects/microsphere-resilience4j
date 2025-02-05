@@ -26,7 +26,6 @@ import io.github.resilience4j.core.Registry;
 import io.github.resilience4j.ratelimiter.RateLimiter;
 import io.github.resilience4j.retry.Retry;
 import io.github.resilience4j.timelimiter.TimeLimiter;
-import io.microsphere.lang.Prioritized;
 import io.microsphere.resilience4j.common.Resilience4jModule;
 import io.microsphere.resilience4j.common.Resilience4jTemplate;
 import io.microsphere.util.BaseUtils;

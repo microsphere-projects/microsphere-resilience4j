@@ -78,7 +78,7 @@ public class TimeLimiterTemplateTest extends AbstractResilience4jTemplateTest<Ti
     @Test
     public void testExecute() {
         String entryName = super.entryName;
-        TimeLimiterTemplate template = this.template;
+        TimeLimiterTemplate template = super.template;
 
         template.onSuccessEvent(entryName, event -> {
             logEvent(event);
@@ -93,7 +93,7 @@ public class TimeLimiterTemplateTest extends AbstractResilience4jTemplateTest<Ti
     @Test
     public void testExecuteOnFailed() {
         String entryName = super.entryName;
-        TimeLimiterTemplate template = this.template;
+        TimeLimiterTemplate template = super.template;
 
         template.onErrorEvent(entryName, event -> {
             logEvent(event);
@@ -112,7 +112,7 @@ public class TimeLimiterTemplateTest extends AbstractResilience4jTemplateTest<Ti
     @Test
     public void testExecuteOnTimeout() {
         String entryName = super.entryName;
-        TimeLimiterTemplate template = this.template;
+        TimeLimiterTemplate template = super.template;
 
         template.onTimeoutEvent(entryName, event -> {
             logEvent(event);

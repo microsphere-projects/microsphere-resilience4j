@@ -30,7 +30,6 @@ import static io.github.resilience4j.retry.event.RetryEvent.Type.IGNORED_ERROR;
 import static io.github.resilience4j.retry.event.RetryEvent.Type.RETRY;
 import static io.github.resilience4j.retry.event.RetryEvent.Type.SUCCESS;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 

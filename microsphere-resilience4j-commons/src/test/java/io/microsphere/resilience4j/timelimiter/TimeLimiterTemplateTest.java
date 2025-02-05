@@ -22,10 +22,8 @@ import io.github.resilience4j.timelimiter.TimeLimiterRegistry;
 import io.microsphere.resilience4j.common.AbstractResilience4jTemplateTest;
 import org.junit.jupiter.api.Test;
 
-import java.lang.reflect.Constructor;
 import java.time.Duration;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeoutException;
 
 import static io.github.resilience4j.timelimiter.event.TimeLimiterEvent.Type.ERROR;

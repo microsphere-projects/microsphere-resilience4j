@@ -58,7 +58,7 @@ public class BulkheadTemplateTest extends AbstractResilience4jTemplateTest<Bulkh
     @Test
     public void testExecute() throws Throwable {
         String entryName = super.entryName;
-        BulkheadTemplate template = this.template;
+        BulkheadTemplate template = super.template;
 
         template.onCallPermittedEvent(entryName, event -> {
             logEvent(event);
@@ -79,7 +79,7 @@ public class BulkheadTemplateTest extends AbstractResilience4jTemplateTest<Bulkh
     @Test
     public void testExecuteOnCallRejected() throws InterruptedException {
         String entryName = super.entryName;
-        BulkheadTemplate template = this.template;
+        BulkheadTemplate template = super.template;
 
         template.onCallRejectedEvent(entryName, event -> {
             logEvent(event);

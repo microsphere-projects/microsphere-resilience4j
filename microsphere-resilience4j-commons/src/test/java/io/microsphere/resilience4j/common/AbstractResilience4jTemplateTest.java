@@ -202,6 +202,32 @@ public abstract class AbstractResilience4jTemplateTest<E, C, R extends Registry<
     }
 
     @Test
+    public final void testExecuteEntries() {
+        String entryName = this.entryName;
+        RT template = this.template;
+
+        template.execute(entryName, entry -> {
+            logger.debug("{}.execute('{}', entry : {})", this.getClass().getName(), entryName, entry);
+        });
+
+        E entry = template.execute(entryName, e -> e);
+        assertSame(entry, template.getEntry(entryName));
+    }
+
+    @Test
+    public final void testCallEntries() throws Throwable {
+        String entryName = this.entryName;
+        RT template = this.template;
+
+        template.call(entryName, entry -> {
+            logger.debug("{}.execute('{}', entry : {})", this.getClass().getName(), entryName, entry);
+        });
+
+        E entry = template.call(entryName, e -> e);
+        assertSame(entry, template.getEntry(entryName));
+    }
+
+    @Test
     public final void testBegin() {
         RT template = this.template;
         String entryName = this.entryName;

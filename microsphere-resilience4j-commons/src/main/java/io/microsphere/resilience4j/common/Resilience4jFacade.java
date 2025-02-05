@@ -16,8 +16,6 @@
  */
 package io.microsphere.resilience4j.common;
 
-import java.util.List;
-
 /**
  * The facade of Resilience4j operations whose entry is the array of sub-contexts
  *

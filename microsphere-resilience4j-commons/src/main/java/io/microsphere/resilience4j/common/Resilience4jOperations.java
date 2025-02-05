@@ -17,21 +17,11 @@
 package io.microsphere.resilience4j.common;
 
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
-import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
-import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
-import io.github.resilience4j.core.Registry;
-import io.github.resilience4j.core.lang.NonNull;
-import io.github.resilience4j.core.lang.Nullable;
 import io.github.resilience4j.retry.Retry;
 import io.github.resilience4j.timelimiter.TimeLimiter;
 import io.microsphere.lang.function.ThrowableAction;
-import io.microsphere.lang.function.ThrowableConsumer;
-import io.microsphere.lang.function.ThrowableFunction;
 import io.microsphere.lang.function.ThrowableSupplier;
 
-import java.util.Optional;
-import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 import static io.microsphere.util.ExceptionUtils.wrap;
@@ -39,148 +29,23 @@ import static io.microsphere.util.ExceptionUtils.wrap;
 /**
  * The common operations for the single {@link Resilience4jModule Resilience4j module}:
  * <ul>
- *     <li>One-Time Operation :
+ *     <li>One-Time Operations :
  *      <ul>
  *          <li>{@link #call(String, ThrowableSupplier)} or {@link #execute(String, Supplier)} : execution with result</li>
  *          <li>{@link #call(String, ThrowableAction)} or {@link #execute(String, Runnable)} : execution without result</li>
  *      </ul>
  *     </li>
- *     <li>Two-Phase Operation (unsupported in those cases : {@link Retry} and {@link TimeLimiter}) :
+ *     <li>Two-Phase Operations (unsupported in those cases : {@link Retry} and {@link TimeLimiter}) :
  *        <li>{@link #begin(String)} : the first phase</li>
  *        <li>{@link #end(Resilience4jContext)} :  the second phase</li>
  *     </li>
  * </ul>
  *
  * @param <E> the type of Resilience4j's entry, e.g., {@link CircuitBreaker}
- * @param <C> the type of Resilience4j's entry configuration, e.g., {@link CircuitBreakerConfig}
- * @param <R> the type of Resilience4j's entry registry, e.g., {@link CircuitBreakerRegistry}
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy<a/>
- * @see Resilience4jModule
  * @since 1.0.0
  */
-public interface Resilience4jOperations<E, C, R extends Registry<E, C>> {
-
-    // The Operations for Getter
-
-    /**
-     * Get the Resilience4j Registry
-     *
-     * @return non-null
-     */
-    @NonNull
-    R getRegistry();
-
-    /**
-     * Get the {@link Resilience4jModule Resilience4j's module}
-     *
-     * @return non-null
-     */
-    @NonNull
-    Resilience4jModule getModule();
-
-    /**
-     * Get the class of Resilience4j's entry
-     *
-     * @return non-null
-     */
-    @NonNull
-    default Class<E> getEntryClass() {
-        return (Class<E>) getModule().getEntryClass();
-    }
-
-    /**
-     * Get the class of Resilience4j's configuration
-     *
-     * @return non-null
-     */
-    @NonNull
-    default Class<C> getConfigClass() {
-        return (Class<C>) getModule().getConfigClass();
-    }
-
-
-    // The Operations for Resilience4j's Configuration
-
-    /**
-     * Get the {@link C configuration} by the specified name
-     *
-     * @param configName the specified configuration name
-     * @return if the {@link C configuration} can't be found by the specified configuration name,
-     * {@link #getDefaultConfig()} will be used as default
-     */
-    @NonNull
-    default C getConfiguration(String configName) {
-        return getRegistry().getConfiguration(configName).orElseGet(() -> getDefaultConfig());
-    }
-
-    /**
-     * Get the default {@link C configuration}
-     *
-     * @return non-null
-     */
-    @NonNull
-    default C getDefaultConfig() {
-        return getRegistry().getDefaultConfig();
-    }
-
-    /**
-     * Adds a configuration to the registry
-     *
-     * @param configName    the configuration name
-     * @param configuration the added configuration
-     * @return {@link Resilience4jTemplate}
-     */
-    default Resilience4jOperations<E, C, R> addConfiguration(String configName, C configuration) {
-        getRegistry().addConfiguration(configName, configuration);
-        return this;
-    }
-
-    // The Operations for Resilience4j's Entry
-
-    /**
-     * Get the Resilience4j's entry by the specified name
-     *
-     * @param name the name of the Resilience4j's entry
-     * @return non-null
-     */
-    @NonNull
-    default E getEntry(String name) {
-        Optional<E> optionalEntry = getRegistry().find(name);
-        return optionalEntry.orElseGet(() -> createEntry(name));
-    }
-
-    /**
-     * Create the Resilience4j's entry.
-     *
-     * @param name the name of the Resilience4j's entry
-     * @return non-null
-     */
-    @NonNull
-    E createEntry(String name);
-
-    /**
-     * Remove the Resilience4j's entry.
-     *
-     * @param name the name of the Resilience4j's entry
-     * @return <code>null</code> if can't be found by <code>name</code>
-     */
-    @Nullable
-    default E removeEntry(String name) {
-        Optional<E> optionalEntry = getRegistry().remove(name);
-        return optionalEntry.orElse(null);
-    }
-
-    /**
-     * Replace the Resilience4j's entry.
-     *
-     * @param name     the name of the Resilience4j's entry
-     * @param newEntry the new Resilience4j's entry
-     * @return the old Resilience4j's entry if replaced, otherwise <code>null</code>
-     */
-    default E replaceEntry(String name, E newEntry) {
-        Optional<E> optionalEntry = getRegistry().replace(name, newEntry);
-        return optionalEntry.orElse(null);
-    }
+public interface Resilience4jOperations<E> {
 
     // The One-Time Operations
 
@@ -209,31 +74,6 @@ public interface Resilience4jOperations<E, C, R extends Registry<E, C>> {
         } catch (Throwable t) {
             throw wrap(t, RuntimeException.class);
         }
-    }
-
-    /**
-     * Execute the {@link Consumer consumer} of the Resilience4j's entry without result
-     *
-     * @param name          the name of the Resilience4j's entry
-     * @param entryConsumer the {@link Consumer consumer} of the Resilience4j's entry
-     */
-    default Resilience4jOperations<E, C, R> execute(String name, Consumer<E> entryConsumer) {
-        E entry = getEntry(name);
-        entryConsumer.accept(entry);
-        return this;
-    }
-
-    /**
-     * Execute the {@link Function function} of the Resilience4j's entry with result
-     *
-     * @param name          the name of the Resilience4j's entry
-     * @param entryFunction the {@link Function function} of the Resilience4j's entry
-     * @param <T>           the type of result
-     * @return the result of the <code>entryFunction</code>
-     */
-    default <T> T execute(String name, Function<E, T> entryFunction) {
-        E entry = getEntry(name);
-        return entryFunction.apply(entry);
     }
 
     /**
@@ -267,33 +107,6 @@ public interface Resilience4jOperations<E, C, R extends Registry<E, C>> {
         }
     }
 
-    /**
-     * Call the {@link Consumer consumer} of the Resilience4j's entry without result
-     *
-     * @param name          the name of the Resilience4j's entry
-     * @param entryConsumer the {@link Consumer consumer} of the Resilience4j's entry
-     * @throws Throwable any error caused by the execution of the <code>entryConsumer</code>
-     */
-    default Resilience4jOperations<E, C, R> call(String name, ThrowableConsumer<E> entryConsumer) throws Throwable {
-        E entry = getEntry(name);
-        entryConsumer.accept(entry);
-        return this;
-    }
-
-    /**
-     * Call the {@link Function function} of the Resilience4j's entry with result
-     *
-     * @param name          the name of the Resilience4j's entry
-     * @param entryFunction the {@link Function function} of the Resilience4j's entry
-     * @param <T>           the type of result
-     * @return the result of the <code>entryFunction</code>
-     * @throws Throwable any error caused by the execution of the <code>entryFunction</code>
-     */
-    default <T> T call(String name, ThrowableFunction<E, T> entryFunction) throws Throwable {
-        E entry = getEntry(name);
-        return entryFunction.apply(entry);
-    }
-
     // The Two-Phase Operations
 
     /**
@@ -310,5 +123,4 @@ public interface Resilience4jOperations<E, C, R extends Registry<E, C>> {
      * @param context {@link Resilience4jContext}
      */
     void end(Resilience4jContext<E> context);
-
 }

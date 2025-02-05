@@ -98,43 +98,8 @@
         </dependency>
 
     </dependencies>
+
     <profiles>
-
-        <profile>
-            <id>resilience4j-1.0</id>
-            <dependencies>
-                <!-- Microsphere Resilience4j Compatible -->
-                <dependency>
-                    <groupId>io.github.microsphere-projects</groupId>
-                    <artifactId>microsphere-resilience4j-compatible</artifactId>
-                    <version>${revision}</version>
-                </dependency>
-            </dependencies>
-        </profile>
-
-        <profile>
-            <id>resilience4j-1.1</id>
-            <dependencies>
-                <!-- Microsphere Resilience4j Compatible -->
-                <dependency>
-                    <groupId>io.github.microsphere-projects</groupId>
-                    <artifactId>microsphere-resilience4j-compatible</artifactId>
-                    <version>${revision}</version>
-                </dependency>
-            </dependencies>
-        </profile>
-
-        <profile>
-            <id>resilience4j-1.2</id>
-            <dependencies>
-                <!-- Microsphere Resilience4j Compatible -->
-                <dependency>
-                    <groupId>io.github.microsphere-projects</groupId>
-                    <artifactId>microsphere-resilience4j-compatible</artifactId>
-                    <version>${revision}</version>
-                </dependency>
-            </dependencies>
-        </profile>
 
         <profile>
             <id>resilience4j-1.3</id>
@@ -182,13 +147,6 @@
                     <version>${revision}</version>
                 </dependency>
             </dependencies>
-        </profile>
-
-        <profile>
-            <id>resilience4j-1.7</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
         </profile>
 
     </profiles>

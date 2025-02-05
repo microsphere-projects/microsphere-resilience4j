@@ -38,6 +38,7 @@ import java.util.function.Supplier;
 
 import static io.microsphere.reflect.MethodUtils.findMethod;
 import static io.microsphere.reflect.MethodUtils.invokeMethod;
+import static io.microsphere.util.ExceptionUtils.wrap;
 import static java.util.Collections.emptyMap;
 
 /**
@@ -223,12 +224,8 @@ public interface Resilience4jOperations<E, C, R extends Registry<E, C>> {
     default <T> T execute(String name, Supplier<T> callback) {
         try {
             return call(name, callback::get);
-        } catch (Throwable e) {
-            if (e instanceof RuntimeException) {
-                throw (RuntimeException) e;
-            } else {
-                throw new RuntimeException(e);
-            }
+        } catch (Throwable t) {
+            throw wrap(t, RuntimeException.class);
         }
     }
 

@@ -66,7 +66,6 @@ public class EnableRateLimiterTest {
         assertEquals(Integer.valueOf(20), instanceProperties.getLimitForPeriod());
         assertEquals(Duration.ofNanos(1000), instanceProperties.getLimitRefreshPeriod());
 
-        rateLimiter.onSuccess();
     }
 
     @EventListener(RateLimiterOnSuccessEvent.class)

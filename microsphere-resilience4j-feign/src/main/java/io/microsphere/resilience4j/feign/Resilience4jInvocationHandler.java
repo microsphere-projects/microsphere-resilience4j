@@ -76,7 +76,7 @@ public class Resilience4jInvocationHandler<E, C, R extends Registry<E, C>> imple
                 break;
         }
 
-        return this.template.execute(getEntryName(method), () -> dispatch.get(method).invoke(args));
+        return this.template.call(getEntryName(method), () -> dispatch.get(method).invoke(args));
     }
 
     protected String getEntryName(Method method) {

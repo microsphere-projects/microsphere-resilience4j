@@ -31,6 +31,7 @@ import static java.time.Duration.ofMillis;
 import static java.util.concurrent.Executors.newFixedThreadPool;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * {@link RateLimiterTemplate} Test
@@ -56,7 +57,7 @@ public class RateLimiterTemplateTest extends AbstractResilience4jTemplateTest<Ra
 
     @Test
     public void execute() {
-        String entryName = this.entryName;
+        String entryName = super.entryName;
         RateLimiterTemplate template = this.template;
 
         template.onSuccessEvent(entryName, event -> {
@@ -75,14 +76,12 @@ public class RateLimiterTemplateTest extends AbstractResilience4jTemplateTest<Ra
         }
 
         template.execute(entryName, () -> new RuntimeException("For testing"));
-
-
     }
 
     @Test
     public void executeOnFailed() throws InterruptedException {
 
-        String entryName = this.entryName;
+        String entryName = super.entryName;
         RateLimiterTemplate template = this.template;
 
         template.onSuccessEvent(entryName, event -> {

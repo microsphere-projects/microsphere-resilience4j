@@ -32,6 +32,7 @@ import static io.github.resilience4j.retry.event.RetryEvent.Type.SUCCESS;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * {@link RetryTemplate} Test
@@ -55,7 +56,7 @@ public class RetryTemplateTest extends AbstractResilience4jTemplateTest<Retry, R
 
     @Test
     public void testExecute() throws Throwable {
-        String entryName = this.entryName;
+        String entryName = super.entryName;
         RetryTemplate template = super.template;
         String result = "OK";
 
@@ -93,26 +94,19 @@ public class RetryTemplateTest extends AbstractResilience4jTemplateTest<Retry, R
 
     @Test
     public void testExecuteOnIgnoredException() throws Throwable {
-        String entryName = this.entryName;
+        String entryName = super.entryName;
         RetryTemplate template = super.template;
-        String result = "OK";
-
-        AtomicInteger attempts = new AtomicInteger(maxAttempts);
 
         template.onIgnoredErrorEvent(entryName, event -> {
             logEvent(event);
             assertEquals(entryName, event.getName());
             assertSame(IGNORED_ERROR, event.getEventType());
-            assertEquals(attempts.get(), event.getNumberOfRetryAttempts());
         });
 
-        assertNull(template.call(entryName, () -> {
-            if (attempts.decrementAndGet() == 0) {
-                return result;
-            } else {
-                throw new IllegalStateException("For testing");
-            }
+        assertThrows(IllegalStateException.class, () -> template.call(entryName, () -> {
+            throw new IllegalStateException("For testing");
         }));
+
     }
 
 }

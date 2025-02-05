@@ -30,6 +30,7 @@ import io.microsphere.resilience4j.common.Resilience4jTemplate;
 import java.util.concurrent.ExecutorService;
 
 import static io.microsphere.util.ExceptionUtils.create;
+import static io.microsphere.util.ExceptionUtils.wrap;
 import static java.util.concurrent.ForkJoinPool.commonPool;
 
 /**
@@ -79,11 +80,7 @@ public class TimeLimiterTemplate extends Resilience4jTemplate<TimeLimiter, TimeL
             try {
                 return callback.get();
             } catch (Throwable t) {
-                if (t instanceof Exception) {
-                    throw (Exception) t;
-                } else {
-                    throw new Exception(t);
-                }
+                throw wrap(t, Exception.class);
             }
         })).call();
     }

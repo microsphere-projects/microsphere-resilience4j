@@ -89,13 +89,6 @@
             <optional>true</optional>
         </dependency>
 
-        <!-- Microsphere Spring Redis -->
-        <dependency>
-            <groupId>io.github.microsphere-projects</groupId>
-            <artifactId>microsphere-redis-spring</artifactId>
-            <optional>true</optional>
-        </dependency>
-
         <!--  Resilience4j -->
         <dependency>
             <groupId>io.github.resilience4j</groupId>
@@ -109,21 +102,10 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- Spring Framework -->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>io.lettuce</groupId>
-            <artifactId>lettuce-core</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-pool2</artifactId>
             <scope>test</scope>
         </dependency>
 

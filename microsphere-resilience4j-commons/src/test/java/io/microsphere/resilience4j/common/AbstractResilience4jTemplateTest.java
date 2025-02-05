@@ -22,7 +22,6 @@ import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 import io.github.resilience4j.core.Registry;
 import io.microsphere.logging.Logger;
 import io.microsphere.util.ValueHolder;
-import io.vavr.control.Try;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -38,6 +37,7 @@ import static io.github.resilience4j.core.registry.RegistryEvent.Type.REMOVED;
 import static io.github.resilience4j.core.registry.RegistryEvent.Type.REPLACED;
 import static io.microsphere.logging.LoggerFactory.getLogger;
 import static io.microsphere.reflect.MethodUtils.invokeStaticMethod;
+import static java.lang.System.nanoTime;
 import static java.util.Arrays.asList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -202,19 +202,43 @@ public abstract class AbstractResilience4jTemplateTest<E, C, R extends Registry<
     }
 
     @Test
+    public final void testExecuteEntries() {
+        String entryName = this.entryName;
+        RT template = this.template;
+
+        template.execute(entryName, entry -> {
+            logger.debug("{}.execute('{}', entry : {})", this.getClass().getName(), entryName, entry);
+        });
+
+        E entry = template.execute(entryName, e -> e);
+        assertSame(entry, template.getEntry(entryName));
+    }
+
+    @Test
+    public final void testCallEntries() throws Throwable {
+        String entryName = this.entryName;
+        RT template = this.template;
+
+        template.call(entryName, entry -> {
+            logger.debug("{}.execute('{}', entry : {})", this.getClass().getName(), entryName, entry);
+        });
+
+        E entry = template.call(entryName, e -> e);
+        assertSame(entry, template.getEntry(entryName));
+    }
+
+    @Test
     public final void testBegin() {
         RT template = this.template;
         String entryName = this.entryName;
         Resilience4jModule module = template.getModule();
         ValueHolder<Object> resultHolder = new ValueHolder<>();
-        Try.of(() -> {
+        try {
             Resilience4jContext<E> context = template.begin(entryName);
-            return context.getEntry();
-        }).onSuccess(entry -> {
-            resultHolder.setValue(entry);
-        }).onFailure(e -> {
+            resultHolder.setValue(context.getEntry());
+        } catch (Throwable e) {
             resultHolder.setValue(e);
-        });
+        }
 
         switch (module) {
             case RETRY:
@@ -229,18 +253,19 @@ public abstract class AbstractResilience4jTemplateTest<E, C, R extends Registry<
 
     @Test
     public final void testEnd() {
+        String entryName = this.entryName;
         RT template = this.template;
         Resilience4jModule module = template.getModule();
         ValueHolder<Object> resultHolder = new ValueHolder<>();
-        Try.of(() -> {
-            Resilience4jContext<E> context = template.begin(entryName);
+
+        try {
+            Resilience4jContext<E> context = new Resilience4jContext<>(entryName, template.getEntry(entryName));
+            context.setStartTime(nanoTime());
             template.end(context);
-            return context.getEntry();
-        }).onSuccess(entry -> {
-            resultHolder.setValue(entry);
-        }).onFailure(e -> {
+            resultHolder.setValue(context.getEntry());
+        } catch (Throwable e) {
             resultHolder.setValue(e);
-        });
+        }
 
         switch (module) {
             case RETRY:

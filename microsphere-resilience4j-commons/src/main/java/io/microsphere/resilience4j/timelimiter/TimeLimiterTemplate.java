@@ -24,12 +24,10 @@ import io.github.resilience4j.timelimiter.event.TimeLimiterOnErrorEvent;
 import io.github.resilience4j.timelimiter.event.TimeLimiterOnSuccessEvent;
 import io.github.resilience4j.timelimiter.event.TimeLimiterOnTimeoutEvent;
 import io.microsphere.lang.function.ThrowableSupplier;
-import io.microsphere.resilience4j.common.Resilience4jContext;
 import io.microsphere.resilience4j.common.Resilience4jTemplate;
 
 import java.util.concurrent.ExecutorService;
 
-import static io.microsphere.util.ExceptionUtils.create;
 import static io.microsphere.util.ExceptionUtils.wrap;
 import static java.util.concurrent.ForkJoinPool.commonPool;
 
@@ -76,11 +74,6 @@ public class TimeLimiterTemplate extends Resilience4jTemplate<TimeLimiter, TimeL
     @Override
     public boolean isEndSupported() {
         return false;
-    }
-
-    @Override
-    public void end(Resilience4jContext<TimeLimiter> context) {
-        throw create(UnsupportedOperationException.class, "TimeLimiter does not support end operation");
     }
 
     @Override

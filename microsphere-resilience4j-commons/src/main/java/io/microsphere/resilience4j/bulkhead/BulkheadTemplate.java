@@ -55,13 +55,13 @@ public class BulkheadTemplate extends Resilience4jTemplate<Bulkhead, BulkheadCon
     }
 
     @Override
-    protected void begin(Resilience4jContext<Bulkhead> context) {
+    protected void doBegin(Resilience4jContext<Bulkhead> context) {
         Bulkhead bulkhead = context.getEntry();
         bulkhead.acquirePermission();
     }
 
     @Override
-    public void end(Resilience4jContext<Bulkhead> context) {
+    protected void doEnd(Resilience4jContext<Bulkhead> context) {
         Bulkhead bulkhead = context.getEntry();
         bulkhead.onComplete();
     }

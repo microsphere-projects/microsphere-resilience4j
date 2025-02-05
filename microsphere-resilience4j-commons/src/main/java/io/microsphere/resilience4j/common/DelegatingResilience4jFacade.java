@@ -114,7 +114,7 @@ public class DelegatingResilience4jFacade implements Resilience4jFacade {
             }
         }
         if (logger.isTraceEnabled()) {
-            logger.trace("begin('{}') operation was executed , Resilience4jContext : {}", name, context);
+            logger.trace("begin() operations of {} templates were executed -> {}", size, context);
         }
         return context;
     }
@@ -129,7 +129,7 @@ public class DelegatingResilience4jFacade implements Resilience4jFacade {
             }
         }
         if (logger.isTraceEnabled()) {
-            logger.trace("end() operation was executed , Resilience4jContext : {}", context);
+            logger.trace("end() operations of {} templates were executed -> {}", context);
         }
     }
 

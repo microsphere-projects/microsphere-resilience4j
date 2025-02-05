@@ -25,6 +25,7 @@ import io.github.resilience4j.core.lang.Nullable;
 import io.microsphere.lang.Prioritized;
 import io.microsphere.lang.function.ThrowableConsumer;
 import io.microsphere.lang.function.ThrowableFunction;
+import io.microsphere.logging.Logger;
 
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -39,6 +40,7 @@ import java.util.function.Function;
  *          <li>{@link #getModule()}</li>
  *          <li>{@link #getEntryClass()}</li>
  *          <li>{@link #getConfigClass()}</li>
+ *          <li>{@link #getLogger()}</li>
  *      </ul>
  *     </li>
  *     <li>The Operations for Resilience4j's Configuration :
@@ -112,6 +114,14 @@ public interface AdvancedResilience4jOperations<E, C, R extends Registry<E, C>> 
         return (Class<C>) getModule().getConfigClass();
     }
 
+    /**
+     * Get the {@link Logger}
+     *
+     * @return non-null
+     */
+    @NonNull
+    Logger getLogger();
+
 
     // The Operations for Resilience4j's Configuration
 
@@ -124,7 +134,22 @@ public interface AdvancedResilience4jOperations<E, C, R extends Registry<E, C>> 
      */
     @NonNull
     default C getConfiguration(String configName) {
-        return getRegistry().getConfiguration(configName).orElseGet(() -> getDefaultConfig());
+        Logger logger = getLogger();
+        R registry = getRegistry();
+        Optional<C> optionalConfiguration = registry.getConfiguration(configName);
+        final C configuration;
+        if (optionalConfiguration.isPresent()) {
+            configuration = optionalConfiguration.get();
+            if (logger.isTraceEnabled()) {
+                logger.trace("The configuration[name : '{}'] was found in the registry[{}] : {}", configName, registry, configuration);
+            }
+        } else {
+            if (logger.isTraceEnabled()) {
+                logger.trace("The configuration[name : '{}'] was not found in the registry[{}]", configName, registry);
+            }
+            configuration = getDefaultConfig();
+        }
+        return configuration;
     }
 
     /**
@@ -134,7 +159,13 @@ public interface AdvancedResilience4jOperations<E, C, R extends Registry<E, C>> 
      */
     @NonNull
     default C getDefaultConfig() {
-        return getRegistry().getDefaultConfig();
+        Logger logger = getLogger();
+        R registry = getRegistry();
+        final C configuration = registry.getDefaultConfig();
+        if (logger.isTraceEnabled()) {
+            logger.trace("The default configuration was retrieved in the registry[{}] : {}", registry, configuration);
+        }
+        return configuration;
     }
 
     /**
@@ -145,7 +176,12 @@ public interface AdvancedResilience4jOperations<E, C, R extends Registry<E, C>> 
      * @return {@link Resilience4jTemplate}
      */
     default AdvancedResilience4jOperations<E, C, R> addConfiguration(String configName, C configuration) {
-        getRegistry().addConfiguration(configName, configuration);
+        Logger logger = getLogger();
+        R registry = getRegistry();
+        registry.addConfiguration(configName, configuration);
+        if (logger.isTraceEnabled()) {
+            logger.trace("The configuration[name : '{}'] was added to the registry[{}] : {}", configName, registry, configuration);
+        }
         return this;
     }
 
@@ -159,8 +195,22 @@ public interface AdvancedResilience4jOperations<E, C, R extends Registry<E, C>> 
      */
     @NonNull
     default E getEntry(String name) {
-        Optional<E> optionalEntry = getRegistry().find(name);
-        return optionalEntry.orElseGet(() -> createEntry(name));
+        Logger logger = getLogger();
+        R registry = getRegistry();
+        Optional<E> optionalEntry = registry.find(name);
+        final E entry;
+        if (optionalEntry.isPresent()) {
+            entry = optionalEntry.get();
+            if (logger.isTraceEnabled()) {
+                logger.trace("The entry[name : '{}'] was found in the registry[{}] : {}", name, registry, entry);
+            }
+        } else {
+            entry = createEntry(name);
+            if (logger.isTraceEnabled()) {
+                logger.trace("The entry[name : '{}'] was not found in the registry[{}] and created : {}", name, registry, entry);
+            }
+        }
+        return entry;
     }
 
     /**
@@ -180,8 +230,22 @@ public interface AdvancedResilience4jOperations<E, C, R extends Registry<E, C>> 
      */
     @Nullable
     default E removeEntry(String name) {
-        Optional<E> optionalEntry = getRegistry().remove(name);
-        return optionalEntry.orElse(null);
+        Logger logger = getLogger();
+        R registry = getRegistry();
+        Optional<E> optionalEntry = registry.remove(name);
+        final E entry;
+        if (optionalEntry.isPresent()) {
+            entry = optionalEntry.get();
+            if (logger.isTraceEnabled()) {
+                logger.trace("The entry[name : '{}'] was removed in the registry[{}] : {}", name, registry, entry);
+            }
+        } else {
+            entry = null;
+            if (logger.isTraceEnabled()) {
+                logger.trace("The entry[name : '{}'] was not found in the registry[{}]", name, registry);
+            }
+        }
+        return entry;
     }
 
     /**
@@ -192,8 +256,22 @@ public interface AdvancedResilience4jOperations<E, C, R extends Registry<E, C>> 
      * @return the old Resilience4j's entry if replaced, otherwise <code>null</code>
      */
     default E replaceEntry(String name, E newEntry) {
-        Optional<E> optionalEntry = getRegistry().replace(name, newEntry);
-        return optionalEntry.orElse(null);
+        Logger logger = getLogger();
+        R registry = getRegistry();
+        Optional<E> optionalEntry = registry.replace(name, newEntry);
+        final E oldEntry;
+        if (optionalEntry.isPresent()) {
+            oldEntry = optionalEntry.get();
+            if (logger.isTraceEnabled()) {
+                logger.trace("The entry[name : '{}' , old : {}] was replaced in the registry[{}] : ", name, oldEntry, registry, newEntry);
+            }
+        } else {
+            oldEntry = null;
+            if (logger.isTraceEnabled()) {
+                logger.trace("The old entry[name : '{}'] was not found in the registry[{}], the new one will be add : {}", name, registry, newEntry);
+            }
+        }
+        return oldEntry;
     }
 
     /**
@@ -203,8 +281,12 @@ public interface AdvancedResilience4jOperations<E, C, R extends Registry<E, C>> 
      * @param entryConsumer the {@link Consumer consumer} of the Resilience4j's entry
      */
     default AdvancedResilience4jOperations<E, C, R> execute(String name, Consumer<E> entryConsumer) {
+        Logger logger = getLogger();
         E entry = getEntry(name);
         entryConsumer.accept(entry);
+        if (logger.isTraceEnabled()) {
+            logger.trace("The entry[name : '{}' , consumer : {}] was executed : {}", name, entryConsumer, entry);
+        }
         return this;
     }
 
@@ -217,8 +299,13 @@ public interface AdvancedResilience4jOperations<E, C, R extends Registry<E, C>> 
      * @return the result of the <code>entryFunction</code>
      */
     default <T> T execute(String name, Function<E, T> entryFunction) {
+        Logger logger = getLogger();
         E entry = getEntry(name);
-        return entryFunction.apply(entry);
+        T result = entryFunction.apply(entry);
+        if (logger.isTraceEnabled()) {
+            logger.trace("The entry[name : '{}' , function : {}] was executed , result : {}", name, entryFunction, result);
+        }
+        return result;
     }
 
     /**
@@ -229,8 +316,12 @@ public interface AdvancedResilience4jOperations<E, C, R extends Registry<E, C>> 
      * @throws Throwable any error caused by the execution of the <code>entryConsumer</code>
      */
     default AdvancedResilience4jOperations<E, C, R> call(String name, ThrowableConsumer<E> entryConsumer) throws Throwable {
+        Logger logger = getLogger();
         E entry = getEntry(name);
         entryConsumer.accept(entry);
+        if (logger.isTraceEnabled()) {
+            logger.trace("The entry[name : '{}' , consumer : {}] was called : {}", name, entryConsumer, entry);
+        }
         return this;
     }
 
@@ -244,8 +335,13 @@ public interface AdvancedResilience4jOperations<E, C, R extends Registry<E, C>> 
      * @throws Throwable any error caused by the execution of the <code>entryFunction</code>
      */
     default <T> T call(String name, ThrowableFunction<E, T> entryFunction) throws Throwable {
+        Logger logger = getLogger();
         E entry = getEntry(name);
-        return entryFunction.apply(entry);
+        T result = entryFunction.apply(entry);
+        if (logger.isTraceEnabled()) {
+            logger.trace("The entry[name : '{}' , function : {}] was called , result : {}", name, entryFunction, result);
+        }
+        return result;
     }
 
     @Override

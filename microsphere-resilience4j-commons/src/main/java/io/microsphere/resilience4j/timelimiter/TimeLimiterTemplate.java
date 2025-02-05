@@ -65,7 +65,17 @@ public class TimeLimiterTemplate extends Resilience4jTemplate<TimeLimiter, TimeL
     @Override
     public TimeLimiter createEntry(String name) {
         TimeLimiterRegistry registry = super.getRegistry();
-        return registry.timeLimiter(name, super.getConfiguration(name), registry.getTags());
+        return registry.timeLimiter(name, super.getConfiguration(name));
+    }
+
+    @Override
+    public boolean isBeginSupported() {
+        return false;
+    }
+
+    @Override
+    public boolean isEndSupported() {
+        return false;
     }
 
     @Override

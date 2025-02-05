@@ -24,7 +24,6 @@ import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 import io.github.resilience4j.circuitbreaker.event.CircuitBreakerEvent;
-import io.github.resilience4j.common.CommonProperties;
 import io.github.resilience4j.common.bulkhead.configuration.BulkheadConfigurationProperties;
 import io.github.resilience4j.common.circuitbreaker.configuration.CircuitBreakerConfigurationProperties;
 import io.github.resilience4j.common.ratelimiter.configuration.RateLimiterConfigurationProperties;
@@ -71,7 +70,7 @@ public class Resilience4jModuleTest {
     }
 
     private void assertModule(Resilience4jModule module, Class<?> entryClass, Class<?> configClass,
-                              Class<? extends CommonProperties> configurationPropertiesClass, Class<?> eventClass,
+                              Class<?> configurationPropertiesClass, Class<?> eventClass,
                               Class<? extends Registry> registryClass, int defaultAspectOrder) {
         assertEquals(entryClass, module.getEntryClass());
         assertEquals(configClass, module.getConfigClass());

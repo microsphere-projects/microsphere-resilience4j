@@ -32,7 +32,6 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Supplier;
 
 import static io.github.resilience4j.core.registry.RegistryEvent.Type.ADDED;
 import static io.github.resilience4j.core.registry.RegistryEvent.Type.REMOVED;
@@ -92,7 +91,7 @@ public abstract class AbstractResilience4jTemplateTest<E, C, R extends Registry<
         this.registry = createRegistry();
         this.entryConfig = createEntryConfig();
         this.template = createTemplate(registry);
-        this.template.configuration(this.entryName, entryConfig);
+        this.template.addConfiguration(this.entryName, entryConfig);
         logger.debug("The instance of Registry(class : '{}') was created.", this.registry.getClass().getName());
         logger.debug("The instance of Resilience4jTemplate(class : '{}') was created.", this.template.getClass().getName());
         postInit();
@@ -112,10 +111,6 @@ public abstract class AbstractResilience4jTemplateTest<E, C, R extends Registry<
      */
     protected void postInit() {
         // DO NOTHING, The subclass can override it
-    }
-
-    protected Supplier<String> getEntryNameGenerator() {
-        return () -> entryName;
     }
 
     protected RT createTemplate(R registry) throws Throwable {
@@ -209,10 +204,11 @@ public abstract class AbstractResilience4jTemplateTest<E, C, R extends Registry<
     @Test
     public final void testBegin() {
         RT template = this.template;
+        String entryName = this.entryName;
         Resilience4jModule module = template.getModule();
         ValueHolder<Object> resultHolder = new ValueHolder<>();
         Try.of(() -> {
-            Resilience4jContext<E> context = template.begin(getEntryNameGenerator());
+            Resilience4jContext<E> context = template.begin(entryName);
             return context.getEntry();
         }).onSuccess(entry -> {
             resultHolder.setValue(entry);
@@ -237,7 +233,7 @@ public abstract class AbstractResilience4jTemplateTest<E, C, R extends Registry<
         Resilience4jModule module = template.getModule();
         ValueHolder<Object> resultHolder = new ValueHolder<>();
         Try.of(() -> {
-            Resilience4jContext<E> context = template.beforeExecute(entryName);
+            Resilience4jContext<E> context = template.begin(entryName);
             template.end(context);
             return context.getEntry();
         }).onSuccess(entry -> {

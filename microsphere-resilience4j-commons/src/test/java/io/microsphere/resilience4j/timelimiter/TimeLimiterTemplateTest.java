@@ -23,13 +23,17 @@ import io.microsphere.resilience4j.common.AbstractResilience4jTemplateTest;
 import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeoutException;
 
 import static io.github.resilience4j.timelimiter.event.TimeLimiterEvent.Type.ERROR;
 import static io.github.resilience4j.timelimiter.event.TimeLimiterEvent.Type.SUCCESS;
 import static io.github.resilience4j.timelimiter.event.TimeLimiterEvent.Type.TIMEOUT;
 import static java.time.Duration.ofMillis;
+import static java.util.concurrent.Executors.newFixedThreadPool;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -45,6 +49,14 @@ public class TimeLimiterTemplateTest extends AbstractResilience4jTemplateTest<Ti
 
     private final Duration timeoutDuration = ofMillis(timeoutDurationInMills);
 
+    private ExecutorService executorService;
+
+    @Override
+    protected TimeLimiterTemplate createTemplate(TimeLimiterRegistry registry) throws Throwable {
+        executorService = newFixedThreadPool(1);
+        return new TimeLimiterTemplate(registry, executorService);
+    }
+
     /**
      * Create an instance of {@link TimeLimiterConfig} for testing
      *
@@ -58,13 +70,18 @@ public class TimeLimiterTemplateTest extends AbstractResilience4jTemplateTest<Ti
                 .build();
     }
 
+    @Override
+    protected void preDestroy() {
+        executorService.shutdown();
+    }
+
     @Test
     public void testExecute() {
-        String entryName = this.entryName;
+        String entryName = super.entryName;
         TimeLimiterTemplate template = this.template;
 
         template.onSuccessEvent(entryName, event -> {
-            logEvent(entryName);
+            logEvent(event);
             assertEquals(entryName, event.getTimeLimiterName());
             assertSame(SUCCESS, event.getEventType());
         });
@@ -75,34 +92,38 @@ public class TimeLimiterTemplateTest extends AbstractResilience4jTemplateTest<Ti
 
     @Test
     public void testExecuteOnFailed() {
-        String entryName = this.entryName;
+        String entryName = super.entryName;
         TimeLimiterTemplate template = this.template;
 
         template.onErrorEvent(entryName, event -> {
-            logEvent(entryName);
+            logEvent(event);
             assertEquals(entryName, event.getTimeLimiterName());
             assertSame(ERROR, event.getEventType());
             assertTrue(event.getThrowable() instanceof RuntimeException);
         });
 
-        template.execute(entryName, () -> {
-            throw new RuntimeException("For Testing");
+        assertThrows(RuntimeException.class, () -> {
+            template.call(entryName, () -> {
+                throw new RuntimeException("For testing");
+            });
         });
     }
 
     @Test
     public void testExecuteOnTimeout() {
-        String entryName = this.entryName;
+        String entryName = super.entryName;
         TimeLimiterTemplate template = this.template;
 
         template.onTimeoutEvent(entryName, event -> {
-            logEvent(entryName);
+            logEvent(event);
             assertEquals(entryName, event.getTimeLimiterName());
             assertSame(TIMEOUT, event.getEventType());
         });
 
-        template.execute(entryName, () -> {
-            await(timeoutDurationInMills * 2);
+        assertThrows(TimeoutException.class, () -> {
+            template.call(entryName, () -> {
+                await(timeoutDurationInMills * 3);
+            });
         });
     }
 }

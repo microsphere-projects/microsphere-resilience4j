@@ -26,6 +26,7 @@ import io.github.resilience4j.core.Registry;
 import io.github.resilience4j.ratelimiter.RateLimiter;
 import io.github.resilience4j.retry.Retry;
 import io.github.resilience4j.timelimiter.TimeLimiter;
+import io.microsphere.lang.Prioritized;
 import io.microsphere.resilience4j.common.Resilience4jModule;
 import io.microsphere.resilience4j.common.Resilience4jTemplate;
 import io.microsphere.util.BaseUtils;
@@ -34,13 +35,18 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import static io.microsphere.collection.CollectionUtils.size;
 import static io.microsphere.io.IOUtils.close;
+import static io.microsphere.lang.Prioritized.COMPARATOR;
 import static io.microsphere.reflect.MethodUtils.findMethod;
 import static io.microsphere.reflect.MethodUtils.invokeMethod;
 import static io.microsphere.resilience4j.common.Resilience4jModule.valueOf;
@@ -50,6 +56,8 @@ import static io.microsphere.util.ClassLoaderUtils.getResource;
 import static io.microsphere.util.ClassLoaderUtils.loadClass;
 import static io.microsphere.util.ClassUtils.newInstance;
 import static java.beans.Introspector.decapitalize;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.unmodifiableList;
 import static java.util.Collections.unmodifiableMap;
 
 /**
@@ -165,6 +173,28 @@ public abstract class Resilience4jUtils extends BaseUtils {
         Resilience4jModule module = valueOf(registry.getClass());
         Class<? extends Resilience4jTemplate> templateClass = defaultTemplates.get(module);
         return (T) newInstance(templateClass, registry);
+    }
+
+    /**
+     * Create a {@link List} of {@link Resilience4jTemplate} from the specified {@link Registry registries}
+     *
+     * @param registries {@link Registry registries}
+     * @return non-null read-only {@link List}
+     */
+    public static List<Resilience4jTemplate> createTemplates(Collection<Registry<?, ?>> registries) {
+        int size = size(registries);
+        if (size < 1) {
+            return emptyList();
+        }
+        Map<Registry<?, ?>, Resilience4jTemplate> templatesMap = new HashMap<>(size);
+        for (Registry<?, ?> registry : registries) {
+            templatesMap.computeIfAbsent(registry, Resilience4jUtils::createTemplate);
+        }
+        List<Resilience4jTemplate> templates = new ArrayList<>(templatesMap.size());
+        templates.addAll(templatesMap.values());
+        // Sort
+        templates.sort(COMPARATOR);
+        return unmodifiableList(templates);
     }
 
     static Map<Resilience4jModule, Class<? extends Resilience4jTemplate>> loadDefaultTemplates() {

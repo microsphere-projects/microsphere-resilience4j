@@ -31,13 +31,13 @@ import static io.microsphere.util.ExceptionUtils.wrap;
  * <ul>
  *     <li>One-Time Operations :
  *      <ul>
- *          <li>{@link #call(String, ThrowableSupplier)} or {@link #execute(String, Supplier)} : execution with result</li>
- *          <li>{@link #call(String, ThrowableAction)} or {@link #execute(String, Runnable)} : execution without result</li>
+ *          <li>execution with result : {@link #call(String, ThrowableSupplier)} or {@link #execute(String, Supplier)}</li>
+ *          <li>execution without result : {@link #call(String, ThrowableAction)} or {@link #execute(String, Runnable)}</li>
  *      </ul>
  *     </li>
- *     <li>Two-Phase Operations (unsupported in those cases : {@link Retry} and {@link TimeLimiter}) :
- *        <li>{@link #begin(String)} : the first phase</li>
- *        <li>{@link #end(Resilience4jContext)} :  the second phase</li>
+ *     <li>Two-Phase Operations :
+ *        <li>{@link #begin(String) the first phase} if {@link #isBeginSupported() supported}</li>
+ *        <li>{@link #end(Resilience4jContext) the second phase} if {@link #isEndSupported() supported}</li>
  *     </li>
  * </ul>
  *
@@ -110,12 +110,30 @@ public interface Resilience4jOperations<E> {
     // The Two-Phase Operations
 
     /**
+     * Whether {@link #begin(String) the first phase} is supported
+     *
+     * @return <code>true</code> if supported, otherwise <code>false</code>
+     */
+    default boolean isBeginSupported() {
+        return true;
+    }
+
+    /**
      * Begin the execution in the first phase.
      *
      * @param name the name of the Resilience4j's entry
      * @return {@link Resilience4jContext} with the entry and its name
      */
     Resilience4jContext<E> begin(String name);
+
+    /**
+     * Whether {@link #end(Resilience4jContext) the second phase} is supported
+     *
+     * @return <code>true</code> if supported, otherwise <code>false</code>
+     */
+    default boolean isEndSupported() {
+        return true;
+    }
 
     /**
      * End the execution in the second phase.

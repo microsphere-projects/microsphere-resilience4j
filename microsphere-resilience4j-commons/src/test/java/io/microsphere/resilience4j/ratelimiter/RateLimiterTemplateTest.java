@@ -56,8 +56,8 @@ public class RateLimiterTemplateTest extends AbstractResilience4jTemplateTest<Ra
 
     @Test
     public void execute() {
-        String entryName = this.entryName;
-        RateLimiterTemplate template = this.template;
+        String entryName = super.entryName;
+        RateLimiterTemplate template = super.template;
 
         template.onSuccessEvent(entryName, event -> {
             logEvent(event);
@@ -76,15 +76,13 @@ public class RateLimiterTemplateTest extends AbstractResilience4jTemplateTest<Ra
         }
 
         template.execute(entryName, () -> new RuntimeException("For testing"));
-
-
     }
 
     @Test
     public void executeOnFailed() throws InterruptedException {
 
-        String entryName = this.entryName;
-        RateLimiterTemplate template = this.template;
+        String entryName = super.entryName;
+        RateLimiterTemplate template = super.template;
 
         template.onSuccessEvent(entryName, event -> {
             logEvent(event);

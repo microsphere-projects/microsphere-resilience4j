@@ -158,7 +158,11 @@ public abstract class Resilience4jDruidFilter<E, C, R extends Registry<E, C>> ex
     }
 
     protected final <T> T doInResilience4j(StatementProxy statement, Callable<T> callable) throws SQLException {
-        return this.template.execute(() -> getEntryName(statement), callable::call);
+        try {
+            return this.template.call(getEntryName(statement), callable::call);
+        } catch (Throwable e) {
+            throw new SQLException(e);
+        }
     }
 
     public final String getEntryName(StatementProxy statement) {

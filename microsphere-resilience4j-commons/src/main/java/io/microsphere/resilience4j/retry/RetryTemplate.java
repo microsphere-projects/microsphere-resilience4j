@@ -25,9 +25,7 @@ import io.github.resilience4j.retry.event.RetryOnIgnoredErrorEvent;
 import io.github.resilience4j.retry.event.RetryOnRetryEvent;
 import io.github.resilience4j.retry.event.RetryOnSuccessEvent;
 import io.microsphere.lang.function.ThrowableSupplier;
-import io.microsphere.resilience4j.common.Resilience4jContext;
 import io.microsphere.resilience4j.common.Resilience4jTemplate;
-import io.microsphere.util.ExceptionUtils;
 
 import static io.github.resilience4j.retry.Retry.decorateCheckedSupplier;
 
@@ -67,11 +65,6 @@ public class RetryTemplate extends Resilience4jTemplate<Retry, RetryConfig, Retr
     @Override
     public boolean isEndSupported() {
         return false;
-    }
-
-    @Override
-    public void end(Resilience4jContext<Retry> context) {
-        throw ExceptionUtils.create(UnsupportedOperationException.class, "RetryTemplate does not support end operation");
     }
 
     /**

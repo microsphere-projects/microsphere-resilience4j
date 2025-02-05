@@ -59,13 +59,13 @@ public class RateLimiterTemplate extends Resilience4jTemplate<RateLimiter, RateL
     }
 
     @Override
-    public void begin(Resilience4jContext<RateLimiter> context) {
+    public void doBegin(Resilience4jContext<RateLimiter> context) {
         RateLimiter rateLimiter = context.getEntry();
         waitForPermission(rateLimiter);
     }
 
     @Override
-    public void end(Resilience4jContext<RateLimiter> context) {
+    protected void doEnd(Resilience4jContext<RateLimiter> context) {
     }
 
     /**

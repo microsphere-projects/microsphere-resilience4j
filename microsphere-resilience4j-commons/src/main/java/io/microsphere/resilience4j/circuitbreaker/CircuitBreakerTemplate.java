@@ -70,14 +70,14 @@ public class CircuitBreakerTemplate extends Resilience4jTemplate<CircuitBreaker,
     }
 
     @Override
-    protected void begin(Resilience4jContext<CircuitBreaker> context) {
+    protected void doBegin(Resilience4jContext<CircuitBreaker> context) {
         CircuitBreaker circuitBreaker = context.getEntry();
         circuitBreaker.acquirePermission();
         context.setStartTime(nanoTime());
     }
 
     @Override
-    public void end(Resilience4jContext<CircuitBreaker> context) {
+    protected void doEnd(Resilience4jContext<CircuitBreaker> context) {
         long durationTime = nanoTime() - context.getStartTime();
         CircuitBreaker circuitBreaker = context.getEntry();
         Throwable failure = context.getFailure();

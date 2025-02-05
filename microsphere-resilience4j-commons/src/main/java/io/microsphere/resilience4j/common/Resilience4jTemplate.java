@@ -30,11 +30,11 @@ import io.github.resilience4j.core.registry.EntryReplacedEvent;
 import io.github.resilience4j.core.registry.RegistryEvent;
 import io.github.resilience4j.core.registry.RegistryEventConsumer;
 import io.microsphere.logging.Logger;
+import io.microsphere.logging.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static io.microsphere.logging.LoggerFactory.getLogger;
 import static io.microsphere.resilience4j.common.Resilience4jModule.valueOf;
 import static io.microsphere.resilience4j.util.Resilience4jUtils.getEventProcessor;
 import static io.microsphere.text.FormatUtils.format;
@@ -56,7 +56,7 @@ import static io.microsphere.util.ExceptionUtils.create;
  */
 public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> implements AdvancedResilience4jOperations<E, C, R> {
 
-    protected final Logger logger = getLogger(getClass());
+    protected final Logger logger = LoggerFactory.getLogger(getClass());
 
     protected final R registry;
 
@@ -80,6 +80,9 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> imple
         this.module = valueOf(registry.getClass());
         this.localEntriesCache = createLocalEntriesCache();
         this.priority = this.module.getDefaultAspectOrder();
+        if (logger.isTraceEnabled()) {
+            logger.trace("Resilience4jTemplate was created : {}", toString());
+        }
     }
 
     /**
@@ -88,6 +91,7 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> imple
      * @return non-null
      */
     @NonNull
+    @Override
     public final R getRegistry() {
         return registry;
     }
@@ -98,6 +102,7 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> imple
      * @return non-null
      */
     @NonNull
+    @Override
     public final Resilience4jModule getModule() {
         return module;
     }
@@ -108,6 +113,7 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> imple
      * @return non-null
      */
     @NonNull
+    @Override
     public final C getDefaultConfig() {
         return AdvancedResilience4jOperations.super.getDefaultConfig();
     }
@@ -118,6 +124,7 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> imple
      * @return non-null
      */
     @NonNull
+    @Override
     public final Class<E> getEntryClass() {
         return AdvancedResilience4jOperations.super.getEntryClass();
     }
@@ -128,17 +135,23 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> imple
      * @return non-null
      */
     @NonNull
+    @Override
     public final Class<C> getConfigClass() {
         return AdvancedResilience4jOperations.super.getConfigClass();
+    }
+
+    @Override
+    public final Logger getLogger() {
+        return this.logger;
     }
 
     /**
      * Initialize the local entries cache
      *
-     * @param entryNames the names of entries
+     * @param names the names of entries
      */
-    public final Resilience4jTemplate<E, C, R> initLocalEntriesCache(Iterable<String> entryNames) {
-        for (String entryName : entryNames) {
+    public final Resilience4jTemplate<E, C, R> initLocalEntriesCache(Iterable<String> names) {
+        for (String entryName : names) {
             initLocalEntriesCache(entryName);
         }
         return this;
@@ -147,12 +160,15 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> imple
     /**
      * Initialize the local entries cache
      *
-     * @param entryName the name of entry
+     * @param name the name of entry
      */
-    public final Resilience4jTemplate<E, C, R> initLocalEntriesCache(String entryName) {
+    public final Resilience4jTemplate<E, C, R> initLocalEntriesCache(String name) {
         if (isLocalEntriesCachePresent()) {
-            E entry = getEntry(entryName);
-            localEntriesCache.put(entryName, entry);
+            E entry = getEntry(name);
+            localEntriesCache.put(name, entry);
+            if (logger.isTraceEnabled()) {
+                logger.info("The local entries cache for entry[name : '{}'] was initialized : {}", name, entry);
+            }
         } else {
             logger.warn("The local entries cache is not required, please review the #createLocalEntriesCache() method implementation.");
             return this;
@@ -167,6 +183,7 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> imple
      * @return non-null
      */
     @NonNull
+    @Override
     public final E getEntry(String name) {
         E entry = getEntryFromCache(name);
         if (entry != null) {
@@ -192,8 +209,19 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> imple
      *
      * @return <code>true</code> if present, otherwise <code>false</code>
      */
-    protected boolean isLocalEntriesCachePresent() {
+    protected final boolean isLocalEntriesCachePresent() {
         return this.localEntriesCache != null;
+    }
+
+
+    /**
+     * Clear the local entries cache
+     */
+    protected final void clearLocalEntriesCache() {
+        localEntriesCache.clear();
+        if (logger.isTraceEnabled()) {
+            logger.trace("The local entries cache was cleared!");
+        }
     }
 
     /**
@@ -203,7 +231,20 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> imple
      * @return <code>null</code> if can't be found or the local cache is not required
      */
     protected final E getEntryFromCache(String name) {
-        return isLocalEntriesCachePresent() ? localEntriesCache.get(name) : null;
+        E entry = null;
+        if (isLocalEntriesCachePresent()) {
+            entry = localEntriesCache.get(name);
+            if (entry == null) {
+                if (logger.isTraceEnabled()) {
+                    logger.trace("The local entries cache for entry[name : '{}'] was not found.", name);
+                }
+            } else {
+                if (logger.isTraceEnabled()) {
+                    logger.trace("The local entries cache for entry[name : '{}'] was found : {}", name, entry);
+                }
+            }
+        }
+        return entry;
     }
 
     /**
@@ -226,6 +267,7 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> imple
      * {@link #getDefaultConfig()} will be used as default
      */
     @NonNull
+    @Override
     public final C getConfiguration(String configName) {
         return AdvancedResilience4jOperations.super.getConfiguration(configName);
     }
@@ -234,12 +276,27 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> imple
     public final Resilience4jContext<E> begin(String name) {
         E entry = getEntry(name);
         Resilience4jContext<E> context = new Resilience4jContext(name, entry);
-        begin(context);
+        doBegin(context);
+        if (logger.isTraceEnabled()) {
+            logger.trace("begin() operation was executed -> ", context);
+        }
         return context;
     }
 
-    protected void begin(Resilience4jContext<E> context) {
+    protected void doBegin(Resilience4jContext<E> context) {
         throw create(UnsupportedOperationException.class, format("{} does not support begin operation", this.getClass()));
+    }
+
+    @Override
+    public final void end(Resilience4jContext<E> context) {
+        doEnd(context);
+        if (logger.isTraceEnabled()) {
+            logger.trace("end() operation was executed -> {}", context);
+        }
+    }
+
+    protected void doEnd(Resilience4jContext<E> context) {
+        throw create(UnsupportedOperationException.class, format("{} does not support end operation", this.getClass()));
     }
 
     /**
@@ -303,7 +360,11 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> imple
 
     private <T> Resilience4jTemplate<E, C, R> registerEventConsumer(EventProcessor eventProcessor,
                                                                     Class<? super T> eventType, EventConsumer<T> eventConsumer) {
-        eventProcessor.registerConsumer(eventType.getSimpleName(), eventConsumer);
+        String name = eventType.getSimpleName();
+        eventProcessor.registerConsumer(name, eventConsumer);
+        if (logger.isTraceEnabled()) {
+            logger.trace("The event[type : '{}'] consumer[name : '{}'] was registered : {}", eventType, name, eventConsumer);
+        }
         return this;
     }
 
@@ -331,7 +392,18 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> imple
      */
     public void destroy() {
         if (isLocalEntriesCachePresent()) {
-            localEntriesCache.clear();
+            clearLocalEntriesCache();
         }
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getName() + "{" +
+                "registry = " + registry +
+                ", module = " + module +
+                ", registryEventProcessor = " + registryEventProcessor +
+                ", localEntriesCache = " + localEntriesCache +
+                ", priority = " + priority +
+                '}';
     }
 }

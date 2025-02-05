@@ -42,6 +42,7 @@ import static java.util.Arrays.asList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -190,6 +191,11 @@ public abstract class AbstractResilience4jTemplateTest<E, C, R extends Registry<
         assertNotNull(newEntry);
         assertNotNull(oldEntry);
 
+        String newEntryName2 = "test-entry-3";
+
+        oldEntry = template.replaceEntry(newEntryName2, newEntry);
+        assertNull(oldEntry);
+
         // Test REMOVED
         template.onEntryRemovedEvent(event -> {
             logger.debug("The event of registry : '{}' was received.", event);
@@ -199,6 +205,8 @@ public abstract class AbstractResilience4jTemplateTest<E, C, R extends Registry<
         E removedEntry = template.removeEntry(newEntryName);
         assertNotNull(removedEntry);
 
+        removedEntry = template.removeEntry(newEntryName2);
+        assertNull(removedEntry);
     }
 
     @Test

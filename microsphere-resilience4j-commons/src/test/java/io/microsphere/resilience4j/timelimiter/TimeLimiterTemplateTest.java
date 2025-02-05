@@ -100,7 +100,7 @@ public class TimeLimiterTemplateTest extends AbstractResilience4jTemplateTest<Ti
         TimeLimiterTemplate template = this.template;
 
         template.onTimeoutEvent(entryName, event -> {
-            logEvent(entryName);
+            logEvent(event);
             assertEquals(entryName, event.getTimeLimiterName());
             assertSame(TIMEOUT, event.getEventType());
         });

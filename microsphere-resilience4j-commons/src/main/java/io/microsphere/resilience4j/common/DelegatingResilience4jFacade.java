@@ -18,6 +18,7 @@ package io.microsphere.resilience4j.common;
 
 import io.github.resilience4j.core.Registry;
 import io.microsphere.lang.function.ThrowableSupplier;
+import io.microsphere.logging.Logger;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -25,6 +26,7 @@ import java.util.List;
 import java.util.function.Supplier;
 
 import static io.microsphere.lang.Prioritized.COMPARATOR;
+import static io.microsphere.logging.LoggerFactory.getLogger;
 import static io.microsphere.resilience4j.util.Resilience4jUtils.createTemplates;
 import static java.util.Arrays.asList;
 
@@ -41,6 +43,8 @@ import static java.util.Arrays.asList;
  */
 public class DelegatingResilience4jFacade implements Resilience4jFacade {
 
+    private final static Logger logger = getLogger(DelegatingResilience4jFacade.class);
+
     private final List<Resilience4jTemplate> templates;
 
     private final int size;
@@ -55,15 +59,20 @@ public class DelegatingResilience4jFacade implements Resilience4jFacade {
 
     public DelegatingResilience4jFacade(List<Resilience4jTemplate> templates) {
         int size = templates.size();
-        this.templates = new ArrayList<>(size);
+        List<Resilience4jTemplate> effectiveTemplates = new ArrayList<>(size);
         for (int i = 0; i < size; i++) {
             Resilience4jTemplate template = templates.get(i);
-            if (!this.templates.contains(template)) {
-                this.templates.add(template);
+            if (!effectiveTemplates.contains(template)) {
+                effectiveTemplates.add(template);
             }
         }
-        this.templates.sort(COMPARATOR);
-        this.size = this.templates.size();
+        effectiveTemplates.sort(COMPARATOR);
+
+        this.templates = effectiveTemplates;
+        this.size = effectiveTemplates.size();
+        if (logger.isTraceEnabled()) {
+            logger.trace("{} templates : {} -> effective {} templates : {}", size, templates, this.size, this.templates);
+        }
     }
 
     @Override
@@ -72,6 +81,10 @@ public class DelegatingResilience4jFacade implements Resilience4jFacade {
         for (int i = 0; i < size; i++) {
             Resilience4jTemplate template = templates.get(i);
             result = (T) template.execute(name, callback);
+        }
+        if (logger.isTraceEnabled()) {
+            logger.trace("execute(name = '{}' , callback = {}) operations of {} templates were executed, result : {}",
+                    name, callback, size, result);
         }
         return result;
     }
@@ -82,6 +95,10 @@ public class DelegatingResilience4jFacade implements Resilience4jFacade {
         for (int i = 0; i < size; i++) {
             Resilience4jTemplate template = templates.get(i);
             result = (T) template.call(name, callback);
+        }
+        if (logger.isTraceEnabled()) {
+            logger.trace("call(name = '{}' , callback = {}) operations of {} templates were executed, result : {}",
+                    name, callback, size, result);
         }
         return result;
     }
@@ -96,6 +113,9 @@ public class DelegatingResilience4jFacade implements Resilience4jFacade {
                 subContexts[i] = template.begin(name);
             }
         }
+        if (logger.isTraceEnabled()) {
+            logger.trace("begin() operations of {} templates were executed -> {}", size, context);
+        }
         return context;
     }
 
@@ -107,6 +127,9 @@ public class DelegatingResilience4jFacade implements Resilience4jFacade {
             if (template.isEndSupported()) {
                 template.end(subContexts[i]);
             }
+        }
+        if (logger.isTraceEnabled()) {
+            logger.trace("end() operations of {} templates were executed -> {}", context);
         }
     }
 

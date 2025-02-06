@@ -38,10 +38,13 @@ public class Resilience4jInvocationHandler implements InvocationHandler {
 
     private final Resilience4jFacade facade;
 
+    private final String entryNamePrefix;
+
     public Resilience4jInvocationHandler(InvocationHandler delegate,
-                                         Resilience4jFacade facade) {
+                                         Resilience4jFacade facade, String entryNamePrefix) {
         this.delegate = requireNonNull(delegate, "The 'delegate' argument must not be null!");
         this.facade = requireNonNull(facade, "The 'facade' argument must not be null!");
+        this.entryNamePrefix = requireNonNull(entryNamePrefix, "The 'entryNamePrefix' argument must not be null!");
     }
 
     @Override
@@ -70,7 +73,7 @@ public class Resilience4jInvocationHandler implements InvocationHandler {
         return facade;
     }
 
-    public static String buildEntryName(Method method) {
-        return "microsphere-resilience4j-feign" + "@" + getSignature(method);
+    private String buildEntryName(Method method) {
+        return entryNamePrefix + getSignature(method);
     }
 }

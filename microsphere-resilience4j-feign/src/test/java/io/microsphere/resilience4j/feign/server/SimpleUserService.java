@@ -14,29 +14,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.microsphere.resilience4j.feign;
+package io.microsphere.resilience4j.feign.server;
 
-import feign.Capability;
-import feign.InvocationHandlerFactory;
-import io.microsphere.resilience4j.common.Resilience4jFacade;
+import io.microsphere.resilience4j.feign.api.User;
+import io.microsphere.resilience4j.feign.api.UserService;
 
 /**
- * {@link Capability} by Resilience4j
+ * Simple {@link UserService}
  *
- * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
- * @see Capability
+ * @author <a href="mailto:mercyblitz@gmail.com">Mercy<a/>
+ * @see UserService
  * @since 1.0.0
  */
-public class Resilience4jCapability implements Capability {
-
-    private final Resilience4jFacade facade;
-
-    public Resilience4jCapability(Resilience4jFacade facade) {
-        this.facade = facade;
-    }
+public class SimpleUserService implements UserService {
 
     @Override
-    public InvocationHandlerFactory enrich(InvocationHandlerFactory invocationHandlerFactory) {
-        return new Resilience4jInvocationHandlerFactory(invocationHandlerFactory, facade);
+    public User createUser(String name) {
+        return new User(name);
     }
 }

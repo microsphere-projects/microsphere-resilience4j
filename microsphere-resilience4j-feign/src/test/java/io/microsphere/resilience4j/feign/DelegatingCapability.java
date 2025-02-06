@@ -18,25 +18,22 @@ package io.microsphere.resilience4j.feign;
 
 import feign.Capability;
 import feign.InvocationHandlerFactory;
-import io.microsphere.resilience4j.common.Resilience4jFacade;
+
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
 
 /**
- * {@link Capability} by Resilience4j
+ * Delegating {@link Capability}
  *
- * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
+ * @author <a href="mailto:mercyblitz@gmail.com">Mercy<a/>
  * @see Capability
+ * @see DelegatingInvocationHandlerFactory
  * @since 1.0.0
  */
-public class Resilience4jCapability implements Capability {
-
-    private final Resilience4jFacade facade;
-
-    public Resilience4jCapability(Resilience4jFacade facade) {
-        this.facade = facade;
-    }
+public class DelegatingCapability implements Capability {
 
     @Override
     public InvocationHandlerFactory enrich(InvocationHandlerFactory invocationHandlerFactory) {
-        return new Resilience4jInvocationHandlerFactory(invocationHandlerFactory, facade);
+        return new DelegatingInvocationHandlerFactory(invocationHandlerFactory);
     }
 }

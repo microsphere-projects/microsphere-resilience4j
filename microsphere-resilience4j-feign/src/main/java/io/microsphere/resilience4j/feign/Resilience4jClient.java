@@ -16,39 +16,50 @@
  */
 package io.microsphere.resilience4j.feign;
 
-import feign.InvocationHandlerFactory;
-import feign.Target;
+import feign.Client;
+import feign.Request;
+import feign.Response;
 import io.microsphere.resilience4j.common.Resilience4jFacade;
 
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.util.Map;
+import java.io.IOException;
+
+import static io.microsphere.util.ExceptionUtils.wrap;
 
 /**
- * {@link InvocationHandlerFactory} for Resilience4j
+ * {@link Client} for Resilience4j
  *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy<a/>
- * @see Resilience4jInvocationHandler
- * @see InvocationHandlerFactory
+ * @see Client
  * @since 1.0.0
  */
-public class Resilience4jInvocationHandlerFactory implements InvocationHandlerFactory {
+public class Resilience4jClient implements Client {
 
-    private final InvocationHandlerFactory delegate;
+    private final Client delegate;
 
     private final Resilience4jFacade facade;
 
     private final String entryNamePrefix;
 
-    public Resilience4jInvocationHandlerFactory(InvocationHandlerFactory delegate, Resilience4jFacade facade, String entryNamePrefix) {
+    public Resilience4jClient(Client delegate, Resilience4jFacade facade, String entryNamePrefix) {
         this.delegate = delegate;
         this.facade = facade;
         this.entryNamePrefix = entryNamePrefix;
     }
 
     @Override
-    public InvocationHandler create(Target target, Map<Method, MethodHandler> dispatch) {
-        InvocationHandler delegate = this.delegate.create(target, dispatch);
-        return new Resilience4jInvocationHandler(delegate, facade, entryNamePrefix);
+    public Response execute(Request request, Request.Options options) throws IOException {
+        String entryName = buildEntryName(request);
+        try {
+            return this.facade.call(entryName, () -> this.delegate.execute(request, options));
+        } catch (Throwable e) {
+            throw wrap(e, IOException.class);
+        }
     }
+
+    private String buildEntryName(Request request) {
+        StringBuilder entryNameBuilder = new StringBuilder(entryNamePrefix);
+        Request.HttpMethod httpMethod = request.httpMethod();
+        return entryNameBuilder.toString();
+    }
+
 }

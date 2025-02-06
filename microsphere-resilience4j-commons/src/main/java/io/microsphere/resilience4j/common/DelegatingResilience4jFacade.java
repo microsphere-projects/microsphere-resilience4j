@@ -23,7 +23,6 @@ import io.microsphere.logging.Logger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.function.Supplier;
 
 import static io.microsphere.lang.Prioritized.COMPARATOR;
 import static io.microsphere.logging.LoggerFactory.getLogger;
@@ -76,26 +75,9 @@ public class DelegatingResilience4jFacade implements Resilience4jFacade {
     }
 
     @Override
-    public <T> T execute(String name, Supplier<T> callback) {
-        T result = null;
-        for (int i = 0; i < size; i++) {
-            Resilience4jTemplate template = templates.get(i);
-            result = (T) template.execute(name, callback);
-        }
-        if (logger.isTraceEnabled()) {
-            logger.trace("execute(name = '{}' , callback = {}) operations of {} templates were executed, result : {}",
-                    name, callback, size, result);
-        }
-        return result;
-    }
-
-    @Override
     public <T> T call(String name, ThrowableSupplier<T> callback) throws Throwable {
-        T result = null;
-        for (int i = 0; i < size; i++) {
-            Resilience4jTemplate template = templates.get(i);
-            result = (T) template.call(name, callback);
-        }
+        CallbackChain<T> supplier = new CallbackChain<>(name, callback, this.templates);
+        T result = supplier.get();
         if (logger.isTraceEnabled()) {
             logger.trace("call(name = '{}' , callback = {}) operations of {} templates were executed, result : {}",
                     name, callback, size, result);

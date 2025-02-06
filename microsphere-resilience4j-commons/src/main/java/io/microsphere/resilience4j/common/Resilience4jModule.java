@@ -44,8 +44,11 @@ import io.github.resilience4j.timelimiter.TimeLimiterConfig;
 import io.github.resilience4j.timelimiter.TimeLimiterRegistry;
 import io.github.resilience4j.timelimiter.event.TimeLimiterEvent;
 
-import java.util.Optional;
-
+import static io.microsphere.resilience4j.common.Resilience4jConstants.BULKHEAD_MODULE_NAME;
+import static io.microsphere.resilience4j.common.Resilience4jConstants.CIRCUIT_BREAKER_MODULE_NAME;
+import static io.microsphere.resilience4j.common.Resilience4jConstants.RATE_LIMITER_MODULE_NAME;
+import static io.microsphere.resilience4j.common.Resilience4jConstants.RETRY_MODULE_NAME;
+import static io.microsphere.resilience4j.common.Resilience4jConstants.TIME_LIMITER_MODULE_NAME;
 import static io.microsphere.util.ClassUtils.isAssignableFrom;
 
 /**
@@ -59,27 +62,29 @@ public enum Resilience4jModule {
     /**
      * {@link Retry} module
      */
-    RETRY(Retry.class, RetryConfig.class, RetryConfigurationProperties.class, RetryEvent.class, RetryRegistry.class, 0),
+    RETRY(RETRY_MODULE_NAME, Retry.class, RetryConfig.class, RetryConfigurationProperties.class, RetryEvent.class, RetryRegistry.class, 0),
 
     /**
      * {@link CircuitBreaker} module
      */
-    CIRCUIT_BREAKER(CircuitBreaker.class, CircuitBreakerConfig.class, CircuitBreakerConfigurationProperties.class, CircuitBreakerEvent.class, CircuitBreakerRegistry.class, 1),
+    CIRCUIT_BREAKER(CIRCUIT_BREAKER_MODULE_NAME, CircuitBreaker.class, CircuitBreakerConfig.class, CircuitBreakerConfigurationProperties.class, CircuitBreakerEvent.class, CircuitBreakerRegistry.class, 1),
 
     /**
      * {@link RateLimiter} Module
      */
-    RATE_LIMITER(RateLimiter.class, RateLimiterConfig.class, RateLimiterConfigurationProperties.class, RateLimiterEvent.class, RateLimiterRegistry.class, 2),
+    RATE_LIMITER(RATE_LIMITER_MODULE_NAME, RateLimiter.class, RateLimiterConfig.class, RateLimiterConfigurationProperties.class, RateLimiterEvent.class, RateLimiterRegistry.class, 2),
 
     /**
      * {@link TimeLimiter} module
      */
-    TIME_LIMITER(TimeLimiter.class, TimeLimiterConfig.class, TimeLimiterConfigurationProperties.class, TimeLimiterEvent.class, TimeLimiterRegistry.class, 3),
+    TIME_LIMITER(TIME_LIMITER_MODULE_NAME, TimeLimiter.class, TimeLimiterConfig.class, TimeLimiterConfigurationProperties.class, TimeLimiterEvent.class, TimeLimiterRegistry.class, 3),
 
     /**
      * {@link Bulkhead} module
      */
-    BULKHEAD(Bulkhead.class, BulkheadConfig.class, BulkheadConfigurationProperties.class, BulkheadEvent.class, BulkheadRegistry.class, 4);
+    BULKHEAD(BULKHEAD_MODULE_NAME, Bulkhead.class, BulkheadConfig.class, BulkheadConfigurationProperties.class, BulkheadEvent.class, BulkheadRegistry.class, 4);
+
+    private final String name;
 
     private final Class<?> entryClass;
 
@@ -96,8 +101,10 @@ public enum Resilience4jModule {
      */
     private final int defaultAspectOrder;
 
-    Resilience4jModule(Class<?> entryClass, Class<?> configClass, Class<? extends CommonProperties> configurationPropertiesClass,
+    Resilience4jModule(String name, Class<?> entryClass, Class<?> configClass,
+                       Class<? extends CommonProperties> configurationPropertiesClass,
                        Class<?> eventClass, Class<? extends Registry> registryClass, int defaultAspectOrder) {
+        this.name = name;
         this.entryClass = entryClass;
         this.registryClass = registryClass;
         this.configClass = configClass;
@@ -106,10 +113,13 @@ public enum Resilience4jModule {
         this.defaultAspectOrder = defaultAspectOrder;
     }
 
-    public Object getConfiguration(Registry registry, String name) {
-        Optional<Object> configurationProvider = registry.getConfiguration(name);
-        Object configuration = configurationProvider.orElseGet(registry::getDefaultConfig);
-        return configuration;
+    /**
+     * Get the name of Resilience4j's module
+     *
+     * @return non-null
+     */
+    public String getName() {
+        return name;
     }
 
     /**
@@ -170,12 +180,13 @@ public enum Resilience4jModule {
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("Resilience4jModule{");
-        sb.append("entryClass=").append(entryClass);
-        sb.append(", configClass=").append(configClass);
-        sb.append(", configurationPropertiesClass=").append(configurationPropertiesClass);
-        sb.append(", eventClass=").append(eventClass);
-        sb.append(", registryClass=").append(registryClass);
-        sb.append(", defaultAspectOrder=").append(defaultAspectOrder);
+        sb.append("name = ").append(name);
+        sb.append(", entryClass = ").append(entryClass);
+        sb.append(", configClass = ").append(configClass);
+        sb.append(", configurationPropertiesClass = ").append(configurationPropertiesClass);
+        sb.append(", eventClass = ").append(eventClass);
+        sb.append(", registryClass = ").append(registryClass);
+        sb.append(", defaultAspectOrder = ").append(defaultAspectOrder);
         sb.append('}');
         return sb.toString();
     }

@@ -108,6 +108,13 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- Feign GSON -->
+        <dependency>
+            <groupId>io.github.openfeign</groupId>
+            <artifactId>feign-gson</artifactId>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
 </project>

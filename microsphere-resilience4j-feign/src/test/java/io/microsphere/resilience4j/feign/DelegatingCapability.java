@@ -19,9 +19,6 @@ package io.microsphere.resilience4j.feign;
 import feign.Capability;
 import feign.InvocationHandlerFactory;
 
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-
 /**
  * Delegating {@link Capability}
  *

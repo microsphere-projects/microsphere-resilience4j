@@ -45,6 +45,11 @@ import io.github.resilience4j.timelimiter.TimeLimiterRegistry;
 import io.github.resilience4j.timelimiter.event.TimeLimiterEvent;
 import org.junit.jupiter.api.Test;
 
+import static io.microsphere.resilience4j.common.Resilience4jConstants.BULKHEAD_MODULE_NAME;
+import static io.microsphere.resilience4j.common.Resilience4jConstants.CIRCUIT_BREAKER_MODULE_NAME;
+import static io.microsphere.resilience4j.common.Resilience4jConstants.RATE_LIMITER_MODULE_NAME;
+import static io.microsphere.resilience4j.common.Resilience4jConstants.RETRY_MODULE_NAME;
+import static io.microsphere.resilience4j.common.Resilience4jConstants.TIME_LIMITER_MODULE_NAME;
 import static io.microsphere.resilience4j.common.Resilience4jModule.BULKHEAD;
 import static io.microsphere.resilience4j.common.Resilience4jModule.CIRCUIT_BREAKER;
 import static io.microsphere.resilience4j.common.Resilience4jModule.RATE_LIMITER;
@@ -63,16 +68,17 @@ public class Resilience4jModuleTest {
 
     @Test
     public void test() {
-        assertModule(RETRY, Retry.class, RetryConfig.class, CommonRetryConfigurationProperties.class, RetryEvent.class, RetryRegistry.class, 0);
-        assertModule(CIRCUIT_BREAKER, CircuitBreaker.class, CircuitBreakerConfig.class, CommonCircuitBreakerConfigurationProperties.class, CircuitBreakerEvent.class, CircuitBreakerRegistry.class, 1);
-        assertModule(RATE_LIMITER, RateLimiter.class, RateLimiterConfig.class, CommonRateLimiterConfigurationProperties.class, RateLimiterEvent.class, RateLimiterRegistry.class, 2);
-        assertModule(TIME_LIMITER, TimeLimiter.class, TimeLimiterConfig.class, CommonTimeLimiterConfigurationProperties.class, TimeLimiterEvent.class, TimeLimiterRegistry.class, 3);
-        assertModule(BULKHEAD, Bulkhead.class, BulkheadConfig.class, CommonBulkheadConfigurationProperties.class, BulkheadEvent.class, BulkheadRegistry.class, 4);
+        assertModule(RETRY, RETRY_MODULE_NAME, Retry.class, RetryConfig.class, CommonRetryConfigurationProperties.class, RetryEvent.class, RetryRegistry.class, 0);
+        assertModule(CIRCUIT_BREAKER, CIRCUIT_BREAKER_MODULE_NAME, CircuitBreaker.class, CircuitBreakerConfig.class, CommonCircuitBreakerConfigurationProperties.class, CircuitBreakerEvent.class, CircuitBreakerRegistry.class, 1);
+        assertModule(RATE_LIMITER, RATE_LIMITER_MODULE_NAME, RateLimiter.class, RateLimiterConfig.class, CommonRateLimiterConfigurationProperties.class, RateLimiterEvent.class, RateLimiterRegistry.class, 2);
+        assertModule(TIME_LIMITER, TIME_LIMITER_MODULE_NAME, TimeLimiter.class, TimeLimiterConfig.class, CommonTimeLimiterConfigurationProperties.class, TimeLimiterEvent.class, TimeLimiterRegistry.class, 3);
+        assertModule(BULKHEAD, BULKHEAD_MODULE_NAME, Bulkhead.class, BulkheadConfig.class, CommonBulkheadConfigurationProperties.class, BulkheadEvent.class, BulkheadRegistry.class, 4);
     }
 
-    private void assertModule(Resilience4jModule module, Class<?> entryClass, Class<?> configClass,
-                              Class<? extends CommonProperties> configurationPropertiesClass, Class<?> eventClass,
+    private void assertModule(Resilience4jModule module, String moduleName, Class<?> entryClass, Class<?> configClass,
+                              Class<?> configurationPropertiesClass, Class<?> eventClass,
                               Class<? extends Registry> registryClass, int defaultAspectOrder) {
+        assertEquals(moduleName, module.getName());
         assertEquals(entryClass, module.getEntryClass());
         assertEquals(configClass, module.getConfigClass());
         assertEquals(configurationPropertiesClass, module.getConfigurationPropertiesClass());

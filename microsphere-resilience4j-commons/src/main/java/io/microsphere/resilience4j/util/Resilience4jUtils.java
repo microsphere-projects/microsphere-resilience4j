@@ -205,7 +205,7 @@ public abstract class Resilience4jUtils extends BaseUtils {
         Properties properties = loadDefaultTemplatesProperties(classLoader);
         new EnumMap<>(Resilience4jModule.class);
         for (Resilience4jModule module : Resilience4jModule.values()) {
-            String moduleName = module.name().toLowerCase();
+            String moduleName = module.getName();
             String templateClassName = properties.getProperty(moduleName);
             Class<? extends Resilience4jTemplate> templateClass =
                     (Class<? extends Resilience4jTemplate>) loadClass(templateClassName, classLoader);

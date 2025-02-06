@@ -48,13 +48,21 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * @see Resilience4jCapability
  * @since 1.0.0
  */
-public class Resilience4jCapabilityTest {
+public abstract class Resilience4jCapabilityTest {
+
+    private final boolean isDelegatedClient;
 
     private Resilience4jFacade facade;
+
+    private Resilience4jCapability capability;
 
     private Feign feign;
 
     private UserService userService;
+
+    public Resilience4jCapabilityTest(boolean isDelegatedClient) {
+        this.isDelegatedClient = isDelegatedClient;
+    }
 
     @BeforeEach
     public void init() {
@@ -69,12 +77,14 @@ public class Resilience4jCapabilityTest {
         Encoder encoder = new GsonEncoder();
         Decoder decoder = new GsonDecoder();
 
+        this.capability = new Resilience4jCapability(facade, isDelegatedClient);
+
         this.feign = Feign.builder()
                 .client(new DelegatingClient<>(encoder, new SimpleUserService()))
                 .decoder(decoder)
                 .encoder(encoder)
                 .addCapability(new DelegatingCapability())
-                .addCapability(new Resilience4jCapability(facade))
+                .addCapability(this.capability)
                 .build();
 
         this.userService = feign.newInstance(new Target.HardCodedTarget<>(UserService.class, "http://localhost:8080"));
@@ -83,21 +93,31 @@ public class Resilience4jCapabilityTest {
     @Test
     public void testProxy() {
         InvocationHandler handler = getInvocationHandler(this.userService);
-        assertTrue(handler instanceof Resilience4jInvocationHandler);
 
-        Resilience4jInvocationHandler resilience4jInvocationHandler = (Resilience4jInvocationHandler) handler;
-        InvocationHandler delegate = resilience4jInvocationHandler.getDelegate();
-        assertTrue(delegate instanceof DelegatingInvocationHandler);
-        assertEquals(this.facade, resilience4jInvocationHandler.getFacade());
+        final InvocationHandler delegate;
+
+        assertEquals(this.isDelegatedClient, this.capability.isDelegatedClient());
+
+        if (this.capability.isDelegatedClient()) {
+            delegate = handler;
+        } else {
+            assertTrue(handler instanceof Resilience4jInvocationHandler);
+
+            Resilience4jInvocationHandler resilience4jInvocationHandler = (Resilience4jInvocationHandler) handler;
+            delegate = resilience4jInvocationHandler.getDelegate();
+            assertTrue(delegate instanceof DelegatingInvocationHandler);
+            assertEquals(this.facade, resilience4jInvocationHandler.getFacade());
+        }
 
         DelegatingInvocationHandler delegateInvocationHandler = (DelegatingInvocationHandler) delegate;
         assertEquals("feign.ReflectiveFeign$FeignInvocationHandler", delegateInvocationHandler.getDelegate().getClass().getName());
+
     }
 
     @Test
     public void testCreateUser() {
         String userName = "test-user";
-        User user = userService.createUser(userName);
+        User user = this.userService.createUser(userName);
         assertEquals(userName, user.getName());
     }
 }

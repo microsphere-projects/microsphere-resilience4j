@@ -16,27 +16,32 @@
  */
 package io.microsphere.resilience4j.feign;
 
-import feign.Capability;
 import feign.InvocationHandlerFactory;
-import io.microsphere.resilience4j.common.Resilience4jFacade;
+import feign.Target;
+
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.util.Map;
 
 /**
- * {@link Capability} by Resilience4j
+ * Delegating {@link InvocationHandlerFactory}
  *
- * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
- * @see Capability
+ * @author <a href="mailto:mercyblitz@gmail.com">Mercy<a/>
+ * @see DelegatingInvocationHandler
+ * @see InvocationHandlerFactory
  * @since 1.0.0
  */
-public class Resilience4jCapability implements Capability {
+public class DelegatingInvocationHandlerFactory implements InvocationHandlerFactory {
 
-    private final Resilience4jFacade facade;
+    private final InvocationHandlerFactory delegate;
 
-    public Resilience4jCapability(Resilience4jFacade facade) {
-        this.facade = facade;
+    public DelegatingInvocationHandlerFactory(InvocationHandlerFactory delegate) {
+        this.delegate = delegate;
     }
 
     @Override
-    public InvocationHandlerFactory enrich(InvocationHandlerFactory invocationHandlerFactory) {
-        return new Resilience4jInvocationHandlerFactory(invocationHandlerFactory, facade);
+    public InvocationHandler create(Target target, Map<Method, MethodHandler> dispatch) {
+        InvocationHandler delegate = this.delegate.create(target, dispatch);
+        return new DelegatingInvocationHandler(delegate);
     }
 }

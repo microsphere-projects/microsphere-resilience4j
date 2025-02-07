@@ -19,6 +19,9 @@ package io.microsphere.resilience4j.feign.server;
 import io.microsphere.resilience4j.feign.api.User;
 import io.microsphere.resilience4j.feign.api.UserService;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Simple {@link UserService}
  *
@@ -28,8 +31,17 @@ import io.microsphere.resilience4j.feign.api.UserService;
  */
 public class SimpleUserService implements UserService {
 
+    private final Map<String, User> usersRepository = new HashMap<>();
+
     @Override
     public User createUser(String name) {
-        return new User(name);
+        User user = new User(name);
+        usersRepository.put(name, user);
+        return user;
+    }
+
+    @Override
+    public User getUser(String name) {
+        return usersRepository.get(name);
     }
 }

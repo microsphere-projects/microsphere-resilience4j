@@ -17,13 +17,17 @@
 package io.microsphere.resilience4j.feign;
 
 import feign.Client;
+import feign.MethodMetadata;
 import feign.Request;
+import feign.RequestTemplate;
 import feign.Response;
 import io.microsphere.resilience4j.common.Resilience4jFacade;
 
 import java.io.IOException;
 
+import static io.microsphere.constants.SymbolConstants.SPACE_CHAR;
 import static io.microsphere.util.ExceptionUtils.wrap;
+import static io.microsphere.util.StringUtils.isNotBlank;
 
 /**
  * {@link Client} for Resilience4j
@@ -59,6 +63,20 @@ public class Resilience4jClient implements Client {
     private String buildEntryName(Request request) {
         StringBuilder entryNameBuilder = new StringBuilder(entryNamePrefix);
         Request.HttpMethod httpMethod = request.httpMethod();
+        RequestTemplate requestTemplate = request.requestTemplate();
+        MethodMetadata methodMetadata = requestTemplate.methodMetadata();
+        String url = requestTemplate.feignTarget().url();
+        String path = methodMetadata.template().path();
+        String queryLine = requestTemplate.queryLine();
+
+        entryNameBuilder.append(httpMethod.name())
+                .append(SPACE_CHAR)
+                .append(url)
+                .append(path);
+
+        if (isNotBlank(queryLine)) {
+            entryNameBuilder.append(queryLine);
+        }
         return entryNameBuilder.toString();
     }
 

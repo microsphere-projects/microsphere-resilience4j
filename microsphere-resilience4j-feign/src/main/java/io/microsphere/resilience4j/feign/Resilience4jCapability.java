@@ -17,33 +17,112 @@
 package io.microsphere.resilience4j.feign;
 
 import feign.Capability;
+import feign.Client;
 import feign.InvocationHandlerFactory;
-import io.github.resilience4j.circuitbreaker.CircuitBreaker;
-import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
-import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
-import io.github.resilience4j.core.Registry;
-import io.microsphere.resilience4j.common.Resilience4jTemplate;
+import io.github.resilience4j.core.lang.NonNull;
+import io.microsphere.resilience4j.common.Resilience4jFacade;
+
+import static io.microsphere.resilience4j.feign.Resilience4jCapability.DecoratedPoint.CLIENT;
+import static io.microsphere.resilience4j.feign.Resilience4jCapability.DecoratedPoint.INVOCATION_HANDLER_FACTORY;
 
 /**
  * {@link Capability} by Resilience4j
  *
- * @param <E> the type of Resilience4j's entry, e.g., {@link CircuitBreaker}
- * @param <C> the type of Resilience4j's entry configuration, e.g., {@link CircuitBreakerConfig}
- * @param <R> the type of Resilience4j's entry registry, e.g., {@link CircuitBreakerRegistry}
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
+ * @see Resilience4jClient
+ * @see Resilience4jInvocationHandlerFactory
  * @see Capability
  * @since 1.0.0
  */
-public class Resilience4jCapability<E, C, R extends Registry<E, C>> implements Capability {
+public class Resilience4jCapability implements Capability {
 
-    private final Resilience4jTemplate<E, C, R> template;
+    /**
+     * The default entry name prefix
+     */
+    public static final String DEFAULT_ENTRY_NAME_PREFIX = "microsphere-resilience4j-feign@";
 
-    public Resilience4jCapability(Resilience4jTemplate<E, C, R> template) {
-        this.template = template;
+    /**
+     * The default {@link DecoratedPoint decorated type}
+     */
+    public static final DecoratedPoint DEFAULT_DECORATED_POINT = CLIENT;
+
+    private final Resilience4jFacade facade;
+
+    private final String entryNamePrefix;
+
+    private final DecoratedPoint decoratedPoint;
+
+    public Resilience4jCapability(Resilience4jFacade facade) {
+        this(facade, DEFAULT_ENTRY_NAME_PREFIX);
+    }
+
+    public Resilience4jCapability(Resilience4jFacade facade, DecoratedPoint decoratedPoint) {
+        this(facade, DEFAULT_ENTRY_NAME_PREFIX, decoratedPoint);
+    }
+
+    public Resilience4jCapability(Resilience4jFacade facade, String entryNamePrefix) {
+        this(facade, entryNamePrefix, DEFAULT_DECORATED_POINT);
+    }
+
+    public Resilience4jCapability(Resilience4jFacade facade, String entryNamePrefix, DecoratedPoint decoratedPoint) {
+        this.facade = facade;
+        this.entryNamePrefix = entryNamePrefix;
+        this.decoratedPoint = decoratedPoint;
+    }
+
+    @Override
+    public Client enrich(Client client) {
+        return isDecoratedClient() ? new Resilience4jClient(client, facade, entryNamePrefix) : client;
     }
 
     @Override
     public InvocationHandlerFactory enrich(InvocationHandlerFactory invocationHandlerFactory) {
-        return (target, dispatch) -> new Resilience4jInvocationHandler(target, dispatch, template);
+        return isDecoratedInvocationHandlerFactory() ? new Resilience4jInvocationHandlerFactory(invocationHandlerFactory, facade, entryNamePrefix) : invocationHandlerFactory;
+    }
+
+    /**
+     * Get {@link DecoratedPoint decorated type}
+     *
+     * @return non-null
+     */
+    @NonNull
+    public DecoratedPoint getDecoratedPoint() {
+        return decoratedPoint;
+    }
+
+    /**
+     * Whether {@link Client} will be decorated by {@link Resilience4jClient}
+     *
+     * @return <code>true</code> if {@link Client} will be decorated by {@link Resilience4jClient},
+     * otherwise <code>false</code>
+     */
+    public boolean isDecoratedClient() {
+        return CLIENT.equals(getDecoratedPoint());
+    }
+
+    /**
+     * Whether {@link InvocationHandlerFactory} will be decorated by {@link Resilience4jInvocationHandlerFactory}
+     *
+     * @return <code>true</code> if {@link InvocationHandlerFactory} will be decorated by {@link Resilience4jInvocationHandlerFactory},
+     * otherwise <code>false</code>
+     */
+    public boolean isDecoratedInvocationHandlerFactory() {
+        return INVOCATION_HANDLER_FACTORY.equals(getDecoratedPoint());
+    }
+
+    /**
+     * Decorated Point
+     */
+    public static enum DecoratedPoint {
+
+        /**
+         * {@link Client} will be decorated by {@link Resilience4jClient}
+         */
+        CLIENT,
+
+        /**
+         * {@link InvocationHandlerFactory} will be decorated by {@link Resilience4jInvocationHandlerFactory}
+         */
+        INVOCATION_HANDLER_FACTORY
     }
 }

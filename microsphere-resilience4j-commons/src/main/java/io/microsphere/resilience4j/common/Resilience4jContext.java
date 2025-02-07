@@ -58,13 +58,13 @@ public class Resilience4jContext<E> {
      * The execution result, if <code>null</code>, it means the execution does not return any value.
      */
     @Nullable
-    Object result;
+    private Object result;
 
     /**
      * The optional {@link Throwable} instance, if <code>null</code>, it means the execution is successful.
      */
     @Nullable
-    Throwable failure;
+    private Throwable failure;
 
     /**
      * The attributes
@@ -102,8 +102,9 @@ public class Resilience4jContext<E> {
      *
      * @param startTime the start time of the execution
      */
-    public void setStartTime(Long startTime) {
+    public Resilience4jContext setStartTime(Long startTime) {
         this.startTime = startTime;
+        return this;
     }
 
     /**
@@ -119,11 +120,33 @@ public class Resilience4jContext<E> {
     /**
      * Set the result of the execution.
      *
+     * @param result the result of the execution.
+     * @return {@link Resilience4jContext}
+     */
+    public Resilience4jContext setResult(Object result) {
+        this.result = result;
+        return this;
+    }
+
+    /**
+     * Set the result of the execution.
+     *
      * @return <code>null</code> if the target callback does not return value or is failed
      */
     @Nullable
     public Object getResult() {
         return result;
+    }
+
+    /**
+     * Set the failure of the execution.
+     *
+     * @param failure
+     * @return {@link Resilience4jContext}
+     */
+    public Resilience4jContext setFailure(Throwable failure) {
+        this.failure = failure;
+        return this;
     }
 
     /**

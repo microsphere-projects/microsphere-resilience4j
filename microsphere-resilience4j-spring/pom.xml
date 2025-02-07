@@ -30,16 +30,9 @@
 
         <!-- Servlet API -->
         <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
             <scope>provided</scope>
-        </dependency>
-
-        <!-- Java Caching -->
-        <dependency>
-            <groupId>javax.cache</groupId>
-            <artifactId>cache-api</artifactId>
-            <optional>true</optional>
         </dependency>
 
         <!-- Spring WebMVC -->
@@ -89,13 +82,6 @@
             <optional>true</optional>
         </dependency>
 
-        <!-- Microsphere Spring Redis -->
-        <dependency>
-            <groupId>io.github.microsphere-projects</groupId>
-            <artifactId>microsphere-redis-spring</artifactId>
-            <optional>true</optional>
-        </dependency>
-
         <!--  Resilience4j -->
         <dependency>
             <groupId>io.github.resilience4j</groupId>
@@ -109,6 +95,7 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- Spring Framework -->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
@@ -116,14 +103,15 @@
         </dependency>
 
         <dependency>
-            <groupId>io.lettuce</groupId>
-            <artifactId>lettuce-core</artifactId>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-aop</artifactId>
             <scope>test</scope>
         </dependency>
 
+        <!-- AspectJ -->
         <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-pool2</artifactId>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjweaver</artifactId>
             <scope>test</scope>
         </dependency>
 

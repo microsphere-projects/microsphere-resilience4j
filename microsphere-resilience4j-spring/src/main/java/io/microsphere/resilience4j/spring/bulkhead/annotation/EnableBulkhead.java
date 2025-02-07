@@ -18,7 +18,7 @@ package io.microsphere.resilience4j.spring.bulkhead.annotation;
 
 import io.github.resilience4j.bulkhead.Bulkhead;
 import io.github.resilience4j.bulkhead.configure.BulkheadConfigurationProperties;
-import io.github.resilience4j.common.bulkhead.configuration.ThreadPoolBulkheadConfigurationProperties;
+import io.github.resilience4j.common.bulkhead.configuration.CommonThreadPoolBulkheadConfigurationProperties;
 import io.microsphere.resilience4j.spring.common.annotation.EnableResilience4jExtension;
 import io.microsphere.spring.beans.factory.annotation.EnableConfigurationBeanBinding;
 import io.microsphere.spring.beans.factory.annotation.EnableConfigurationBeanBindings;
@@ -46,7 +46,7 @@ import java.lang.annotation.Target;
 @EnableResilience4jExtension
 @EnableConfigurationBeanBindings({
         @EnableConfigurationBeanBinding(prefix = "microsphere.resilience4j.bulkhead", type = BulkheadConfigurationProperties.class),
-        @EnableConfigurationBeanBinding(prefix = "microsphere.resilience4j.thread-pool-bulkhead", type = ThreadPoolBulkheadConfigurationProperties.class)
+        @EnableConfigurationBeanBinding(prefix = "microsphere.resilience4j.thread-pool-bulkhead", type = CommonThreadPoolBulkheadConfigurationProperties.class)
 })
 public @interface EnableBulkhead {
 

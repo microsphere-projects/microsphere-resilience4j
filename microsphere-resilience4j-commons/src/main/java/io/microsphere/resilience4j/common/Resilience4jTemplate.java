@@ -29,37 +29,20 @@ import io.github.resilience4j.core.registry.EntryRemovedEvent;
 import io.github.resilience4j.core.registry.EntryReplacedEvent;
 import io.github.resilience4j.core.registry.RegistryEvent;
 import io.github.resilience4j.core.registry.RegistryEventConsumer;
-import io.github.resilience4j.retry.Retry;
-import io.github.resilience4j.timelimiter.TimeLimiter;
 import io.microsphere.logging.Logger;
-import io.vavr.CheckedFunction0;
-import io.vavr.CheckedRunnable;
+import io.microsphere.logging.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
 
-import static io.microsphere.logging.LoggerFactory.getLogger;
 import static io.microsphere.resilience4j.common.Resilience4jModule.valueOf;
 import static io.microsphere.resilience4j.util.Resilience4jUtils.getEventProcessor;
+import static io.microsphere.text.FormatUtils.format;
 import static io.microsphere.util.Assert.assertNotNull;
+import static io.microsphere.util.ExceptionUtils.create;
 
 /**
- * The abstract template class for Resilience4j supports the common operations:
- * <ul>
- *     <li>One-Time Operation :
- *      <ul>
- *          <li>{@link #execute(Supplier, CheckedFunction0)} or {@link #execute(String, CheckedFunction0)} : execution with result</li>
- *          <li>{@link #execute(Supplier, CheckedRunnable)} or {@link #execute(String, CheckedRunnable)} : execution without result</li>
- *      </ul>
- *     </li>
- *     <li>Two-Phase Operation (unsupported in those cases : {@link Retry} and {@link TimeLimiter}) :
- *        <li>{@link #begin(Supplier)} or {@link #begin(String)} : the first phase</li>
- *        <li>{@link #end(Resilience4jContext)} :  the second phase</li>
- *     </li>
- * </ul>
+ * The abstract template class for {@link AdvancedResilience4jOperations Resilience4j operations}.
  *
  * @param <E> the type of Resilience4j's entry, e.g., {@link CircuitBreaker}
  * @param <C> the type of Resilience4j's entry configuration, e.g., {@link CircuitBreakerConfig}
@@ -71,9 +54,9 @@ import static io.microsphere.util.Assert.assertNotNull;
  * @see RegistryEventConsumer
  * @since 1.0.0
  */
-public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> {
+public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> implements AdvancedResilience4jOperations<E, C, R> {
 
-    protected final Logger logger = getLogger(getClass());
+    protected final Logger logger = LoggerFactory.getLogger(getClass());
 
     protected final R registry;
 
@@ -88,12 +71,18 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> {
      */
     protected final Map<String, E> localEntriesCache;
 
+    private int priority;
+
     public Resilience4jTemplate(R registry) {
         assertNotNull(registry, "The registry must not be null");
         this.registry = registry;
         this.registryEventProcessor = getEventProcessor(registry);
         this.module = valueOf(registry.getClass());
         this.localEntriesCache = createLocalEntriesCache();
+        this.priority = this.module.getDefaultAspectOrder();
+        if (logger.isTraceEnabled()) {
+            logger.trace("Resilience4jTemplate was created : {}", toString());
+        }
     }
 
     /**
@@ -102,6 +91,7 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> {
      * @return non-null
      */
     @NonNull
+    @Override
     public final R getRegistry() {
         return registry;
     }
@@ -112,6 +102,7 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> {
      * @return non-null
      */
     @NonNull
+    @Override
     public final Resilience4jModule getModule() {
         return module;
     }
@@ -122,8 +113,9 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> {
      * @return non-null
      */
     @NonNull
+    @Override
     public final C getDefaultConfig() {
-        return registry.getDefaultConfig();
+        return AdvancedResilience4jOperations.super.getDefaultConfig();
     }
 
     /**
@@ -132,8 +124,9 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> {
      * @return non-null
      */
     @NonNull
+    @Override
     public final Class<E> getEntryClass() {
-        return (Class<E>) this.module.getEntryClass();
+        return AdvancedResilience4jOperations.super.getEntryClass();
     }
 
     /**
@@ -142,17 +135,23 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> {
      * @return non-null
      */
     @NonNull
+    @Override
     public final Class<C> getConfigClass() {
-        return (Class<C>) this.module.getConfigClass();
+        return AdvancedResilience4jOperations.super.getConfigClass();
+    }
+
+    @Override
+    public final Logger getLogger() {
+        return this.logger;
     }
 
     /**
      * Initialize the local entries cache
      *
-     * @param entryNames the names of entries
+     * @param names the names of entries
      */
-    public final Resilience4jTemplate<E, C, R> initLocalEntriesCache(Iterable<String> entryNames) {
-        for (String entryName : entryNames) {
+    public final Resilience4jTemplate<E, C, R> initLocalEntriesCache(Iterable<String> names) {
+        for (String entryName : names) {
             initLocalEntriesCache(entryName);
         }
         return this;
@@ -161,166 +160,19 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> {
     /**
      * Initialize the local entries cache
      *
-     * @param entryName the name of entry
+     * @param name the name of entry
      */
-    public final Resilience4jTemplate<E, C, R> initLocalEntriesCache(String entryName) {
+    public final Resilience4jTemplate<E, C, R> initLocalEntriesCache(String name) {
         if (isLocalEntriesCachePresent()) {
-            E entry = getEntry(entryName);
-            localEntriesCache.put(entryName, entry);
+            E entry = getEntry(name);
+            localEntriesCache.put(name, entry);
+            if (logger.isTraceEnabled()) {
+                logger.info("The local entries cache for entry[name : '{}'] was initialized : {}", name, entry);
+            }
         } else {
             logger.warn("The local entries cache is not required, please review the #createLocalEntriesCache() method implementation.");
             return this;
         }
-        return this;
-    }
-
-    /**
-     * Execute the target callback
-     *
-     * @param entryNameGenerator the generator of entry name
-     * @param callback           the callback to be executed
-     */
-    public final void execute(Supplier<String> entryNameGenerator, CheckedRunnable callback) {
-        execute(entryNameGenerator.get(), callback);
-    }
-
-    /**
-     * Execute the target callback
-     *
-     * @param entryName the entry name
-     * @param callback  the callback to be executed
-     */
-    public final void execute(String entryName, CheckedRunnable callback) {
-        execute(entryName, () -> {
-            callback.run();
-            return null;
-        });
-    }
-
-    /**
-     * Execute the target callback
-     *
-     * @param entryNameGenerator the generator of entry name
-     * @param callback           the callback to be executed
-     * @param <V>                the type of result
-     * @return {@link CheckedFunction0#apply()}
-     */
-    public final <V> V execute(Supplier<String> entryNameGenerator, CheckedFunction0<V> callback) {
-        return execute(entryNameGenerator.get(), callback);
-    }
-
-    /**
-     * Execute the target callback
-     *
-     * @param entryName the entry name
-     * @param callback  the callback to be executed
-     * @param <V>       the type of result
-     * @return {@link CheckedFunction0#apply()}
-     */
-    public final <V> V execute(String entryName, CheckedFunction0<V> callback) {
-        Resilience4jContext<E> context = beforeExecute(entryName);
-        V result = null;
-        try {
-            result = execute(context, callback);
-            context.result = result;
-        } catch (Throwable e) {
-            if (context != null) {
-                context.failure = e;
-            }
-            if (logger.isDebugEnabled()) {
-                logger.debug("It's failed to execute callback", e);
-            }
-        } finally {
-            if (context != null) {
-                afterExecute(context);
-            }
-        }
-        return result;
-    }
-
-    /**
-     * Begin the execution as the first phase.
-     *
-     * @param entryNameGenerator the generator of entry name
-     * @return {@link Resilience4jContext} with the entry and its name
-     */
-    public final Resilience4jContext<E> begin(Supplier<String> entryNameGenerator) {
-        return begin(entryNameGenerator.get());
-    }
-
-    /**
-     * Begin the execution as the first phase.
-     *
-     * @param entryName the entry name
-     * @return {@link Resilience4jContext} with the entry and its name
-     */
-    public Resilience4jContext<E> begin(String entryName) {
-        return beforeExecute(entryName);
-    }
-
-    /**
-     * End the execution as the second phase.
-     *
-     * @param context {@link Resilience4jContext}
-     */
-    public void end(Resilience4jContext<E> context) {
-        afterExecute(context);
-    }
-
-    /**
-     * Callback before {@link #execute(Resilience4jContext, CheckedFunction0) execution}.
-     *
-     * @param entryName the entry name
-     * @return {@link Resilience4jContext} with the entry and its name
-     * @see #beforeExecute(Resilience4jContext)
-     */
-    protected final Resilience4jContext<E> beforeExecute(String entryName) {
-        E entry = getEntry(entryName);
-        Resilience4jContext<E> context = new Resilience4jContext(entryName, entry);
-        beforeExecute(context);
-        return context;
-    }
-
-    /**
-     * Callback before {@link #execute(Resilience4jContext, CheckedFunction0) execution}.
-     *
-     * @param context {@link Resilience4jContext}
-     */
-    protected void beforeExecute(Resilience4jContext<E> context) {
-    }
-
-    /**
-     * Call the target callback, for instance, the result maybe be wrapped.
-     *
-     * @param <V>      the type of result
-     * @param context  {@link Resilience4jContext}
-     * @param callback {@link CheckedFunction0}
-     * @return {@link CheckedFunction0#apply()}
-     * @throws Throwable if {@link CheckedFunction0#apply()} throws an exception
-     */
-    protected <V> V execute(Resilience4jContext<E> context, CheckedFunction0<V> callback) throws Throwable {
-        return callback.apply();
-    }
-
-    /**
-     * Callback after {@link #execute(Resilience4jContext, CheckedFunction0) execution}
-     *
-     * @param context {@link Resilience4jContext}
-     * @return {@link CheckedFunction0#apply()}
-     */
-    protected void afterExecute(Resilience4jContext<E> context) {
-    }
-
-    /**
-     * Execute the specified {@link E Resilience4j's entry} by name
-     *
-     * @param name          the name of the Resilience4j's entry
-     * @param entryConsumer the {@link Consumer} for the Resilience4j's entry
-     * @return
-     */
-    public final Resilience4jTemplate<E, C, R> executeEntry(String name, Consumer<E> entryConsumer) {
-        E entry = getEntry(name);
-        entryConsumer.accept(entry);
         return this;
     }
 
@@ -331,15 +183,14 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> {
      * @return non-null
      */
     @NonNull
-    protected final E getEntry(String name) {
+    @Override
+    public final E getEntry(String name) {
         E entry = getEntryFromCache(name);
         if (entry != null) {
             return entry;
         }
-        Optional<E> optionalEntry = registry.find(name);
-        return optionalEntry.orElseGet(() -> createEntry(name));
+        return AdvancedResilience4jOperations.super.getEntry(name);
     }
-
 
     /**
      * Default, an instance of {@link HashMap} will be created as a local cache to enhance better performance ,
@@ -358,8 +209,19 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> {
      *
      * @return <code>true</code> if present, otherwise <code>false</code>
      */
-    protected boolean isLocalEntriesCachePresent() {
+    protected final boolean isLocalEntriesCachePresent() {
         return this.localEntriesCache != null;
+    }
+
+
+    /**
+     * Clear the local entries cache
+     */
+    protected final void clearLocalEntriesCache() {
+        localEntriesCache.clear();
+        if (logger.isTraceEnabled()) {
+            logger.trace("The local entries cache was cleared!");
+        }
     }
 
     /**
@@ -369,40 +231,20 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> {
      * @return <code>null</code> if can't be found or the local cache is not required
      */
     protected final E getEntryFromCache(String name) {
-        return isLocalEntriesCachePresent() ? localEntriesCache.get(name) : null;
-    }
-
-    /**
-     * Create the Resilience4j's entry.
-     *
-     * @param name the name of the Resilience4j's entry
-     * @return non-null
-     */
-    @NonNull
-    protected abstract E createEntry(String name);
-
-    /**
-     * Remove the Resilience4j's entry.
-     *
-     * @param name the name of the Resilience4j's entry
-     * @return <code>null</code> if can't be found by <code>name</code>
-     */
-    @Nullable
-    protected E removeEntry(String name) {
-        Optional<E> optionalEntry = this.registry.remove(name);
-        return optionalEntry.orElse(null);
-    }
-
-    /**
-     * Replace the Resilience4j's entry.
-     *
-     * @param name     the name of the Resilience4j's entry
-     * @param newEntry the new Resilience4j's entry
-     * @return the old Resilience4j's entry if replaced, otherwise <code>null</code>
-     */
-    protected E replaceEntry(String name, E newEntry) {
-        Optional<E> optionalEntry = this.registry.replace(name, newEntry);
-        return optionalEntry.orElse(null);
+        E entry = null;
+        if (isLocalEntriesCachePresent()) {
+            entry = localEntriesCache.get(name);
+            if (entry == null) {
+                if (logger.isTraceEnabled()) {
+                    logger.trace("The local entries cache for entry[name : '{}'] was not found.", name);
+                }
+            } else {
+                if (logger.isTraceEnabled()) {
+                    logger.trace("The local entries cache for entry[name : '{}'] was found : {}", name, entry);
+                }
+            }
+        }
+        return entry;
     }
 
     /**
@@ -412,9 +254,9 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> {
      * @param configuration the added configuration
      * @return {@link Resilience4jTemplate}
      */
-    public Resilience4jTemplate<E, C, R> configuration(String configName, C configuration) {
-        registry.addConfiguration(configName, configuration);
-        return this;
+    @Override
+    public final AdvancedResilience4jOperations<E, C, R> addConfiguration(String configName, C configuration) {
+        return AdvancedResilience4jOperations.super.addConfiguration(configName, configuration);
     }
 
     /**
@@ -425,8 +267,36 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> {
      * {@link #getDefaultConfig()} will be used as default
      */
     @NonNull
-    protected final C getConfiguration(String configName) {
-        return registry.getConfiguration(configName).orElse(getDefaultConfig());
+    @Override
+    public final C getConfiguration(String configName) {
+        return AdvancedResilience4jOperations.super.getConfiguration(configName);
+    }
+
+    @Override
+    public final Resilience4jContext<E> begin(String name) {
+        E entry = getEntry(name);
+        Resilience4jContext<E> context = new Resilience4jContext(name, entry);
+        doBegin(context);
+        if (logger.isTraceEnabled()) {
+            logger.trace("begin() operation was executed -> ", context);
+        }
+        return context;
+    }
+
+    protected void doBegin(Resilience4jContext<E> context) {
+        throw create(UnsupportedOperationException.class, format("{} does not support begin operation", this.getClass()));
+    }
+
+    @Override
+    public final void end(Resilience4jContext<E> context) {
+        doEnd(context);
+        if (logger.isTraceEnabled()) {
+            logger.trace("end() operation was executed -> {}", context);
+        }
+    }
+
+    protected void doEnd(Resilience4jContext<E> context) {
+        throw create(UnsupportedOperationException.class, format("{} does not support end operation", this.getClass()));
     }
 
     /**
@@ -490,7 +360,27 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> {
 
     private <T> Resilience4jTemplate<E, C, R> registerEventConsumer(EventProcessor eventProcessor,
                                                                     Class<? super T> eventType, EventConsumer<T> eventConsumer) {
-        eventProcessor.registerConsumer(eventType.getSimpleName(), eventConsumer);
+        String name = eventType.getSimpleName();
+        eventProcessor.registerConsumer(name, eventConsumer);
+        if (logger.isTraceEnabled()) {
+            logger.trace("The event[type : '{}'] consumer[name : '{}'] was registered : {}", eventType, name, eventConsumer);
+        }
+        return this;
+    }
+
+    @Override
+    public final int getPriority() {
+        return priority;
+    }
+
+    /**
+     * Set the priority
+     *
+     * @param priority
+     * @return {@link Resilience4jTemplate}
+     */
+    public final Resilience4jTemplate<E, C, R> setPriority(int priority) {
+        this.priority = priority;
         return this;
     }
 
@@ -502,7 +392,18 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> {
      */
     public void destroy() {
         if (isLocalEntriesCachePresent()) {
-            localEntriesCache.clear();
+            clearLocalEntriesCache();
         }
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getName() + "{" +
+                "registry = " + registry +
+                ", module = " + module +
+                ", registryEventProcessor = " + registryEventProcessor +
+                ", localEntriesCache = " + localEntriesCache +
+                ", priority = " + priority +
+                '}';
     }
 }

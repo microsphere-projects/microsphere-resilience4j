@@ -16,6 +16,8 @@
  */
 package io.microsphere.resilience4j.feign.api;
 
+import java.util.Objects;
+
 /**
  * User
  *
@@ -41,6 +43,19 @@ public class User {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    @Override
+    public final boolean equals(Object o) {
+        if (!(o instanceof User)) return false;
+
+        User user = (User) o;
+        return Objects.equals(name, user.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(name);
     }
 
     @Override

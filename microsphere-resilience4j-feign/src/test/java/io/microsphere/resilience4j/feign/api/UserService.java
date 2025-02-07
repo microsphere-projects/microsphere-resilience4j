@@ -30,4 +30,7 @@ public interface UserService {
 
     @RequestLine("POST /user/{name}")
     User createUser(@Param("name") String name);
+
+    @RequestLine("GET /user")
+    User getUser(@Param("name") String name);
 }

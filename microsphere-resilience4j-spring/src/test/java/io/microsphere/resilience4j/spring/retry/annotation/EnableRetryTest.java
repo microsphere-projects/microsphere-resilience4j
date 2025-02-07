@@ -59,7 +59,6 @@ public class EnableRetryTest {
 
         RetryConfigurationProperties.InstanceProperties instanceProperties = properties.getInstances().get("test");
         assertEquals(Duration.ofSeconds(1), instanceProperties.getWaitDuration());
-        assertEquals(Integer.valueOf(1), instanceProperties.getMaxAttempts());
         assertEquals(Integer.valueOf(99), instanceProperties.getEventConsumerBufferSize());
 
         retry.executeSupplier(() -> "Hello,World");

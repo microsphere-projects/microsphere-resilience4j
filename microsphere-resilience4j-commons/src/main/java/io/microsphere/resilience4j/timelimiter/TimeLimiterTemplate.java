@@ -23,14 +23,12 @@ import io.github.resilience4j.timelimiter.TimeLimiterRegistry;
 import io.github.resilience4j.timelimiter.event.TimeLimiterOnErrorEvent;
 import io.github.resilience4j.timelimiter.event.TimeLimiterOnSuccessEvent;
 import io.github.resilience4j.timelimiter.event.TimeLimiterOnTimeoutEvent;
-import io.microsphere.resilience4j.common.Resilience4jContext;
+import io.microsphere.lang.function.ThrowableSupplier;
 import io.microsphere.resilience4j.common.Resilience4jTemplate;
-import io.microsphere.util.ExceptionUtils;
-import io.vavr.CheckedFunction0;
 
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 
+import static io.microsphere.util.ExceptionUtils.wrap;
 import static java.util.concurrent.ForkJoinPool.commonPool;
 
 /**
@@ -63,35 +61,31 @@ public class TimeLimiterTemplate extends Resilience4jTemplate<TimeLimiter, TimeL
      * @return non-null
      */
     @Override
-    protected TimeLimiter createEntry(String name) {
+    public TimeLimiter createEntry(String name) {
         TimeLimiterRegistry registry = super.getRegistry();
-        return registry.timeLimiter(name, super.getConfiguration(name), registry.getTags());
+        return registry.timeLimiter(name, super.getConfiguration(name));
     }
 
     @Override
-    public Resilience4jContext<TimeLimiter> begin(String entryName) {
-        throw ExceptionUtils.create(UnsupportedOperationException.class, "TimeLimiter does not support begin operation");
+    public boolean isBeginSupported() {
+        return false;
     }
 
     @Override
-    public void end(Resilience4jContext<TimeLimiter> context) {
-        throw ExceptionUtils.create(UnsupportedOperationException.class, "TimeLimiter does not support end operation");
+    public boolean isEndSupported() {
+        return false;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    protected <V> V execute(Resilience4jContext<TimeLimiter> context, CheckedFunction0<V> callback) throws Throwable {
-        TimeLimiter timeLimiter = context.getEntry();
-        Callable<V> docoratedCallable = timeLimiter.decorateFutureSupplier(() -> executorService.submit(() -> {
+    public <T> T call(String name, ThrowableSupplier<T> callback) throws Throwable {
+        TimeLimiter timeLimiter = getEntry(name);
+        return timeLimiter.decorateFutureSupplier(() -> executorService.submit(() -> {
             try {
-                return callback.apply();
+                return callback.get();
             } catch (Throwable t) {
-                throw new Exception(t);
+                throw wrap(t, Exception.class);
             }
-        }));
-        return docoratedCallable.call();
+        })).call();
     }
 
     /**

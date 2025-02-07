@@ -24,10 +24,8 @@ import io.github.resilience4j.retry.event.RetryOnErrorEvent;
 import io.github.resilience4j.retry.event.RetryOnIgnoredErrorEvent;
 import io.github.resilience4j.retry.event.RetryOnRetryEvent;
 import io.github.resilience4j.retry.event.RetryOnSuccessEvent;
-import io.microsphere.resilience4j.common.Resilience4jContext;
+import io.microsphere.lang.function.ThrowableSupplier;
 import io.microsphere.resilience4j.common.Resilience4jTemplate;
-import io.microsphere.util.ExceptionUtils;
-import io.vavr.CheckedFunction0;
 
 import static io.github.resilience4j.retry.Retry.decorateCheckedSupplier;
 
@@ -48,29 +46,25 @@ public class RetryTemplate extends Resilience4jTemplate<Retry, RetryConfig, Retr
     }
 
     @Override
-    public Resilience4jContext<Retry> begin(String entryName) {
-        throw ExceptionUtils.create(UnsupportedOperationException.class, "RetryTemplate does not support begin operation");
-    }
-
-    @Override
-    public void end(Resilience4jContext<Retry> context) {
-        throw ExceptionUtils.create(UnsupportedOperationException.class, "RetryTemplate does not support end operation");
-    }
-
-    @Override
-    protected Retry createEntry(String name) {
+    public Retry createEntry(String name) {
         RetryRegistry registry = super.getRegistry();
-        return registry.retry(name, super.getConfiguration(name), registry.getTags());
+        return registry.retry(name, super.getConfiguration(name));
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    protected <V> V execute(Resilience4jContext<Retry> context, CheckedFunction0<V> callback) throws Throwable {
-        Retry retry = context.getEntry();
-        CheckedFunction0<V> delegate = decorateCheckedSupplier(retry, callback);
-        return delegate.apply();
+    public <T> T call(String name, ThrowableSupplier<T> callback) throws Throwable {
+        Retry retry = getEntry(name);
+        return decorateCheckedSupplier(retry, callback::get).apply();
+    }
+
+    @Override
+    public boolean isBeginSupported() {
+        return false;
+    }
+
+    @Override
+    public boolean isEndSupported() {
+        return false;
     }
 
     /**

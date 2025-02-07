@@ -23,8 +23,12 @@ import io.github.resilience4j.ratelimiter.RateLimiterRegistry;
 import io.github.resilience4j.ratelimiter.event.RateLimiterOnDrainedEvent;
 import io.github.resilience4j.ratelimiter.event.RateLimiterOnFailureEvent;
 import io.github.resilience4j.ratelimiter.event.RateLimiterOnSuccessEvent;
+import io.microsphere.lang.function.ThrowableSupplier;
 import io.microsphere.resilience4j.common.Resilience4jContext;
 import io.microsphere.resilience4j.common.Resilience4jTemplate;
+
+import static io.github.resilience4j.ratelimiter.RateLimiter.decorateCheckedSupplier;
+import static io.github.resilience4j.ratelimiter.RateLimiter.waitForPermission;
 
 /**
  * {@link Resilience4jTemplate} for {@link RateLimiter}
@@ -42,44 +46,26 @@ public class RateLimiterTemplate extends Resilience4jTemplate<RateLimiter, RateL
         super(registry);
     }
 
-    /**
-     * Create the {@link RateLimiter}
-     *
-     * @param name the name of the Resilience4j's entry
-     * @return non-null
-     */
     @Override
-    protected RateLimiter createEntry(String name) {
+    public RateLimiter createEntry(String name) {
         RateLimiterRegistry registry = super.getRegistry();
-        return registry.rateLimiter(name, super.getConfiguration(name), registry.getTags());
+        return registry.rateLimiter(name, super.getConfiguration(name));
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    protected void beforeExecute(Resilience4jContext<RateLimiter> context) {
-        RateLimiter rateLimiter = context.getEntry();
-        rateLimiter.acquirePermission();
+    public <T> T call(String name, ThrowableSupplier<T> callback) throws Throwable {
+        RateLimiter rateLimiter = getEntry(name);
+        return decorateCheckedSupplier(rateLimiter, callback::get).apply();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    protected void afterExecute(Resilience4jContext<RateLimiter> context) {
+    public void doBegin(Resilience4jContext<RateLimiter> context) {
         RateLimiter rateLimiter = context.getEntry();
-        Throwable failure = context.getFailure();
-        if (failure == null) {
-            Object result = context.getResult();
-            if (result == null) {
-                rateLimiter.onSuccess();
-            } else {
-                rateLimiter.onResult(result);
-            }
-        } else {
-            rateLimiter.onError(failure);
-        }
+        waitForPermission(rateLimiter);
+    }
+
+    @Override
+    protected void doEnd(Resilience4jContext<RateLimiter> context) {
     }
 
     /**

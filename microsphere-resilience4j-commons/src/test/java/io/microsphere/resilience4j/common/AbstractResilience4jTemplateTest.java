@@ -22,7 +22,6 @@ import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 import io.github.resilience4j.core.Registry;
 import io.microsphere.logging.Logger;
 import io.microsphere.util.ValueHolder;
-import io.vavr.control.Try;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,17 +31,18 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Supplier;
 
 import static io.github.resilience4j.core.registry.RegistryEvent.Type.ADDED;
 import static io.github.resilience4j.core.registry.RegistryEvent.Type.REMOVED;
 import static io.github.resilience4j.core.registry.RegistryEvent.Type.REPLACED;
 import static io.microsphere.logging.LoggerFactory.getLogger;
 import static io.microsphere.reflect.MethodUtils.invokeStaticMethod;
+import static java.lang.System.nanoTime;
 import static java.util.Arrays.asList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -92,7 +92,7 @@ public abstract class AbstractResilience4jTemplateTest<E, C, R extends Registry<
         this.registry = createRegistry();
         this.entryConfig = createEntryConfig();
         this.template = createTemplate(registry);
-        this.template.configuration(this.entryName, entryConfig);
+        this.template.addConfiguration(this.entryName, entryConfig);
         logger.debug("The instance of Registry(class : '{}') was created.", this.registry.getClass().getName());
         logger.debug("The instance of Resilience4jTemplate(class : '{}') was created.", this.template.getClass().getName());
         postInit();
@@ -112,10 +112,6 @@ public abstract class AbstractResilience4jTemplateTest<E, C, R extends Registry<
      */
     protected void postInit() {
         // DO NOTHING, The subclass can override it
-    }
-
-    protected Supplier<String> getEntryNameGenerator() {
-        return () -> entryName;
     }
 
     protected RT createTemplate(R registry) throws Throwable {
@@ -195,6 +191,11 @@ public abstract class AbstractResilience4jTemplateTest<E, C, R extends Registry<
         assertNotNull(newEntry);
         assertNotNull(oldEntry);
 
+        String newEntryName2 = "test-entry-3";
+
+        oldEntry = template.replaceEntry(newEntryName2, newEntry);
+        assertNull(oldEntry);
+
         // Test REMOVED
         template.onEntryRemovedEvent(event -> {
             logger.debug("The event of registry : '{}' was received.", event);
@@ -204,21 +205,48 @@ public abstract class AbstractResilience4jTemplateTest<E, C, R extends Registry<
         E removedEntry = template.removeEntry(newEntryName);
         assertNotNull(removedEntry);
 
+        removedEntry = template.removeEntry(newEntryName2);
+        assertNull(removedEntry);
+    }
+
+    @Test
+    public final void testExecuteEntries() {
+        String entryName = this.entryName;
+        RT template = this.template;
+
+        template.execute(entryName, entry -> {
+            logger.debug("{}.execute('{}', entry : {})", this.getClass().getName(), entryName, entry);
+        });
+
+        E entry = template.execute(entryName, e -> e);
+        assertSame(entry, template.getEntry(entryName));
+    }
+
+    @Test
+    public final void testCallEntries() throws Throwable {
+        String entryName = this.entryName;
+        RT template = this.template;
+
+        template.call(entryName, entry -> {
+            logger.debug("{}.execute('{}', entry : {})", this.getClass().getName(), entryName, entry);
+        });
+
+        E entry = template.call(entryName, e -> e);
+        assertSame(entry, template.getEntry(entryName));
     }
 
     @Test
     public final void testBegin() {
         RT template = this.template;
+        String entryName = this.entryName;
         Resilience4jModule module = template.getModule();
         ValueHolder<Object> resultHolder = new ValueHolder<>();
-        Try.of(() -> {
-            Resilience4jContext<E> context = template.begin(getEntryNameGenerator());
-            return context.getEntry();
-        }).onSuccess(entry -> {
-            resultHolder.setValue(entry);
-        }).onFailure(e -> {
+        try {
+            Resilience4jContext<E> context = template.begin(entryName);
+            resultHolder.setValue(context.getEntry());
+        } catch (Throwable e) {
             resultHolder.setValue(e);
-        });
+        }
 
         switch (module) {
             case RETRY:
@@ -233,18 +261,19 @@ public abstract class AbstractResilience4jTemplateTest<E, C, R extends Registry<
 
     @Test
     public final void testEnd() {
+        String entryName = this.entryName;
         RT template = this.template;
         Resilience4jModule module = template.getModule();
         ValueHolder<Object> resultHolder = new ValueHolder<>();
-        Try.of(() -> {
-            Resilience4jContext<E> context = template.beforeExecute(entryName);
+
+        try {
+            Resilience4jContext<E> context = new Resilience4jContext<>(entryName, template.getEntry(entryName));
+            context.setStartTime(nanoTime());
             template.end(context);
-            return context.getEntry();
-        }).onSuccess(entry -> {
-            resultHolder.setValue(entry);
-        }).onFailure(e -> {
+            resultHolder.setValue(context.getEntry());
+        } catch (Throwable e) {
             resultHolder.setValue(e);
-        });
+        }
 
         switch (module) {
             case RETRY:
@@ -255,6 +284,15 @@ public abstract class AbstractResilience4jTemplateTest<E, C, R extends Registry<
             default:
                 assertTrue(template.getEntryClass().isInstance(resultHolder.getValue()));
         }
+    }
+
+    @Test
+    public final void testPriority() {
+        RT template = this.template;
+        assertEquals(template.getPriority(), template.getModule().getDefaultAspectOrder());
+
+        int priority = 1;
+        assertEquals(priority, template.setPriority(priority).getPriority());
     }
 
 

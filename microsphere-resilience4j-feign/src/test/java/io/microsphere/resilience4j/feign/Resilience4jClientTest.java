@@ -16,17 +16,20 @@
  */
 package io.microsphere.resilience4j.feign;
 
+import io.microsphere.resilience4j.common.Resilience4jFacade;
+
 /**
  * {@link Resilience4jClient} Test
  *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy<a/>
  * @see Resilience4jClient
- * @see Resilience4jCapabilityTest
+ * @see AbstractResilience4jFeignTest
  * @since 1.0.0
  */
-public class Resilience4jClientTest extends Resilience4jCapabilityTest {
+public class Resilience4jClientTest extends AbstractResilience4jFeignTest {
 
-    public Resilience4jClientTest() {
-        super(true);
+    @Override
+    protected Resilience4jCapability createResilience4jCapability(Resilience4jFacade facade) {
+        return new Resilience4jCapability(facade, this.getClass().getSimpleName());
     }
 }

@@ -40,23 +40,23 @@ import static java.util.Arrays.asList;
  * @see Registry
  * @since 1.0.0
  */
-public class DelegatingResilience4jFacade implements Resilience4jFacade {
+public class ChainableResilience4jFacade implements Resilience4jFacade {
 
-    private final static Logger logger = getLogger(DelegatingResilience4jFacade.class);
+    private final static Logger logger = getLogger(ChainableResilience4jFacade.class);
 
     private final List<Resilience4jTemplate> templates;
 
     private final int size;
 
-    public DelegatingResilience4jFacade(Registry<?, ?>... registries) {
+    public ChainableResilience4jFacade(Registry<?, ?>... registries) {
         this(asList(registries));
     }
 
-    public DelegatingResilience4jFacade(Collection<Registry<?, ?>> registries) {
+    public ChainableResilience4jFacade(Collection<Registry<?, ?>> registries) {
         this(createTemplates(registries));
     }
 
-    public DelegatingResilience4jFacade(List<Resilience4jTemplate> templates) {
+    public ChainableResilience4jFacade(List<Resilience4jTemplate> templates) {
         int size = templates.size();
         List<Resilience4jTemplate> effectiveTemplates = new ArrayList<>(size);
         for (int i = 0; i < size; i++) {
@@ -122,5 +122,40 @@ public class DelegatingResilience4jFacade implements Resilience4jFacade {
      */
     public int getSize() {
         return size;
+    }
+
+    /**
+     * Callback Chain
+     *
+     * @param <T> the type of result
+     */
+    static class CallbackChain<T> implements ThrowableSupplier<T> {
+
+        private final String entryName;
+
+        private final ThrowableSupplier<T> delegate;
+
+        private final List<Resilience4jTemplate> templates;
+
+        private final int size;
+
+        private int pos; // position
+
+        CallbackChain(String entryName, ThrowableSupplier<T> delegate, List<Resilience4jTemplate> templates) {
+            this.entryName = entryName;
+            this.delegate = delegate;
+            this.templates = templates;
+            this.size = templates.size();
+            this.pos = 0;
+        }
+
+        @Override
+        public T get() throws Throwable {
+            if (pos < size) {
+                Resilience4jTemplate template = templates.get(pos++);
+                return (T) template.call(this.entryName, CallbackChain.this::get);
+            }
+            return delegate.get();
+        }
     }
 }

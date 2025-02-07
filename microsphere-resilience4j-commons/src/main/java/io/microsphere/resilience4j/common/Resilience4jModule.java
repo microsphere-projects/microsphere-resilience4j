@@ -180,12 +180,13 @@ public enum Resilience4jModule {
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("Resilience4jModule{");
-        sb.append("entryClass=").append(entryClass);
-        sb.append(", configClass=").append(configClass);
-        sb.append(", configurationPropertiesClass=").append(configurationPropertiesClass);
-        sb.append(", eventClass=").append(eventClass);
-        sb.append(", registryClass=").append(registryClass);
-        sb.append(", defaultAspectOrder=").append(defaultAspectOrder);
+        sb.append("name = ").append(name);
+        sb.append(", entryClass = ").append(entryClass);
+        sb.append(", configClass = ").append(configClass);
+        sb.append(", configurationPropertiesClass = ").append(configurationPropertiesClass);
+        sb.append(", eventClass = ").append(eventClass);
+        sb.append(", registryClass = ").append(registryClass);
+        sb.append(", defaultAspectOrder = ").append(defaultAspectOrder);
         sb.append('}');
         return sb.toString();
     }

@@ -27,20 +27,20 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * {@link DelegatingResilience4jFacade} Test
+ * {@link ChainableResilience4jFacade} Test
  *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy<a/>
  * @see Resilience4jFacade
- * @see DelegatingResilience4jFacade
+ * @see ChainableResilience4jFacade
  * @since 1.0.0
  */
-public class DelegatingResilience4jFacadeTest {
+public class ChainableResilience4JFacadeTest {
 
     private final String entryName = "test-entry";
 
     private final int size = 5;
 
-    private DelegatingResilience4jFacade facade;
+    private ChainableResilience4jFacade facade;
 
     @BeforeEach
     public void init() {
@@ -49,7 +49,7 @@ public class DelegatingResilience4jFacadeTest {
         RetryRegistry retryRegistry = RetryRegistry.ofDefaults();
         TimeLimiterRegistry timeLimiterRegistry = TimeLimiterRegistry.ofDefaults();
         CircuitBreakerRegistry circuitBreakerRegistry = CircuitBreakerRegistry.ofDefaults();
-        this.facade = new DelegatingResilience4jFacade(
+        this.facade = new ChainableResilience4jFacade(
                 bulkheadRegistry,
                 bulkheadRegistry,
                 rateLimiterRegistry,

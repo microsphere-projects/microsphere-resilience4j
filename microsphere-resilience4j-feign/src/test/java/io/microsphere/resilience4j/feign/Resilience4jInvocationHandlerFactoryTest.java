@@ -16,17 +16,22 @@
  */
 package io.microsphere.resilience4j.feign;
 
+import io.microsphere.resilience4j.common.Resilience4jFacade;
+
+import static io.microsphere.resilience4j.feign.Resilience4jCapability.DecoratedPoint.INVOCATION_HANDLER_FACTORY;
+
 /**
  * {@link Resilience4jInvocationHandlerFactory} Test
  *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy<a/>
  * @see Resilience4jInvocationHandlerFactory
- * @see Resilience4jCapabilityTest
+ * @see AbstractResilience4jFeignTest
  * @since 1.0.0
  */
-public class Resilience4jInvocationHandlerFactoryTest extends Resilience4jCapabilityTest {
+public class Resilience4jInvocationHandlerFactoryTest extends AbstractResilience4jFeignTest {
 
-    public Resilience4jInvocationHandlerFactoryTest() {
-        super(false);
+    @Override
+    protected Resilience4jCapability createResilience4jCapability(Resilience4jFacade facade) {
+        return new Resilience4jCapability(facade, INVOCATION_HANDLER_FACTORY);
     }
 }

@@ -27,7 +27,7 @@ import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 import io.github.resilience4j.ratelimiter.RateLimiterRegistry;
 import io.github.resilience4j.retry.RetryRegistry;
 import io.github.resilience4j.timelimiter.TimeLimiterRegistry;
-import io.microsphere.resilience4j.common.DelegatingResilience4jFacade;
+import io.microsphere.resilience4j.common.ChainableResilience4jFacade;
 import io.microsphere.resilience4j.common.Resilience4jFacade;
 import io.microsphere.resilience4j.feign.api.User;
 import io.microsphere.resilience4j.feign.api.UserService;
@@ -71,7 +71,7 @@ public abstract class Resilience4jCapabilityTest {
         RetryRegistry retryRegistry = RetryRegistry.ofDefaults();
         TimeLimiterRegistry timeLimiterRegistry = TimeLimiterRegistry.ofDefaults();
         CircuitBreakerRegistry circuitBreakerRegistry = CircuitBreakerRegistry.ofDefaults();
-        this.facade = new DelegatingResilience4jFacade(bulkheadRegistry, rateLimiterRegistry,
+        this.facade = new ChainableResilience4jFacade(bulkheadRegistry, rateLimiterRegistry,
                 retryRegistry, timeLimiterRegistry, circuitBreakerRegistry);
 
         Encoder encoder = new GsonEncoder();

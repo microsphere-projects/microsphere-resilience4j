@@ -35,6 +35,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 
+import static io.microsphere.resilience4j.alibaba.druid.filter.Resilience4jDruidFilter.DEFAULT_ENTRY_NAME_PREFIX;
 import static java.sql.ResultSet.CONCUR_UPDATABLE;
 import static java.sql.ResultSet.TYPE_FORWARD_ONLY;
 import static java.sql.Statement.NO_GENERATED_KEYS;
@@ -100,6 +101,11 @@ public class Resilience4jDruidFilterTest {
     }
 
     @Test
+    public void testConstants() {
+        assertEquals("alibaba-druid@", DEFAULT_ENTRY_NAME_PREFIX);
+    }
+
+    @Test
     public void testExecuteStatement() throws Throwable {
         executeStatement(statement -> {
             assertEquals(1, statement.executeUpdate("INSERT INTO users (id, name) VALUES (1, 'Mercy')"));
@@ -141,8 +147,9 @@ public class Resilience4jDruidFilterTest {
     }
 
     @Test
-    public void testGetFacade() {
+    public void testGetter() {
         assertSame(facade, filter.getFacade());
+        assertEquals(DEFAULT_ENTRY_NAME_PREFIX, filter.getEntryNamePrefix());
     }
 
     private void executePreparedStatement(String sql, ThrowableConsumer<PreparedStatement> consumer) throws Throwable {

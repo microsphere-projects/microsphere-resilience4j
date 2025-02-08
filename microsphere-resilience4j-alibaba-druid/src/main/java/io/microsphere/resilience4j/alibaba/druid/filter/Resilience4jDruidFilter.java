@@ -33,6 +33,7 @@ import com.alibaba.druid.sql.ast.statement.SQLSelectQueryBlock;
 import com.alibaba.druid.sql.ast.statement.SQLSelectStatement;
 import com.alibaba.druid.sql.ast.statement.SQLTableSource;
 import com.alibaba.druid.sql.ast.statement.SQLUpdateStatement;
+import io.github.resilience4j.core.lang.NonNull;
 import io.microsphere.logging.Logger;
 import io.microsphere.resilience4j.common.Resilience4jFacade;
 
@@ -59,16 +60,28 @@ import static io.microsphere.util.ExceptionUtils.wrap;
  */
 public class Resilience4jDruidFilter extends FilterAdapter {
 
+    /**
+     * The default entry name prefix
+     */
+    public static final String DEFAULT_ENTRY_NAME_PREFIX = "alibaba-druid@";
+
     private static final Logger logger = getLogger(Resilience4jDruidFilter.class);
+
+    private final Resilience4jFacade facade;
+
+    private final String entryNamePrefix;
 
     private DataSourceProxy dataSource;
 
     private String validationSQL;
 
-    protected final Resilience4jFacade facade;
-
     public Resilience4jDruidFilter(Resilience4jFacade facade) {
+        this(facade, DEFAULT_ENTRY_NAME_PREFIX);
+    }
+
+    public Resilience4jDruidFilter(Resilience4jFacade facade, String entryNamePrefix) {
         this.facade = facade;
+        this.entryNamePrefix = entryNamePrefix;
     }
 
     @Override
@@ -151,8 +164,19 @@ public class Resilience4jDruidFilter extends FilterAdapter {
      *
      * @return non-null
      */
+    @NonNull
     public final Resilience4jFacade getFacade() {
         return this.facade;
+    }
+
+    /**
+     * Get the entry name prefix
+     *
+     * @return non-null
+     */
+    @NonNull
+    public final String getEntryNamePrefix() {
+        return entryNamePrefix;
     }
 
     protected final <T> T doInResilience4j(StatementProxy statement, Callable<T> callable) throws SQLException {

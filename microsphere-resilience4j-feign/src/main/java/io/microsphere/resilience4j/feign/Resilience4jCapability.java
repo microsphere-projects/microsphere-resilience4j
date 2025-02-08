@@ -39,7 +39,7 @@ public class Resilience4jCapability implements Capability {
     /**
      * The default entry name prefix
      */
-    public static final String DEFAULT_ENTRY_NAME_PREFIX = "microsphere-resilience4j-feign@";
+    public static final String DEFAULT_ENTRY_NAME_PREFIX = "feign@";
 
     /**
      * The default {@link DecoratedPoint decorated type}

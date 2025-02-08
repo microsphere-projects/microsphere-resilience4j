@@ -17,6 +17,12 @@
 package io.microsphere.resilience4j.feign;
 
 import io.microsphere.resilience4j.common.Resilience4jFacade;
+import org.junit.jupiter.api.Test;
+
+import static io.microsphere.resilience4j.feign.Resilience4jCapability.DEFAULT_DECORATED_POINT;
+import static io.microsphere.resilience4j.feign.Resilience4jCapability.DEFAULT_ENTRY_NAME_PREFIX;
+import static io.microsphere.resilience4j.feign.Resilience4jCapability.DecoratedPoint.CLIENT;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * {@link Resilience4jCapability} Test
@@ -26,8 +32,15 @@ import io.microsphere.resilience4j.common.Resilience4jFacade;
  * @since 1.0.0
  */
 public class Resilience4jCapabilityTest extends AbstractResilience4jFeignTest {
+
     @Override
     protected Resilience4jCapability createResilience4jCapability(Resilience4jFacade facade) {
         return new Resilience4jCapability(facade);
+    }
+
+    @Test
+    public void testConstants() {
+        assertEquals("feign@", DEFAULT_ENTRY_NAME_PREFIX);
+        assertEquals(CLIENT, DEFAULT_DECORATED_POINT);
     }
 }

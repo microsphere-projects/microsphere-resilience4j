@@ -101,6 +101,11 @@ public class Resilience4jDruidFilterTest {
     }
 
     @Test
+    public void testConstants() {
+        assertEquals("alibaba-druid@", DEFAULT_ENTRY_NAME_PREFIX);
+    }
+
+    @Test
     public void testExecuteStatement() throws Throwable {
         executeStatement(statement -> {
             assertEquals(1, statement.executeUpdate("INSERT INTO users (id, name) VALUES (1, 'Mercy')"));

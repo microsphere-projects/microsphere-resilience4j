@@ -23,27 +23,26 @@ import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 import io.github.resilience4j.ratelimiter.RateLimiterRegistry;
 import io.github.resilience4j.retry.RetryRegistry;
 import io.github.resilience4j.timelimiter.TimeLimiterRegistry;
-import io.microsphere.lang.function.ThrowableAction;
 import io.microsphere.lang.function.ThrowableConsumer;
-import io.microsphere.lang.function.ThrowableFunction;
 import io.microsphere.resilience4j.common.ChainableResilience4jFacade;
 import io.microsphere.resilience4j.common.Resilience4jFacade;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.lang.reflect.Method;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 
-import static io.microsphere.reflect.MethodUtils.findMethod;
-import static io.microsphere.reflect.MethodUtils.invokeMethod;
-import static java.sql.DriverManager.getConnection;
+import static java.sql.ResultSet.CONCUR_UPDATABLE;
+import static java.sql.ResultSet.TYPE_FORWARD_ONLY;
+import static java.sql.Statement.NO_GENERATED_KEYS;
 import static java.util.Arrays.asList;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 /**
  * {@link Resilience4jDruidFilter} Test
@@ -95,35 +94,84 @@ public class Resilience4jDruidFilterTest {
     }
 
     private void initData() throws Throwable {
-        execute(statement -> {
-            statement.execute("CREATE TABLE users (id INT, name VARCHAR(50))");
+        executeStatement(statement -> {
+            statement.execute("CREATE TABLE users (id INT, name VARCHAR(50))", NO_GENERATED_KEYS);
         });
     }
 
     @Test
-    public void test() throws Throwable {
-        execute(statement -> {
+    public void testExecuteStatement() throws Throwable {
+        executeStatement(statement -> {
             assertEquals(1, statement.executeUpdate("INSERT INTO users (id, name) VALUES (1, 'Mercy')"));
-            assertEquals(1, statement.executeUpdate("INSERT INTO users (id, name) VALUES (2, 'Ma')"));
+            assertEquals(1, statement.executeUpdate("INSERT INTO users (id, name) VALUES (2, 'Blitz')", new String[0]));
+            assertEquals(1, statement.executeUpdate("INSERT INTO users (id, name) VALUES (3, 'Ma')", new int[0]));
+            assertEquals(1, statement.executeUpdate("INSERT INTO users (id, name) VALUES (4, 'M')", NO_GENERATED_KEYS));
+            statement.addBatch("INSERT INTO users (id, name) VALUES (5, 'Z')");
+            statement.addBatch("UPDATE users set name = 'z' WHERE id = 5");
+            assertArrayEquals(new int[]{1, 1}, statement.executeBatch());
             ResultSet resultSet = statement.executeQuery("SELECT id,name FROM users");
             assertNotNull(resultSet);
+            statement.execute("DELETE FROM users WHERE id = 1");
+            statement.execute("DELETE FROM users WHERE id = 2", new String[0]);
+            statement.execute("DELETE FROM users WHERE id = 3", new int[0]);
+            statement.execute("DELETE FROM users WHERE id = 4", NO_GENERATED_KEYS);
+            statement.execute("DELETE FROM users");
         });
     }
 
-    private void execute(ThrowableConsumer<Statement> consumer) throws Throwable {
-        execute(statement -> {
-            consumer.accept(statement);
-            return null;
+    @Test
+    public void testExecutePreparedStatement() throws Throwable {
+
+        executePreparedStatement("INSERT INTO users (id, name) VALUES (?, ?)", preparedStatement -> {
+            preparedStatement.setInt(1, 1);
+            preparedStatement.setString(2, "Mercy");
+            assertEquals(1, preparedStatement.executeUpdate());
+        });
+
+        executeConnection(connection -> {
+            PreparedStatement preparedStatement = connection.prepareStatement("SELECT id,name FROM users WHERE id=?", TYPE_FORWARD_ONLY);
+            preparedStatement.setInt(1, 1);
+            assertNotNull(preparedStatement.executeQuery());
+
+            preparedStatement = connection.prepareStatement("SELECT id,name FROM users WHERE id=?", TYPE_FORWARD_ONLY, CONCUR_UPDATABLE);
+            preparedStatement.setInt(1, 1);
+            assertNotNull(preparedStatement.execute());
+
         });
     }
 
-    private <R> R execute(ThrowableFunction<Statement, R> function) throws Throwable {
+    @Test
+    public void testGetFacade() {
+        assertSame(facade, filter.getFacade());
+    }
+
+    private void executePreparedStatement(String sql, ThrowableConsumer<PreparedStatement> consumer) throws Throwable {
+        executeConnection(connection -> {
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            try {
+                consumer.accept(preparedStatement);
+            } finally {
+                preparedStatement.close();
+            }
+        });
+    }
+
+    private void executeStatement(ThrowableConsumer<Statement> consumer) throws Throwable {
+        executeConnection(connection -> {
+            Statement statement = connection.createStatement();
+            try {
+                consumer.accept(statement);
+            } finally {
+                statement.close();
+            }
+        });
+    }
+
+    private void executeConnection(ThrowableConsumer<Connection> consumer) throws Throwable {
         Connection connection = dataSource.getConnection();
-        Statement statement = connection.createStatement();
         try {
-            return function.apply(statement);
+            consumer.accept(connection);
         } finally {
-            statement.close();
             connection.close();
         }
     }
@@ -131,6 +179,13 @@ public class Resilience4jDruidFilterTest {
 
     @AfterEach
     public void destroy() throws Throwable {
+        destroyData();
         dataSource.close();
+    }
+
+    private void destroyData() throws Throwable {
+        executeStatement(statement -> {
+            statement.execute("DROP TABLE users");
+        });
     }
 }

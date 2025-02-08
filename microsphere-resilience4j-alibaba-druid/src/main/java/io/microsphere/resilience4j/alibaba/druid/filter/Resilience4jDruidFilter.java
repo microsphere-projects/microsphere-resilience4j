@@ -36,7 +36,9 @@ import com.alibaba.druid.sql.ast.statement.SQLUpdateStatement;
 import io.microsphere.logging.Logger;
 import io.microsphere.resilience4j.common.Resilience4jFacade;
 
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.Callable;
@@ -47,6 +49,8 @@ import static io.microsphere.util.ExceptionUtils.wrap;
 
 /**
  * Resilience4j x Druid {@link Filter}
+ *
+ * <b>Note: Resilience4jDruidFilter only supports {@link Statement} and {@link PreparedStatement}</b>
  *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy<a/>
  * @see Filter
@@ -141,6 +145,7 @@ public class Resilience4jDruidFilter extends FilterAdapter {
         return doInResilience4j(statement, () -> super.statement_executeUpdate(chain, statement, sql, columnNames));
     }
 
+
     /**
      * Get the {@link Resilience4jFacade}
      *
@@ -152,7 +157,8 @@ public class Resilience4jDruidFilter extends FilterAdapter {
 
     protected final <T> T doInResilience4j(StatementProxy statement, Callable<T> callable) throws SQLException {
         try {
-            return this.facade.call(getEntryName(statement), callable::call);
+            String entryName = getEntryName(statement);
+            return this.facade.call(entryName, callable::call);
         } catch (Throwable e) {
             throw wrap(e, SQLException.class);
         }

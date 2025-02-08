@@ -21,6 +21,7 @@ import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 import io.github.resilience4j.ratelimiter.RateLimiterRegistry;
 import io.github.resilience4j.retry.RetryRegistry;
 import io.github.resilience4j.timelimiter.TimeLimiterRegistry;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -64,27 +65,32 @@ public class ChainableResilience4JFacadeTest {
 
     @Test
     public void testExecute() {
-        facade.execute(entryName, () -> {
+        this.facade.execute(entryName, () -> {
         });
     }
 
     @Test
     public void testCall() throws Throwable {
-        facade.call(entryName, () -> {
+        this.facade.call(entryName, () -> {
         });
     }
 
     @Test
     public void testBeginAndEnd() {
-        Resilience4jContext<Resilience4jContext[]> context = facade.begin(entryName);
+        Resilience4jContext<Resilience4jContext[]> context = this.facade.begin(entryName);
         Resilience4jContext[] subContexts = context.getEntry();
         assertEquals(this.size, subContexts.length);
-        facade.end(context);
+        this.facade.end(context);
     }
 
     @Test
     public void testGetSize() {
-        int size = facade.getSize();
+        int size = this.facade.getSize();
         assertEquals(this.size, size);
+    }
+
+    @AfterEach
+    public void destroy() {
+        this.facade.destroy();
     }
 }

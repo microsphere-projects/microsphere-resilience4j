@@ -72,7 +72,7 @@ public class Resilience4jExecutor implements Executor {
 
     @Override
     public <E> Cursor<E> queryCursor(MappedStatement ms, Object parameter, RowBounds rowBounds) throws SQLException {
-        return delegate.queryCursor(ms, parameter, rowBounds);
+        return doInResilience4j(ms, () -> delegate.queryCursor(ms, parameter, rowBounds));
     }
 
     @Override

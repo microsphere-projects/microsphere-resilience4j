@@ -60,9 +60,7 @@
         <module>microsphere-resilience4j-dependencies</module>
         <module>microsphere-resilience4j-compatible</module>
         <module>microsphere-resilience4j-commons</module>
-        <module>microsphere-resilience4j-alibaba-druid</module>
-        <module>microsphere-resilience4j-feign</module>
-        <module>microsphere-resilience4j-mybatis</module>
+        <module>microsphere-resilience4j-integration</module>
         <module>microsphere-resilience4j-spring</module>
         <module>microsphere-resilience4j-spring-boot</module>
         <module>microsphere-resilience4j-spring-cloud</module>

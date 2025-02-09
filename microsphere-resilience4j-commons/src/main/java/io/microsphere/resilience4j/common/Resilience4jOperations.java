@@ -91,6 +91,23 @@ public interface Resilience4jOperations<E> {
     /**
      * Call the callback with result, and may throw any error
      *
+     * @param name           the name of the Resilience4j's entry
+     * @param callback       the callback to be executed
+     * @param throwableClass the sub-class of the {@link Throwable}
+     * @param <TR>           the sub-class of the {@link Throwable}
+     * @throws Throwable any error caused by the execution of the callback
+     */
+    default <TR extends Throwable> void call(String name, ThrowableAction callback, Class<TR> throwableClass) throws TR {
+        try {
+            call(name, callback);
+        } catch (Throwable t) {
+            throw wrap(t, throwableClass);
+        }
+    }
+
+    /**
+     * Call the callback with result, and may throw any error
+     *
      * @param name     the name of the Resilience4j's entry
      * @param callback the callback to be executed
      * @param <T>      the type of result
@@ -102,6 +119,24 @@ public interface Resilience4jOperations<E> {
             return callback.get();
         } finally {
             end(context);
+        }
+    }
+
+    /**
+     * Call the callback with result, and may throw any error
+     *
+     * @param name           the name of the Resilience4j's entry
+     * @param callback       the callback to be executed
+     * @param throwableClass the sub-class of the {@link Throwable}
+     * @param <T>            the type of result
+     * @param <TR>           the sub-class of the {@link Throwable}
+     * @throws Throwable any error caused by the execution of the callback
+     */
+    default <T, TR extends Throwable> T call(String name, ThrowableSupplier<T> callback, Class<TR> throwableClass) throws TR {
+        try {
+            return call(name, callback);
+        } catch (Throwable t) {
+            throw wrap(t, throwableClass);
         }
     }
 

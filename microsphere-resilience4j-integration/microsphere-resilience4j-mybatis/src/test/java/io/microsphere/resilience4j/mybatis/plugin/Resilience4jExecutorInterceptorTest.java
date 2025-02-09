@@ -26,6 +26,7 @@ import io.microsphere.resilience4j.common.ChainableResilience4jFacade;
 import io.microsphere.resilience4j.common.Resilience4jFacade;
 import io.microsphere.resilience4j.mybatis.entity.User;
 import io.microsphere.resilience4j.mybatis.mapper.UserMapper;
+import org.apache.ibatis.cursor.Cursor;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -41,6 +42,7 @@ import java.sql.Statement;
 
 import static io.microsphere.resilience4j.mybatis.plugin.Resilience4jExecutorInterceptor.DEFAULT_ENTRY_NAME_PREFIX;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
 /**
@@ -108,7 +110,7 @@ public class Resilience4jExecutorInterceptorTest {
     }
 
     @Test
-    public void test() throws Throwable {
+    public void testMapper() throws Throwable {
         SqlSession sqlSession = openSqlSession();
         UserMapper userMapper = sqlSession.getMapper(UserMapper.class);
         int id = 1;
@@ -117,6 +119,20 @@ public class Resilience4jExecutorInterceptorTest {
         userMapper.saveUser(user);
         User foundUser = userMapper.getUserById(1);
         assertEquals(foundUser, user);
+        sqlSession.close();
+    }
+
+    @Test
+    public void testSqlSession() throws Throwable {
+        SqlSession sqlSession = openSqlSession();
+        Cursor<User> cursor = sqlSession.selectCursor("io.microsphere.resilience4j.mybatis.mapper.UserMapper.getUserById", 1);
+        assertNotNull(cursor);
+        assertNotNull(sqlSession.flushStatements());
+        sqlSession.commit();
+        sqlSession.commit(true);
+        sqlSession.rollback();
+        sqlSession.rollback(true);
+        sqlSession.clearCache();
         sqlSession.close();
     }
 

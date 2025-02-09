@@ -247,7 +247,16 @@ public abstract class AbstractResilience4jTemplateTest<E, C, R extends Registry<
     }
 
     @Test
-    public void testOnFailure() throws Throwable {
+    public void testCall() throws Throwable {
+
+        String entryName = this.entryName;
+        RT template = this.template;
+
+        template.call(entryName, () -> {
+        });
+
+        template.call(entryName, () -> 1);
+
         assertThrows(NullPointerException.class, () -> {
             template.call(entryName, () -> {
                 String name = null;

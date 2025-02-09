@@ -125,6 +125,13 @@ public class ChainableResilience4jFacade implements Resilience4jFacade {
     }
 
     /**
+     * Destroy all the delegates
+     */
+    public void destroy() {
+        templates.forEach(Resilience4jTemplate::destroy);
+    }
+
+    /**
      * Callback Chain
      *
      * @param <T> the type of result

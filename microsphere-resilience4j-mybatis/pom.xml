@@ -82,10 +82,10 @@
             <optional>true</optional>
         </dependency>
 
-        <!-- Alibaba Druid -->
+        <!-- MyBatis -->
         <dependency>
-            <groupId>com.alibaba</groupId>
-            <artifactId>druid</artifactId>
+            <groupId>org.mybatis</groupId>
+            <artifactId>mybatis</artifactId>
         </dependency>
 
         <!-- Testing -->

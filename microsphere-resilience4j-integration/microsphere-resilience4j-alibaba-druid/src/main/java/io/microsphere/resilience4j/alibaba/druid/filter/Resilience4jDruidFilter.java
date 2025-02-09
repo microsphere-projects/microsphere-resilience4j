@@ -46,7 +46,6 @@ import java.util.concurrent.Callable;
 
 import static com.alibaba.druid.sql.SQLUtils.parseStatements;
 import static io.microsphere.logging.LoggerFactory.getLogger;
-import static io.microsphere.util.ExceptionUtils.wrap;
 
 /**
  * Resilience4j x Druid {@link Filter}
@@ -180,12 +179,8 @@ public class Resilience4jDruidFilter extends FilterAdapter {
     }
 
     protected final <T> T doInResilience4j(StatementProxy statement, Callable<T> callable) throws SQLException {
-        try {
-            String entryName = getEntryName(statement);
-            return this.facade.call(entryName, callable::call);
-        } catch (Throwable e) {
-            throw wrap(e, SQLException.class);
-        }
+        String entryName = getEntryName(statement);
+        return this.facade.call(entryName, callable::call, SQLException.class);
     }
 
     public final String getEntryName(StatementProxy statement) {

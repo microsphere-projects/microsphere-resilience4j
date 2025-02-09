@@ -11,12 +11,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>io.github.microsphere-projects</groupId>
-    <artifactId>microsphere-resilience4j-alibaba-druid</artifactId>
+    <artifactId>microsphere-resilience4j-mybatis</artifactId>
     <version>${revision}</version>
     <packaging>jar</packaging>
 
-    <name>Microsphere :: Resilience4j :: Alibaba Druid</name>
-    <description>Microsphere Resilience4j Alibaba Druid</description>
+    <name>Microsphere :: Resilience4j :: MyBatis</name>
+    <description>Microsphere Resilience4j MyBatis</description>
 
     <dependencies>
         <!-- Microsphere Resilience4j -->
@@ -82,10 +82,10 @@
             <optional>true</optional>
         </dependency>
 
-        <!-- Alibaba Druid -->
+        <!-- MyBatis -->
         <dependency>
-            <groupId>com.alibaba</groupId>
-            <artifactId>druid</artifactId>
+            <groupId>org.mybatis</groupId>
+            <artifactId>mybatis</artifactId>
         </dependency>
 
         <!-- Testing -->

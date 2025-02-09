@@ -6,17 +6,17 @@
         <groupId>io.github.microsphere-projects</groupId>
         <artifactId>microsphere-resilience4j-parent</artifactId>
         <version>${revision}</version>
-        <relativePath>../microsphere-resilience4j-parent/pom.xml</relativePath>
+        <relativePath>../../microsphere-resilience4j-parent/pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>io.github.microsphere-projects</groupId>
-    <artifactId>microsphere-resilience4j-feign</artifactId>
+    <artifactId>microsphere-resilience4j-mybatis</artifactId>
     <version>${revision}</version>
     <packaging>jar</packaging>
 
-    <name>Microsphere :: Resilience4j :: Feign</name>
-    <description>Microsphere Resilience4j Feign</description>
+    <name>Microsphere :: Resilience4j :: MyBatis</name>
+    <description>Microsphere Resilience4j MyBatis</description>
 
     <dependencies>
         <!-- Microsphere Resilience4j -->
@@ -82,16 +82,10 @@
             <optional>true</optional>
         </dependency>
 
+        <!-- MyBatis -->
         <dependency>
-            <groupId>io.github.resilience4j</groupId>
-            <artifactId>resilience4j-feign</artifactId>
-            <optional>true</optional>
-        </dependency>
-
-        <dependency>
-            <groupId>io.github.openfeign</groupId>
-            <artifactId>feign-core</artifactId>
-            <optional>true</optional>
+            <groupId>org.mybatis</groupId>
+            <artifactId>mybatis</artifactId>
         </dependency>
 
         <!-- Testing -->
@@ -101,17 +95,17 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- H2 Database -->
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>test</scope>
+        </dependency>
+
         <!-- Logback -->
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-        <!-- Feign GSON -->
-        <dependency>
-            <groupId>io.github.openfeign</groupId>
-            <artifactId>feign-gson</artifactId>
             <scope>test</scope>
         </dependency>
 

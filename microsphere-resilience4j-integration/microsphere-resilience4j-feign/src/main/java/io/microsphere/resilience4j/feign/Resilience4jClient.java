@@ -26,7 +26,6 @@ import io.microsphere.resilience4j.common.Resilience4jFacade;
 import java.io.IOException;
 
 import static io.microsphere.constants.SymbolConstants.SPACE_CHAR;
-import static io.microsphere.util.ExceptionUtils.wrap;
 import static io.microsphere.util.StringUtils.isNotBlank;
 
 /**
@@ -53,11 +52,7 @@ public class Resilience4jClient implements Client {
     @Override
     public Response execute(Request request, Request.Options options) throws IOException {
         String entryName = buildEntryName(request);
-        try {
-            return this.facade.call(entryName, () -> this.delegate.execute(request, options));
-        } catch (Throwable e) {
-            throw wrap(e, IOException.class);
-        }
+        return this.facade.call(entryName, () -> this.delegate.execute(request, options), IOException.class);
     }
 
     private String buildEntryName(Request request) {

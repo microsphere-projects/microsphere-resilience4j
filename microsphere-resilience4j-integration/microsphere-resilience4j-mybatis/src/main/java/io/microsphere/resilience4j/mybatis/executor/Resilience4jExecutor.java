@@ -33,8 +33,6 @@ import org.apache.ibatis.transaction.Transaction;
 import java.sql.SQLException;
 import java.util.List;
 
-import static io.microsphere.util.ExceptionUtils.wrap;
-
 /**
  * Resilience4j decorates MyBatis {@link Executor}
  *
@@ -74,7 +72,7 @@ public class Resilience4jExecutor implements Executor {
 
     @Override
     public <E> Cursor<E> queryCursor(MappedStatement ms, Object parameter, RowBounds rowBounds) throws SQLException {
-        return delegate.queryCursor(ms, parameter, rowBounds);
+        return doInResilience4j(ms, () -> delegate.queryCursor(ms, parameter, rowBounds));
     }
 
     @Override
@@ -154,11 +152,7 @@ public class Resilience4jExecutor implements Executor {
 
     protected <T> T doInResilience4j(MappedStatement ms, ThrowableSupplier<T> callback) throws SQLException {
         String entryName = buildEntryName(ms);
-        try {
-            return this.facade.call(entryName, callback);
-        } catch (Throwable e) {
-            throw wrap(e, SQLException.class);
-        }
+        return this.facade.call(entryName, callback, SQLException.class);
     }
 
     private String buildEntryName(MappedStatement ms) {

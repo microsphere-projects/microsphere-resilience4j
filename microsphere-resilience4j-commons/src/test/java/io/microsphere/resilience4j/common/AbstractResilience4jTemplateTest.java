@@ -44,6 +44,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -233,6 +234,42 @@ public abstract class AbstractResilience4jTemplateTest<E, C, R extends Registry<
 
         E entry = template.call(entryName, e -> e);
         assertSame(entry, template.getEntry(entryName));
+
+        assertThrows(NullPointerException.class, () -> template.call(entryName, e -> {
+            String name = null;
+            name.toLowerCase();
+        }, NullPointerException.class));
+
+        assertThrows(NullPointerException.class, () -> template.call(entryName, e -> {
+            String name = null;
+            return name.toLowerCase();
+        }, NullPointerException.class));
+    }
+
+    @Test
+    public void testCall() throws Throwable {
+
+        String entryName = this.entryName;
+        RT template = this.template;
+
+        template.call(entryName, () -> {
+        });
+
+        template.call(entryName, () -> 1);
+
+        assertThrows(NullPointerException.class, () -> {
+            template.call(entryName, () -> {
+                String name = null;
+                name.toLowerCase();
+            }, NullPointerException.class);
+        });
+
+        assertThrows(NullPointerException.class, () -> {
+            template.call(entryName, () -> {
+                String name = null;
+                return name.toLowerCase();
+            }, NullPointerException.class);
+        });
     }
 
     @Test

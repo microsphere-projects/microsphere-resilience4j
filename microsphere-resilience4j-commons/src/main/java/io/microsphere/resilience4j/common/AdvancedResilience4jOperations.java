@@ -31,6 +31,8 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import static io.microsphere.util.ExceptionUtils.wrap;
+
 /**
  * The Resilience4j advanced operations extend {@link Resilience4jOperations} includes:
  * <ul>
@@ -326,6 +328,24 @@ public interface AdvancedResilience4jOperations<E, C, R extends Registry<E, C>> 
     }
 
     /**
+     * Call the {@link Consumer consumer} of the Resilience4j's entry without result
+     *
+     * @param name           the name of the Resilience4j's entry
+     * @param entryConsumer  the {@link Consumer consumer} of the Resilience4j's entry
+     * @param throwableClass the sub-type of {@link Throwable}
+     * @param <TR>           the sub-type of {@link Throwable}
+     * @throws TR any error caused by the execution of the <code>entryConsumer</code>
+     */
+    default <TR extends Throwable> AdvancedResilience4jOperations<E, C, R> call(String name, ThrowableConsumer<E> entryConsumer,
+                                                                                Class<TR> throwableClass) throws TR {
+        try {
+            return call(name, entryConsumer);
+        } catch (Throwable e) {
+            throw wrap(e, throwableClass);
+        }
+    }
+
+    /**
      * Call the {@link Function function} of the Resilience4j's entry with result
      *
      * @param name          the name of the Resilience4j's entry
@@ -342,6 +362,26 @@ public interface AdvancedResilience4jOperations<E, C, R extends Registry<E, C>> 
             logger.trace("The entry[name : '{}' , function : {}] was called , result : {}", name, entryFunction, result);
         }
         return result;
+    }
+
+    /**
+     * Call the {@link Function function} of the Resilience4j's entry with result
+     *
+     * @param name           the name of the Resilience4j's entry
+     * @param entryFunction  the {@link Function function} of the Resilience4j's entry
+     * @param throwableClass the sub-type of {@link Throwable}
+     * @param <T>            the type of result
+     * @param <TR>           the sub-type of {@link Throwable}
+     * @return the result of the <code>entryFunction</code>
+     * @throws Throwable any error caused by the execution of the <code>entryFunction</code>
+     */
+    default <T, TR extends Throwable> T call(String name, ThrowableFunction<E, T> entryFunction, Class<TR> throwableClass)
+            throws TR {
+        try {
+            return call(name, entryFunction);
+        } catch (Throwable e) {
+            throw wrap(e, throwableClass);
+        }
     }
 
     @Override

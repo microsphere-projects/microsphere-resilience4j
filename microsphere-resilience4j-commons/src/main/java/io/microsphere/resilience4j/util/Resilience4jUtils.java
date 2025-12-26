@@ -208,7 +208,7 @@ public abstract class Resilience4jUtils extends BaseUtils {
             String moduleName = module.getName();
             String templateClassName = properties.getProperty(moduleName);
             Class<? extends Resilience4jTemplate> templateClass =
-                    (Class<? extends Resilience4jTemplate>) loadClass(templateClassName, classLoader);
+                    (Class<? extends Resilience4jTemplate>) loadClass(classLoader, templateClassName);
             defaultTemplates.put(module, templateClass);
         }
 

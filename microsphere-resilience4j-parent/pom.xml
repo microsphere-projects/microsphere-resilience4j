@@ -19,7 +19,7 @@
     <description>Microsphere Resilience4j Parent</description>
 
     <properties>
-        <microsphere-spring-cloud.version>0.1.0</microsphere-spring-cloud.version>
+        <microsphere-spring-cloud.version>0.1.5</microsphere-spring-cloud.version>
         <microsphere-redis-spring.version>0.0.1</microsphere-redis-spring.version>
         <!-- Third-party versions -->
         <mybatis-starter.version>3.0.1</mybatis-starter.version>

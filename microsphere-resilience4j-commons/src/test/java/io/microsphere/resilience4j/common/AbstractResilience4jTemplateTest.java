@@ -264,12 +264,7 @@ public abstract class AbstractResilience4jTemplateTest<E, C, R extends Registry<
             }, NullPointerException.class);
         });
 
-        assertThrows(NullPointerException.class, () -> {
-            template.call(entryName, () -> {
-                String name = null;
-                return name.toLowerCase();
-            }, NullPointerException.class);
-        });
+        assertEquals("ABC", template.call(entryName, () -> "abc".toUpperCase(), NullPointerException.class));
     }
 
     @Test

@@ -20,6 +20,8 @@ import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 import io.github.resilience4j.core.Registry;
+import io.microsphere.lang.function.ThrowableAction;
+import io.microsphere.lang.function.ThrowableSupplier;
 import io.microsphere.logging.Logger;
 import io.microsphere.util.ValueHolder;
 import org.junit.jupiter.api.AfterEach;
@@ -31,6 +33,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 
 import static io.github.resilience4j.core.registry.RegistryEvent.Type.ADDED;
 import static io.github.resilience4j.core.registry.RegistryEvent.Type.REMOVED;
@@ -40,6 +43,7 @@ import static io.microsphere.reflect.MethodUtils.invokeStaticMethod;
 import static java.lang.System.nanoTime;
 import static java.util.Arrays.asList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -58,6 +62,28 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * @since 1.0.0
  */
 public abstract class AbstractResilience4jTemplateTest<E, C, R extends Registry<E, C>, RT extends Resilience4jTemplate<E, C, R>> {
+
+    protected final static String TEST_DATA = "test-data";
+
+    protected final static Runnable NO_ACTION = () -> {
+    };
+
+    protected final static ThrowableAction NO_THROWABLE_ACTION = () -> {
+    };
+
+    protected final static ThrowableAction NPE_ACTION = () -> {
+        throw new NullPointerException();
+    };
+
+    protected final static Supplier<String> TEST_DATA_SUPPLIER = () -> TEST_DATA;
+
+    protected final static ThrowableSupplier<String> NO_THROWABLE_TEST_DATA_SUPPLIER = () -> TEST_DATA;
+
+    protected final static ThrowableSupplier<String> NPE_SUPPLIER = () -> {
+        throw new NullPointerException();
+    };
+
+    protected final static Class<NullPointerException> NULL_POINTER_EXCEPTION_CLASS = NullPointerException.class;
 
     protected final Logger logger = getLogger(getClass());
 
@@ -84,18 +110,18 @@ public abstract class AbstractResilience4jTemplateTest<E, C, R extends Registry<
         configClass = (Class<C>) actualTypeArguments[1];
         registryClass = (Class<R>) actualTypeArguments[2];
         templateClass = (Class<RT>) actualTypeArguments[3];
-        logger.debug("Resolved the entryClass : '{}', entryConfigClass : '{}', registryClass : '{}', templateClass : '{}'",
+        logger.trace("Resolved the entryClass : '{}', entryConfigClass : '{}', registryClass : '{}', templateClass : '{}'",
                 entryClass.getName(), configClass.getName(), registryClass.getName(), templateClass.getName());
     }
 
     @BeforeEach
-    public final void init() throws Throwable {
+    void init() throws Throwable {
         this.registry = createRegistry();
         this.entryConfig = createEntryConfig();
         this.template = createTemplate(registry);
         this.template.addConfiguration(this.entryName, entryConfig);
-        logger.debug("The instance of Registry(class : '{}') was created.", this.registry.getClass().getName());
-        logger.debug("The instance of Resilience4jTemplate(class : '{}') was created.", this.template.getClass().getName());
+        logger.trace("The instance of Registry(class : '{}') was created.", this.registry.getClass().getName());
+        logger.trace("The instance of Resilience4jTemplate(class : '{}') was created.", this.template.getClass().getName());
         postInit();
     }
 
@@ -130,158 +156,52 @@ public abstract class AbstractResilience4jTemplateTest<E, C, R extends Registry<
     }
 
     @Test
-    public final void testReadMethods() {
-        Class<E> entryClass = this.entryClass;
-        RT template = this.template;
-        R registry = this.registry;
-        Class<C> configClass = this.configClass;
-
-        assertNotNull(template.getModule());
-
-        assertEquals(entryClass, template.getEntryClass());
-        assertEquals(configClass, template.getConfigClass());
-        assertTrue(registryClass.isAssignableFrom(template.getRegistry().getClass()));
-        assertEquals(templateClass, template.getClass());
-
-        assertEquals(registry, template.getRegistry());
-        assertEquals(registry.getDefaultConfig(), template.getDefaultConfig());
-        String configName = "default";
-        assertEquals(registry.getConfiguration(configName).get(), template.getConfiguration(configName));
-        assertEquals(registry.getDefaultConfig(), template.getConfiguration("not-exists"));
-
+    void testExecuteWithRunnable() {
+        this.template.execute(this.entryName, NO_ACTION);
     }
 
     @Test
-    public final void testLocalEntriesCache() {
-        String entryName = "test-1";
-        if (this.template.isLocalEntriesCachePresent()) {
-            this.template.initLocalEntriesCache(asList(entryName));
-            E entry = this.template.getEntryFromCache(entryName);
-            assertNotNull(entry);
+    void testExecuteWithSupplier() {
+        assertSame(TEST_DATA, this.template.execute(this.entryName, TEST_DATA_SUPPLIER));
+    }
+
+    @Test
+    void testCallWithThrowableAction() throws Throwable {
+        this.template.call(this.entryName, NO_THROWABLE_ACTION);
+    }
+
+    @Test
+    void testCallWithThrowableActionAndThrowableClass() {
+        this.template.call(this.entryName, NO_THROWABLE_ACTION, NULL_POINTER_EXCEPTION_CLASS);
+        assertThrows(NULL_POINTER_EXCEPTION_CLASS, () -> this.template.call(this.entryName, NPE_ACTION, NULL_POINTER_EXCEPTION_CLASS));
+    }
+
+    @Test
+    void testCallWithThrowableSupplier() throws Throwable {
+        assertSame(TEST_DATA, this.template.call(this.entryName, NO_THROWABLE_TEST_DATA_SUPPLIER));
+    }
+
+    @Test
+    void testCallWithThrowableSupplierAndThrowableClass() {
+        assertSame(TEST_DATA, this.template.call(this.entryName, NO_THROWABLE_TEST_DATA_SUPPLIER, NULL_POINTER_EXCEPTION_CLASS));
+        assertThrows(NULL_POINTER_EXCEPTION_CLASS, () -> this.template.call(this.entryName, NPE_SUPPLIER, NULL_POINTER_EXCEPTION_CLASS));
+    }
+
+    @Test
+    void testIsBeginSupported() {
+        Resilience4jModule module = template.getModule();
+        switch (module) {
+            case RETRY:
+            case TIME_LIMITER:
+                assertFalse(this.template.isBeginSupported());
+                break;
+            default:
+                assertTrue(this.template.isBeginSupported());
         }
     }
 
     @Test
-    public final void testEntriesAndEvents() {
-        RT template = this.template;
-        String entryName = this.entryName;
-
-        // TEST ADDED
-        template.onEntryAddedEvent(event -> {
-            logger.debug("The event of registry : '{}' was received.", event);
-            assertNotNull(event.getAddedEntry());
-            assertEquals(ADDED, event.getEventType());
-        });
-
-        template.initLocalEntriesCache(entryName);
-        E entry = template.getEntry(entryName);
-        assertNotNull(entry);
-        E foundEntry = template.getEntry(entryName);
-        assertSame(entry, foundEntry);
-
-        // Test REPLACED
-        template.onEntryReplacedEvent(event -> {
-            logger.debug("The event of registry : '{}' was received.", event);
-            assertSame(entry, event.getOldEntry());
-            assertNotSame(entry, event.getNewEntry());
-            assertEquals(REPLACED, event.getEventType());
-        });
-        String newEntryName = "test-entry-2";
-        E newEntry = template.createEntry(newEntryName);
-        E oldEntry = template.replaceEntry(entryName, newEntry);
-        assertNotNull(newEntry);
-        assertNotNull(oldEntry);
-
-        String newEntryName2 = "test-entry-3";
-
-        oldEntry = template.replaceEntry(newEntryName2, newEntry);
-        assertNull(oldEntry);
-
-        // Test REMOVED
-        template.onEntryRemovedEvent(event -> {
-            logger.debug("The event of registry : '{}' was received.", event);
-            assertEquals(newEntry, event.getRemovedEntry());
-            assertEquals(REMOVED, event.getEventType());
-        });
-        E removedEntry = template.removeEntry(newEntryName);
-        assertNotNull(removedEntry);
-
-        removedEntry = template.removeEntry(newEntryName2);
-        assertNull(removedEntry);
-    }
-
-    @Test
-    public final void testExecuteEntries() {
-        String entryName = this.entryName;
-        RT template = this.template;
-
-        template.execute(entryName, entry -> {
-            logger.debug("{}.execute('{}', entry : {})", this.getClass().getName(), entryName, entry);
-        });
-
-        E entry = template.execute(entryName, e -> e);
-        assertSame(entry, template.getEntry(entryName));
-    }
-
-    @Test
-    public final void testCallEntries() throws Throwable {
-        String entryName = this.entryName;
-        RT template = this.template;
-
-        template.call(entryName, entry -> {
-            logger.debug("{}.execute('{}', entry : {})", this.getClass().getName(), entryName, entry);
-        });
-
-        E entry = template.call(entryName, e -> e);
-        assertSame(entry, template.getEntry(entryName));
-
-        assertThrows(NullPointerException.class, () -> template.call(entryName, e -> {
-            String name = null;
-            name.toLowerCase();
-        }, NullPointerException.class));
-
-        assertThrows(NullPointerException.class, () -> template.call(entryName, e -> {
-            String name = null;
-            return name.toLowerCase();
-        }, NullPointerException.class));
-
-        assertEquals("ABC", template.call(entryName, () -> "abc".toUpperCase(), NullPointerException.class));
-
-        template.call(entryName, () -> {}, NullPointerException.class);
-    }
-
-    @Test
-    public void testCall() throws Throwable {
-
-        String entryName = this.entryName;
-        RT template = this.template;
-
-        template.call(entryName, () -> {
-        });
-
-        template.call(entryName, () -> 1);
-
-        assertThrows(NullPointerException.class, () -> {
-            template.call(entryName, () -> {
-                String name = null;
-                name.toLowerCase();
-            }, NullPointerException.class);
-        });
-
-        assertThrows(NullPointerException.class, () -> {
-            template.call(entryName, () -> {
-                String name = null;
-                return name.toLowerCase();
-            }, NullPointerException.class);
-        });
-
-        assertEquals("ABC", template.call(entryName, () -> "abc".toUpperCase(), NullPointerException.class));
-
-        template.call(entryName, () -> {}, NullPointerException.class);
-    }
-
-    @Test
-    public final void testBegin() {
+    void testBegin() {
         RT template = this.template;
         String entryName = this.entryName;
         Resilience4jModule module = template.getModule();
@@ -305,7 +225,12 @@ public abstract class AbstractResilience4jTemplateTest<E, C, R extends Registry<
     }
 
     @Test
-    public final void testEnd() {
+    void testIsEndSupported() {
+        assertEquals(this.template.isBeginSupported(), this.template.isEndSupported());
+    }
+
+    @Test
+    void testEnd() {
         String entryName = this.entryName;
         RT template = this.template;
         Resilience4jModule module = template.getModule();
@@ -332,7 +257,134 @@ public abstract class AbstractResilience4jTemplateTest<E, C, R extends Registry<
     }
 
     @Test
-    public final void testPriority() {
+    void testReadMethods() {
+        Class<E> entryClass = this.entryClass;
+        RT template = this.template;
+        R registry = this.registry;
+        Class<C> configClass = this.configClass;
+
+        assertNotNull(template.getModule());
+
+        assertEquals(entryClass, template.getEntryClass());
+        assertEquals(configClass, template.getConfigClass());
+        assertTrue(registryClass.isAssignableFrom(template.getRegistry().getClass()));
+        assertEquals(templateClass, template.getClass());
+
+        assertEquals(registry, template.getRegistry());
+        assertEquals(registry.getDefaultConfig(), template.getDefaultConfig());
+        String configName = "default";
+        assertEquals(registry.getConfiguration(configName).get(), template.getConfiguration(configName));
+        assertEquals(registry.getDefaultConfig(), template.getConfiguration("not-exists"));
+    }
+
+    @Test
+    void testLocalEntriesCache() {
+        String entryName = "test-1";
+        if (this.template.isLocalEntriesCachePresent()) {
+            this.template.initLocalEntriesCache(asList(entryName));
+            E entry = this.template.getEntryFromCache(entryName);
+            assertNotNull(entry);
+        }
+    }
+
+    @Test
+    void testEntriesAndEvents() {
+        RT template = this.template;
+        String entryName = this.entryName;
+
+        // TEST ADDED
+        template.onEntryAddedEvent(event -> {
+            logger.trace("The event of registry : '{}' was received.", event);
+            assertNotNull(event.getAddedEntry());
+            assertEquals(ADDED, event.getEventType());
+        });
+
+        template.initLocalEntriesCache(entryName);
+        E entry = template.getEntry(entryName);
+        assertNotNull(entry);
+        E foundEntry = template.getEntry(entryName);
+        assertSame(entry, foundEntry);
+
+        // Test REPLACED
+        template.onEntryReplacedEvent(event -> {
+            logger.trace("The event of registry : '{}' was received.", event);
+            assertSame(entry, event.getOldEntry());
+            assertNotSame(entry, event.getNewEntry());
+            assertEquals(REPLACED, event.getEventType());
+        });
+        String newEntryName = "test-entry-2";
+        E newEntry = template.createEntry(newEntryName);
+        E oldEntry = template.replaceEntry(entryName, newEntry);
+        assertNotNull(newEntry);
+        assertNotNull(oldEntry);
+
+        String newEntryName2 = "test-entry-3";
+
+        oldEntry = template.replaceEntry(newEntryName2, newEntry);
+        assertNull(oldEntry);
+
+        // Test REMOVED
+        template.onEntryRemovedEvent(event -> {
+            logger.trace("The event of registry : '{}' was received.", event);
+            assertEquals(newEntry, event.getRemovedEntry());
+            assertEquals(REMOVED, event.getEventType());
+        });
+        E removedEntry = template.removeEntry(newEntryName);
+        assertNotNull(removedEntry);
+
+        removedEntry = template.removeEntry(newEntryName2);
+        assertNull(removedEntry);
+    }
+
+    @Test
+    void testExecuteWithConsumer() {
+        assertSame(this.template, this.template.execute(this.entryName, entry -> {
+            logger.trace("{}.execute('{}', entry : {})", this.getClass().getName(), entryName, entry);
+        }));
+    }
+
+    @Test
+    void testExecuteWithFunction() {
+        E entry = this.template.execute(this.entryName, e -> e);
+        assertSame(entry, this.template.getEntry(this.entryName));
+    }
+
+    @Test
+    void testCallWithThrowableConsumer() throws Throwable {
+        assertSame(this.template, this.template.call(this.entryName, entry -> {
+            logger.trace("{}.execute('{}', entry : {})", this.getClass().getName(), entryName, entry);
+        }));
+    }
+
+    @Test
+    void testCallWithThrowableConsumerAndThrowableClass() {
+        assertSame(this.template, this.template.call(this.entryName, entry -> {
+            logger.trace("{}.execute('{}', entry : {})", this.getClass().getName(), entryName, entry);
+        }, NULL_POINTER_EXCEPTION_CLASS));
+
+        assertThrows(NULL_POINTER_EXCEPTION_CLASS, () -> this.template.call(this.entryName, entry -> {
+            String name = null;
+            name.toUpperCase();
+        }, NULL_POINTER_EXCEPTION_CLASS));
+    }
+
+    @Test
+    void testCallWithThrowableFunction() throws Throwable {
+        assertSame(this.template.getEntry(this.entryName), this.template.call(this.entryName, e -> e));
+    }
+
+    @Test
+    void testCallWithThrowableFunctionAndThrowableClass() {
+        assertSame(this.template.getEntry(this.entryName), this.template.call(this.entryName, e -> e, NULL_POINTER_EXCEPTION_CLASS));
+
+        assertThrows(NULL_POINTER_EXCEPTION_CLASS, () -> this.template.call(this.entryName, entry -> {
+            String name = null;
+            return name.toUpperCase();
+        }, NULL_POINTER_EXCEPTION_CLASS));
+    }
+
+    @Test
+    void testPriority() {
         RT template = this.template;
         assertEquals(template.getPriority(), template.getModule().getDefaultAspectOrder());
 
@@ -372,6 +424,6 @@ public abstract class AbstractResilience4jTemplateTest<E, C, R extends Registry<
     }
 
     protected void logEvent(Object event) {
-        logger.debug("the event of {}({}) was received.", entryClass.getSimpleName(), event);
+        logger.trace("the event of {}({}) was received.", entryClass.getSimpleName(), event);
     }
 }

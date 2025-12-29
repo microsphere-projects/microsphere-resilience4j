@@ -62,7 +62,7 @@ public class Resilience4jExecutorInterceptorTest {
 
 
     @BeforeEach
-    void init() throws Throwable {
+    void setUp() throws Throwable {
         this.facade = createResilience4jFacade();
         this.interceptor = createResilience4jExecutorInterceptor(this.facade);
         this.sqlSessionFactory = buildSqlSessionFactory();
@@ -169,7 +169,7 @@ public class Resilience4jExecutorInterceptorTest {
 
 
     @AfterEach
-    void destroy() throws Throwable {
+    void tearDown() throws Throwable {
         destroyData();
     }
 

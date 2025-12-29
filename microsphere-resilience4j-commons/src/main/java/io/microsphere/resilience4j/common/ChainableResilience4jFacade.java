@@ -130,39 +130,4 @@ public class ChainableResilience4jFacade implements Resilience4jFacade {
     public void destroy() {
         templates.forEach(Resilience4jTemplate::destroy);
     }
-
-    /**
-     * Callback Chain
-     *
-     * @param <T> the type of result
-     */
-    static class CallbackChain<T> implements ThrowableSupplier<T> {
-
-        private final String entryName;
-
-        private final ThrowableSupplier<T> delegate;
-
-        private final List<Resilience4jTemplate> templates;
-
-        private final int size;
-
-        private int pos; // position
-
-        CallbackChain(String entryName, ThrowableSupplier<T> delegate, List<Resilience4jTemplate> templates) {
-            this.entryName = entryName;
-            this.delegate = delegate;
-            this.templates = templates;
-            this.size = templates.size();
-            this.pos = 0;
-        }
-
-        @Override
-        public T get() throws Throwable {
-            if (pos < size) {
-                Resilience4jTemplate template = templates.get(pos++);
-                return (T) template.call(this.entryName, CallbackChain.this::get);
-            }
-            return delegate.get();
-        }
-    }
 }

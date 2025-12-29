@@ -62,7 +62,7 @@ public class Resilience4jExecutorInterceptorTest {
 
 
     @BeforeEach
-    public void init() throws Throwable {
+    void init() throws Throwable {
         this.facade = createResilience4jFacade();
         this.interceptor = createResilience4jExecutorInterceptor(this.facade);
         this.sqlSessionFactory = buildSqlSessionFactory();
@@ -110,7 +110,7 @@ public class Resilience4jExecutorInterceptorTest {
     }
 
     @Test
-    public void testMapper() throws Throwable {
+    void testMapper() throws Throwable {
         SqlSession sqlSession = openSqlSession();
         UserMapper userMapper = sqlSession.getMapper(UserMapper.class);
         int id = 1;
@@ -123,7 +123,7 @@ public class Resilience4jExecutorInterceptorTest {
     }
 
     @Test
-    public void testSqlSession() throws Throwable {
+    void testSqlSession() throws Throwable {
         SqlSession sqlSession = openSqlSession();
         Cursor<User> cursor = sqlSession.selectCursor("io.microsphere.resilience4j.mybatis.mapper.UserMapper.getUserById", 1);
         assertNotNull(cursor);
@@ -137,12 +137,12 @@ public class Resilience4jExecutorInterceptorTest {
     }
 
     @Test
-    public void testConstants() {
+    void testConstants() {
         assertEquals("mybatis@", DEFAULT_ENTRY_NAME_PREFIX);
     }
 
     @Test
-    public void testGetter() {
+    void testGetter() {
         assertSame(facade, interceptor.getFacade());
         assertEquals(DEFAULT_ENTRY_NAME_PREFIX, interceptor.getEntryNamePrefix());
     }
@@ -169,7 +169,7 @@ public class Resilience4jExecutorInterceptorTest {
 
 
     @AfterEach
-    public void destroy() throws Throwable {
+    void destroy() throws Throwable {
         destroyData();
     }
 

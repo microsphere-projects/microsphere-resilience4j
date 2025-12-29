@@ -56,7 +56,7 @@ public class CircuitBreakerDruidFilterTest {
     private CircuitBreakerTemplate template;
 
     @BeforeEach
-    public void init() {
+    void init() {
         this.druidDataSource = new DruidDataSource();
         druidDataSource.setValidationQuery("SELECT 1");
         druidDataSource.setDbType(DbType.mysql);
@@ -67,7 +67,7 @@ public class CircuitBreakerDruidFilterTest {
     }
 
     @Test
-    public void testDoInResilience4j() throws SQLException {
+    void testDoInResilience4j() throws SQLException {
 
         StatementProxy statement = new StatementProxyImpl();
 
@@ -106,7 +106,6 @@ class StatementProxyImpl implements StatementProxy {
 
     @Override
     public void clearAttributes() {
-
     }
 
     @Override

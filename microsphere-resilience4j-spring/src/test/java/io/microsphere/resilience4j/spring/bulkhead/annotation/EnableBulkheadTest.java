@@ -57,7 +57,7 @@ public class EnableBulkheadTest {
     private BulkheadConfigurationProperties properties;
 
     @Test
-    public void test() {
+    void test() {
         Bulkhead circuitBreaker = registry.bulkhead("test");
         circuitBreaker.acquirePermission();
 

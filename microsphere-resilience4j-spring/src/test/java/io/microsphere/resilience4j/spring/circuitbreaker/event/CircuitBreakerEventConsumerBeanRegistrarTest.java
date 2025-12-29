@@ -55,7 +55,7 @@ public class CircuitBreakerEventConsumerBeanRegistrarTest {
     private CircuitBreakerRegistry registry;
 
     @Test
-    public void test() {
+    void test() {
         CircuitBreaker circuitBreaker = registry.circuitBreaker("test");
         circuitBreaker.acquirePermission();
         circuitBreaker.onSuccess(100, TimeUnit.MILLISECONDS);

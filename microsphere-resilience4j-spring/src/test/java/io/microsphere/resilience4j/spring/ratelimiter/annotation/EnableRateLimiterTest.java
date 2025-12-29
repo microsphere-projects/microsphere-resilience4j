@@ -57,7 +57,7 @@ public class EnableRateLimiterTest {
     private RateLimiterConfigurationProperties properties;
 
     @Test
-    public void test() {
+    void test() {
         RateLimiter rateLimiter = registry.rateLimiter("test");
         rateLimiter.acquirePermission();
 

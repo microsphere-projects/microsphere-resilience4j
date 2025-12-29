@@ -61,7 +61,7 @@ public class Resilience4jDruidFilterTest {
     private DruidDataSource dataSource;
 
     @BeforeEach
-    public void init() throws Throwable {
+    void init() throws Throwable {
         this.facade = createResilience4jFacade();
         this.filter = createResilience4jDruidFilter(this.facade);
         this.dataSource = createDruidDataSource(this.filter);
@@ -101,12 +101,12 @@ public class Resilience4jDruidFilterTest {
     }
 
     @Test
-    public void testConstants() {
+    void testConstants() {
         assertEquals("alibaba-druid@", DEFAULT_ENTRY_NAME_PREFIX);
     }
 
     @Test
-    public void testExecuteStatement() throws Throwable {
+    void testExecuteStatement() throws Throwable {
         executeStatement(statement -> {
             assertEquals(1, statement.executeUpdate("INSERT INTO users (id, name) VALUES (1, 'Mercy')"));
             assertEquals(1, statement.executeUpdate("INSERT INTO users (id, name) VALUES (2, 'Blitz')", new String[0]));
@@ -126,7 +126,7 @@ public class Resilience4jDruidFilterTest {
     }
 
     @Test
-    public void testExecutePreparedStatement() throws Throwable {
+    void testExecutePreparedStatement() throws Throwable {
 
         executePreparedStatement("INSERT INTO users (id, name) VALUES (?, ?)", preparedStatement -> {
             preparedStatement.setInt(1, 1);
@@ -147,7 +147,7 @@ public class Resilience4jDruidFilterTest {
     }
 
     @Test
-    public void testGetter() {
+    void testGetter() {
         assertSame(facade, filter.getFacade());
         assertEquals(DEFAULT_ENTRY_NAME_PREFIX, filter.getEntryNamePrefix());
     }
@@ -185,7 +185,7 @@ public class Resilience4jDruidFilterTest {
 
 
     @AfterEach
-    public void destroy() throws Throwable {
+    void destroy() throws Throwable {
         destroyData();
         dataSource.close();
     }

@@ -39,7 +39,7 @@ public class Resilience4jCapabilityTest extends AbstractResilience4jFeignTest {
     }
 
     @Test
-    public void testConstants() {
+    void testConstants() {
         assertEquals("feign@", DEFAULT_ENTRY_NAME_PREFIX);
         assertEquals(CLIENT, DEFAULT_DECORATED_POINT);
     }

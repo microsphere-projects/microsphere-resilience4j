@@ -62,7 +62,7 @@ public class EnableCircuitBreakerTest {
     private CircuitBreakerConfigurationProperties properties;
 
     @Test
-    public void test() {
+    void test() {
         CircuitBreaker circuitBreaker = registry.circuitBreaker("test");
         circuitBreaker.acquirePermission();
         circuitBreaker.onSuccess(100, TimeUnit.MILLISECONDS);

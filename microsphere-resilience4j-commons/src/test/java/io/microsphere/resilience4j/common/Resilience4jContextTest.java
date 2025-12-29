@@ -42,12 +42,12 @@ public class Resilience4jContextTest {
     private Resilience4jContext<String> context;
 
     @BeforeEach
-    public void init() {
+    void init() {
         context = new Resilience4jContext<>(entryName, entry);
     }
 
     @Test
-    public void testProperties() {
+    void testProperties() {
         assertEquals(entryName, context.getEntryName());
         assertEquals(entry, context.getEntry());
 
@@ -61,13 +61,13 @@ public class Resilience4jContextTest {
     }
 
     @Test
-    public void testAttributes() {
+    void testAttributes() {
         assertNotNull(context.getAttributes());
         assertTrue(context.getAttributes().isEmpty());
     }
 
     @Test
-    public void testAttribute() {
+    void testAttribute() {
         String name = "test-name";
         String value = "test-value";
         String defaultValue = "test-value-2";
@@ -85,7 +85,7 @@ public class Resilience4jContextTest {
     }
 
     @Test
-    public void testToString() {
+    void testToString() {
         assertNotNull(context.toString());
     }
 }

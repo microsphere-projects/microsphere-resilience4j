@@ -44,7 +44,7 @@ public class ChainableResilience4JFacadeTest {
     private ChainableResilience4jFacade facade;
 
     @BeforeEach
-    public void init() {
+    void init() {
         BulkheadRegistry bulkheadRegistry = BulkheadRegistry.ofDefaults();
         RateLimiterRegistry rateLimiterRegistry = RateLimiterRegistry.ofDefaults();
         RetryRegistry retryRegistry = RetryRegistry.ofDefaults();
@@ -64,19 +64,19 @@ public class ChainableResilience4JFacadeTest {
     }
 
     @Test
-    public void testExecute() {
+    void testExecute() {
         this.facade.execute(entryName, () -> {
         });
     }
 
     @Test
-    public void testCall() throws Throwable {
+    void testCall() throws Throwable {
         this.facade.call(entryName, () -> {
         });
     }
 
     @Test
-    public void testBeginAndEnd() {
+    void testBeginAndEnd() {
         Resilience4jContext<Resilience4jContext[]> context = this.facade.begin(entryName);
         Resilience4jContext[] subContexts = context.getEntry();
         assertEquals(this.size, subContexts.length);
@@ -84,13 +84,13 @@ public class ChainableResilience4JFacadeTest {
     }
 
     @Test
-    public void testGetSize() {
+    void testGetSize() {
         int size = this.facade.getSize();
         assertEquals(this.size, size);
     }
 
     @AfterEach
-    public void destroy() {
+    void destroy() {
         this.facade.destroy();
     }
 }

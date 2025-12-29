@@ -29,6 +29,7 @@ import io.github.resilience4j.timelimiter.TimeLimiter;
 import io.microsphere.resilience4j.common.Resilience4jModule;
 import io.microsphere.resilience4j.common.Resilience4jTemplate;
 import io.microsphere.util.BaseUtils;
+import io.microsphere.util.Utils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -44,11 +45,13 @@ import java.util.Map;
 import java.util.Properties;
 
 import static io.microsphere.collection.CollectionUtils.size;
+import static io.microsphere.collection.MapUtils.newFixedHashMap;
 import static io.microsphere.io.IOUtils.close;
 import static io.microsphere.lang.Prioritized.COMPARATOR;
 import static io.microsphere.reflect.MethodUtils.findMethod;
 import static io.microsphere.reflect.MethodUtils.invokeMethod;
 import static io.microsphere.resilience4j.common.Resilience4jModule.valueOf;
+import static io.microsphere.resilience4j.common.Resilience4jModule.values;
 import static io.microsphere.text.FormatUtils.format;
 import static io.microsphere.util.ClassLoaderUtils.getClassLoader;
 import static io.microsphere.util.ClassLoaderUtils.getResource;
@@ -66,7 +69,7 @@ import static java.util.Collections.unmodifiableMap;
  * @see BaseUtils
  * @since 1.0.0
  */
-public abstract class Resilience4jUtils extends BaseUtils {
+public abstract class Resilience4jUtils implements Utils {
 
     /**
      * The resource-path for default templates
@@ -78,8 +81,8 @@ public abstract class Resilience4jUtils extends BaseUtils {
     private static final Map<Resilience4jModule, Class<? extends Resilience4jTemplate>> defaultTemplates = loadDefaultTemplates();
 
     static {
-        Resilience4jModule[] modules = Resilience4jModule.values();
-        Map<Resilience4jModule, Method> methodsCache = new HashMap<>(modules.length);
+        Resilience4jModule[] modules = values();
+        Map<Resilience4jModule, Method> methodsCache = newFixedHashMap(modules.length);
         for (Resilience4jModule module : modules) {
             initGetEntryMethodsCache(module, methodsCache);
         }
@@ -121,7 +124,7 @@ public abstract class Resilience4jUtils extends BaseUtils {
         } else if (entry instanceof Retry) {
             return getEventProcessor((Retry) entry);
         }
-        String errorMessage = format("The entry only supports these modules :  {}", Arrays.toString(Resilience4jModule.values()));
+        String errorMessage = format("The entry only supports these modules :  {}", Arrays.toString(values()));
         throw new UnsupportedOperationException(errorMessage);
     }
 
@@ -197,14 +200,14 @@ public abstract class Resilience4jUtils extends BaseUtils {
     }
 
     static Map<Resilience4jModule, Class<? extends Resilience4jTemplate>> loadDefaultTemplates() {
-        Resilience4jModule[] modules = Resilience4jModule.values();
+        Resilience4jModule[] modules = values();
         int size = modules.length;
         Map<Resilience4jModule, Class<? extends Resilience4jTemplate>> defaultTemplates = new HashMap<>(size);
 
         ClassLoader classLoader = getClassLoader(Resilience4jTemplate.class);
         Properties properties = loadDefaultTemplatesProperties(classLoader);
         new EnumMap<>(Resilience4jModule.class);
-        for (Resilience4jModule module : Resilience4jModule.values()) {
+        for (Resilience4jModule module : values()) {
             String moduleName = module.getName();
             String templateClassName = properties.getProperty(moduleName);
             Class<? extends Resilience4jTemplate> templateClass =
@@ -228,5 +231,8 @@ public abstract class Resilience4jUtils extends BaseUtils {
             close(inputStream);
         }
         return properties;
+    }
+
+    private Resilience4jUtils() {
     }
 }

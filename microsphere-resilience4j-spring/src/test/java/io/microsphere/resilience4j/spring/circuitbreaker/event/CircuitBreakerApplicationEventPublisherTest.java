@@ -51,14 +51,14 @@ public class CircuitBreakerApplicationEventPublisherTest {
     private CircuitBreakerRegistry registry;
 
     @Test
-    public void test() {
+    void test() {
         CircuitBreaker circuitBreaker = registry.circuitBreaker("test");
         circuitBreaker.acquirePermission();
         circuitBreaker.onSuccess(100, TimeUnit.MILLISECONDS);
     }
 
     @EventListener(CircuitBreakerOnSuccessEvent.class)
-    public void onCircuitBreakerOnSuccessEvent(CircuitBreakerOnSuccessEvent event) {
+    void onCircuitBreakerOnSuccessEvent(CircuitBreakerOnSuccessEvent event) {
         assertEquals("test", event.getCircuitBreakerName());
         assertEquals(Duration.ofMillis(100), event.getElapsedDuration());
     }

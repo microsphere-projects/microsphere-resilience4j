@@ -49,20 +49,20 @@ public class CircuitBreakerHandlerMethodInterceptorTest {
     private CircuitBreakerTemplate template;
 
     @BeforeEach
-    public void init() {
+    void init() {
         this.interceptor = new CircuitBreakerHandlerMethodInterceptor(registry);
         this.template = this.interceptor.getTemplate();
     }
 
     @Test
-    public void testProperties() {
+    void testProperties() {
         assertNotNull(interceptor.getTemplate());
         assertEquals(interceptor.getTemplate().getModule().getDefaultAspectOrder(),
                 interceptor.getOrder());
     }
 
     @Test
-    public void testExecute() throws Exception {
+    void testExecute() throws Exception {
         Method method = findMethod(CircuitBreakerHandlerMethodInterceptorTest.class, "testExecute");
         HandlerMethod handlerMethod = new HandlerMethod(this, method);
         Object[] args = null;

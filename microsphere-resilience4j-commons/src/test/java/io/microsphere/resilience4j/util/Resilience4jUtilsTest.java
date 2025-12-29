@@ -64,7 +64,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 public class Resilience4jUtilsTest {
 
     @Test
-    public void testLoadDefaultTemplates() {
+    void testLoadDefaultTemplates() {
         Map<Resilience4jModule, Class<? extends Resilience4jTemplate>> defaultTemplates = loadDefaultTemplates();
         assertEquals(allOf(Resilience4jModule.class), copyOf(defaultTemplates.keySet()));
         assertEquals(defaultTemplates.get(RETRY), RetryTemplate.class);
@@ -75,14 +75,14 @@ public class Resilience4jUtilsTest {
     }
 
     @Test
-    public void testGetEntry() {
+    void testGetEntry() {
         BulkheadRegistry bulkheadRegistry = ofDefaults();
         Bulkhead bulkhead = getEntry(bulkheadRegistry, "test");
         assertNotNull(bulkhead);
     }
 
     @Test
-    public void testGetEventPublisher() {
+    void testGetEventPublisher() {
         RetryRegistry retryRegistry = RetryRegistry.ofDefaults();
         assertEquals(retryRegistry.getEventPublisher(), getEventProcessor(retryRegistry));
 

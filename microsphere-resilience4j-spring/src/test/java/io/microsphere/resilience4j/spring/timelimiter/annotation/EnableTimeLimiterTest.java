@@ -60,7 +60,7 @@ public class EnableTimeLimiterTest {
     private ConfigurableBeanFactory beanFactory;
 
     @Test
-    public void test() {
+    void test() {
         TimeLimiter timeLimiter = registry.timeLimiter("test");
 
         TimeLimiterConfigurationProperties.InstanceProperties instanceProperties = properties.getInstances().get("test");
@@ -72,7 +72,7 @@ public class EnableTimeLimiterTest {
     }
 
     @EventListener(TimeLimiterOnSuccessEvent.class)
-    public void onTimeLimiterOnSuccessEvent(TimeLimiterOnSuccessEvent event) {
+    void onTimeLimiterOnSuccessEvent(TimeLimiterOnSuccessEvent event) {
         assertEquals("test", event.getTimeLimiterName());
     }
 }

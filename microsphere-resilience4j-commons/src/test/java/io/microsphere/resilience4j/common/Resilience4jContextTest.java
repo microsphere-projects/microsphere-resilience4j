@@ -19,7 +19,9 @@ package io.microsphere.resilience4j.common;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import static io.microsphere.collection.MapUtils.ofMap;
 import static java.lang.System.nanoTime;
+import static java.util.Collections.emptyMap;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -42,50 +44,66 @@ public class Resilience4jContextTest {
     private Resilience4jContext<String> context;
 
     @BeforeEach
-    public void init() {
-        context = new Resilience4jContext<>(entryName, entry);
+    void setUp() {
+        this.context = new Resilience4jContext<>(entryName, entry);
     }
 
     @Test
-    public void testProperties() {
-        assertEquals(entryName, context.getEntryName());
-        assertEquals(entry, context.getEntry());
+    void testProperties() {
+        assertEquals(entryName, this.context.getEntryName());
+        assertEquals(entry, this.context.getEntry());
 
         Long startTime = nanoTime();
-        assertSame(startTime, context.setStartTime(startTime).getStartTime());
+        assertSame(startTime, this.context.setStartTime(startTime).getStartTime());
 
-        assertSame(entryName, context.setResult(entryName).getResult());
+        assertSame(entryName, this.context.setResult(entryName).getResult());
 
         Exception exception = new Exception();
-        assertSame(exception, context.setFailure(exception).getFailure());
+        assertSame(exception, this.context.setFailure(exception).getFailure());
     }
 
     @Test
-    public void testAttributes() {
-        assertNotNull(context.getAttributes());
-        assertTrue(context.getAttributes().isEmpty());
+    void testAttributes() {
+        assertNotNull(this.context.getAttributes());
+        assertNotNull(this.context.getAttributes());
+        assertTrue(this.context.getAttributes().isEmpty());
     }
 
     @Test
-    public void testAttribute() {
+    void testAttribute() {
         String name = "test-name";
         String value = "test-value";
         String defaultValue = "test-value-2";
 
-        assertSame(context, context.setAttribute(name, value));
-        assertTrue(context.hasAttribute(name));
-        assertSame(value, context.getAttribute(name));
-        assertSame(value, context.removeAttribute(name));
-        assertFalse(context.hasAttribute(name));
-        assertSame(defaultValue, context.getAttribute(name, defaultValue));
+        assertSame(this.context, this.context.setAttribute(name, value));
+        assertTrue(this.context.hasAttribute(name));
+        assertSame(value, this.context.getAttribute(name));
+        assertSame(value, this.context.removeAttribute(name));
+        assertFalse(this.context.hasAttribute(name));
+        assertSame(defaultValue, this.context.getAttribute(name, defaultValue));
 
-        assertSame(context, context.setAttribute(name, defaultValue));
-        assertSame(context, context.removeAttributes());
-        assertFalse(context.hasAttribute(name));
+        assertSame(this.context, this.context.setAttribute(name, defaultValue));
+        assertSame(this.context, this.context.removeAttributes());
+        assertFalse(this.context.hasAttribute(name));
     }
 
     @Test
-    public void testToString() {
-        assertNotNull(context.toString());
+    void testRemoveAttributes() {
+        assertSame(this.context, this.context.removeAttributes());
+        assertSame(this.context, this.context.setAttribute("test", "value"));
+        assertSame(this.context, this.context.removeAttributes());
     }
+
+    @Test
+    void testGetAttributes() {
+        assertSame(emptyMap(), this.context.getAttributes());
+        assertSame(this.context, this.context.setAttribute("test", "value"));
+        assertEquals(ofMap("test", "value"), this.context.getAttributes());
+    }
+
+    @Test
+    void testToString() {
+        assertNotNull(this.context.toString());
+    }
+
 }

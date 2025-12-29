@@ -54,7 +54,7 @@ public class EnableRetryTest {
     private RetryConfigurationProperties properties;
 
     @Test
-    public void test() {
+    void test() {
         Retry retry = registry.retry("test");
 
         RetryConfigurationProperties.InstanceProperties instanceProperties = properties.getInstances().get("test");

@@ -59,7 +59,7 @@ public abstract class AbstractResilience4jFeignTest {
     private UserService userService;
 
     @BeforeEach
-    public void init() {
+    void setUp() {
         BulkheadRegistry bulkheadRegistry = BulkheadRegistry.ofDefaults();
         RateLimiterRegistry rateLimiterRegistry = RateLimiterRegistry.ofDefaults();
         RetryRegistry retryRegistry = RetryRegistry.ofDefaults();
@@ -88,7 +88,7 @@ public abstract class AbstractResilience4jFeignTest {
 
 
     @Test
-    public void testProxy() {
+    void testProxy() {
         InvocationHandler handler = getInvocationHandler(this.userService);
 
         final InvocationHandler delegate;
@@ -110,7 +110,7 @@ public abstract class AbstractResilience4jFeignTest {
     }
 
     @Test
-    public void testUserService() {
+    void testUserService() {
         String userName = "test-user";
         User user = this.userService.createUser(userName);
         assertEquals(userName, user.getName());

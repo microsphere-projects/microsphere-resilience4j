@@ -54,7 +54,7 @@ public class RetryTemplateTest extends AbstractResilience4jTemplateTest<Retry, R
     }
 
     @Test
-    public void testExecute() throws Throwable {
+    void testExecute() throws Throwable {
         String entryName = super.entryName;
         RetryTemplate template = super.template;
         String result = "OK";
@@ -92,7 +92,7 @@ public class RetryTemplateTest extends AbstractResilience4jTemplateTest<Retry, R
     }
 
     @Test
-    public void testExecuteOnIgnoredException() throws Throwable {
+    void testExecuteOnIgnoredException() throws Throwable {
         String entryName = super.entryName;
         RetryTemplate template = super.template;
 

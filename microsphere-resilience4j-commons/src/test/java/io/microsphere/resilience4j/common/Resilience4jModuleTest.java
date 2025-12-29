@@ -66,7 +66,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class Resilience4jModuleTest {
 
     @Test
-    public void test() {
+    void test() {
         assertModule(RETRY, RETRY_MODULE_NAME, Retry.class, RetryConfig.class, CommonRetryConfigurationProperties.class, RetryEvent.class, RetryRegistry.class, 0);
         assertModule(CIRCUIT_BREAKER, CIRCUIT_BREAKER_MODULE_NAME, CircuitBreaker.class, CircuitBreakerConfig.class, CommonCircuitBreakerConfigurationProperties.class, CircuitBreakerEvent.class, CircuitBreakerRegistry.class, 1);
         assertModule(RATE_LIMITER, RATE_LIMITER_MODULE_NAME, RateLimiter.class, RateLimiterConfig.class, CommonRateLimiterConfigurationProperties.class, RateLimiterEvent.class, RateLimiterRegistry.class, 2);

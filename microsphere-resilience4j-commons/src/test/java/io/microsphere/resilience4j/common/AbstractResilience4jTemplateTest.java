@@ -393,7 +393,7 @@ public abstract class AbstractResilience4jTemplateTest<E, C, R extends Registry<
 
 
     @AfterEach
-    public void destroy() {
+    void tearDown() {
         preDestroy();
         this.template.destroy();
     }

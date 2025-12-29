@@ -58,7 +58,7 @@ public class EnableBulkheadTest {
     private BulkheadConfigurationProperties properties;
 
     @Test
-    public void test() {
+    void test() {
         Bulkhead circuitBreaker = registry.bulkhead("test");
         circuitBreaker.acquirePermission();
 
@@ -69,7 +69,7 @@ public class EnableBulkheadTest {
     }
 
     @EventListener(BulkheadOnCallPermittedEvent.class)
-    public void onBulkheadOnCallPermittedEvent(BulkheadOnCallPermittedEvent event) {
+    void onBulkheadOnCallPermittedEvent(BulkheadOnCallPermittedEvent event) {
         assertEquals("test", event.getBulkheadName());
         assertEquals(CALL_PERMITTED, event.getEventType());
     }

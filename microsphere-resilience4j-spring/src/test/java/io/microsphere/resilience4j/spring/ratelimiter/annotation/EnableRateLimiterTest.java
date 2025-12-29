@@ -57,7 +57,7 @@ public class EnableRateLimiterTest {
     private RateLimiterConfigurationProperties properties;
 
     @Test
-    public void test() {
+    void test() {
         RateLimiter rateLimiter = registry.rateLimiter("test");
         rateLimiter.acquirePermission();
 
@@ -70,7 +70,7 @@ public class EnableRateLimiterTest {
     }
 
     @EventListener(RateLimiterOnSuccessEvent.class)
-    public void onRateLimiterOnSuccessEvent(RateLimiterOnSuccessEvent event) {
+    void onRateLimiterOnSuccessEvent(RateLimiterOnSuccessEvent event) {
         assertEquals("test", event.getRateLimiterName());
         assertEquals(SUCCESSFUL_ACQUIRE, event.getEventType());
     }

@@ -49,7 +49,7 @@ public class CircuitBreakerHandlerMethodInterceptorTest {
     private CircuitBreakerTemplate template;
 
     @BeforeEach
-    void init() {
+    void setUp() {
         this.interceptor = new CircuitBreakerHandlerMethodInterceptor(registry);
         this.template = this.interceptor.getTemplate();
     }

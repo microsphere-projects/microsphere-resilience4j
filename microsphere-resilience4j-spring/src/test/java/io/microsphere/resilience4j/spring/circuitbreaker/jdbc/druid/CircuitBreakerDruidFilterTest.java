@@ -56,7 +56,7 @@ public class CircuitBreakerDruidFilterTest {
     private CircuitBreakerTemplate template;
 
     @BeforeEach
-    void init() {
+    void setUp() {
         this.druidDataSource = new DruidDataSource();
         druidDataSource.setValidationQuery("SELECT 1");
         druidDataSource.setDbType(DbType.mysql);

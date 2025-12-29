@@ -61,7 +61,7 @@ public class Resilience4jDruidFilterTest {
     private DruidDataSource dataSource;
 
     @BeforeEach
-    void init() throws Throwable {
+    void setUp() throws Throwable {
         this.facade = createResilience4jFacade();
         this.filter = createResilience4jDruidFilter(this.facade);
         this.dataSource = createDruidDataSource(this.filter);
@@ -185,7 +185,7 @@ public class Resilience4jDruidFilterTest {
 
 
     @AfterEach
-    void destroy() throws Throwable {
+    void tearDown() throws Throwable {
         destroyData();
         dataSource.close();
     }

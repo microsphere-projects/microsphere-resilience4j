@@ -42,7 +42,7 @@ public class Resilience4jContextTest {
     private Resilience4jContext<String> context;
 
     @BeforeEach
-    void init() {
+    void setUp() {
         context = new Resilience4jContext<>(entryName, entry);
     }
 

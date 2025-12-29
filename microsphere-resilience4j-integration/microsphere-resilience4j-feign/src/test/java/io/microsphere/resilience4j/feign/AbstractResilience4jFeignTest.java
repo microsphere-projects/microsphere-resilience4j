@@ -59,7 +59,7 @@ public abstract class AbstractResilience4jFeignTest {
     private UserService userService;
 
     @BeforeEach
-    void init() {
+    void setUp() {
         BulkheadRegistry bulkheadRegistry = BulkheadRegistry.ofDefaults();
         RateLimiterRegistry rateLimiterRegistry = RateLimiterRegistry.ofDefaults();
         RetryRegistry retryRegistry = RetryRegistry.ofDefaults();

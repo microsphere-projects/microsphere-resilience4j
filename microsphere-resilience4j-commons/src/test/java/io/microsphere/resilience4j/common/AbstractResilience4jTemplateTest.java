@@ -115,7 +115,7 @@ public abstract class AbstractResilience4jTemplateTest<E, C, R extends Registry<
     }
 
     @BeforeEach
-    void init() throws Throwable {
+    void setUp() throws Throwable {
         this.registry = createRegistry();
         this.entryConfig = createEntryConfig();
         this.template = createTemplate(registry);
@@ -394,7 +394,7 @@ public abstract class AbstractResilience4jTemplateTest<E, C, R extends Registry<
 
 
     @AfterEach
-    void destroy() {
+    void tearDown() {
         preDestroy();
         this.template.destroy();
     }

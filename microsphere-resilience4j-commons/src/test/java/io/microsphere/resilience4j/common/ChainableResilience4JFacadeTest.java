@@ -44,7 +44,7 @@ public class ChainableResilience4JFacadeTest {
     private ChainableResilience4jFacade facade;
 
     @BeforeEach
-    void init() {
+    void setUp() {
         BulkheadRegistry bulkheadRegistry = BulkheadRegistry.ofDefaults();
         RateLimiterRegistry rateLimiterRegistry = RateLimiterRegistry.ofDefaults();
         RetryRegistry retryRegistry = RetryRegistry.ofDefaults();
@@ -90,7 +90,7 @@ public class ChainableResilience4JFacadeTest {
     }
 
     @AfterEach
-    void destroy() {
+    void tearDown() {
         this.facade.destroy();
     }
 }

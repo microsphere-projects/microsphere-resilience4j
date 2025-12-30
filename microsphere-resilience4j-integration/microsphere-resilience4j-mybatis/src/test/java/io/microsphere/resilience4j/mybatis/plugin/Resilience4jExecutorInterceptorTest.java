@@ -70,7 +70,6 @@ public class Resilience4jExecutorInterceptorTest {
 
     private SqlSessionFactory sqlSessionFactory;
 
-
     @BeforeEach
     void setUp() throws Throwable {
         this.facade = createResilience4jFacade();

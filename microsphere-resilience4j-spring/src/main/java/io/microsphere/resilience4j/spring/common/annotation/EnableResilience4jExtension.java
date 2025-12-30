@@ -21,13 +21,13 @@ import io.microsphere.resilience4j.spring.common.event.Resilience4jEventConsumer
 import io.microsphere.resilience4j.spring.common.web.Resilience4jHandlerMethodInterceptor;
 
 import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import static io.microsphere.util.ClassLoaderUtils.isPresent;
+import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
  * {@link EnableResilience4jExtension @Enable Resilience4j Extension} annotation
@@ -36,8 +36,8 @@ import static io.microsphere.util.ClassLoaderUtils.isPresent;
  * @see EnableResilience4jRegistrar
  * @since 1.0.0
  */
-@Target(ElementType.ANNOTATION_TYPE)
-@Retention(RetentionPolicy.RUNTIME)
+@Target(ANNOTATION_TYPE)
+@Retention(RUNTIME)
 @Inherited
 @Documented
 public @interface EnableResilience4jExtension {

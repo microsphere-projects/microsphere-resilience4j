@@ -27,7 +27,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import static io.microsphere.util.ClassLoaderUtils.resolveClass;
+import static io.microsphere.util.ClassLoaderUtils.isPresent;
 
 /**
  * {@link EnableResilience4jExtension @Enable Resilience4j Extension} annotation
@@ -112,7 +112,7 @@ public @interface EnableResilience4jExtension {
 
         WebEnvironment(String candidateClassName, Class<?> componentClass) {
             this.candidateClassName = candidateClassName;
-            this.supported = resolveClass(candidateClassName) != null;
+            this.supported = isPresent(candidateClassName);
             this.componentClass = componentClass;
         }
 

@@ -29,14 +29,14 @@ import org.springframework.core.ResolvableType;
 import org.springframework.core.type.AnnotationMetadata;
 
 import java.lang.annotation.Annotation;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import static io.microsphere.collection.Maps.ofMap;
 import static io.microsphere.spring.beans.factory.support.BeanRegistrar.registerBeanDefinition;
 import static io.microsphere.spring.core.annotation.ResolvablePlaceholderAnnotationAttributes.of;
-import static java.util.Collections.unmodifiableMap;
+import static org.springframework.core.ResolvableType.forType;
 import static org.springframework.core.io.support.SpringFactoriesLoader.loadFactoryNames;
 import static org.springframework.util.ClassUtils.resolveClassName;
 
@@ -55,14 +55,10 @@ import static org.springframework.util.ClassUtils.resolveClassName;
 public abstract class EnableResilience4jRegistrar<A extends Annotation, E, EC> extends BeanCapableImportCandidate
         implements ImportBeanDefinitionRegistrar {
 
-    private static final Map<String, Class<?>> attributedEventComponentClassesMap;
-
-    static {
-        Map<String, Class<?>> classesMap = new HashMap<>(2);
-        classesMap.put("publishEvents", Resilience4jEventApplicationEventPublisher.class);
-        classesMap.put("consumeEvents", Resilience4jEventConsumerBeanRegistrar.class);
-        attributedEventComponentClassesMap = unmodifiableMap(classesMap);
-    }
+    private static final Map<String, Class<?>> attributedEventComponentClassesMap = ofMap(
+            "publishEvents", Resilience4jEventApplicationEventPublisher.class,
+            "consumeEvents", Resilience4jEventConsumerBeanRegistrar.class
+    );
 
     private final ResolvableType superType;
 
@@ -116,16 +112,6 @@ public abstract class EnableResilience4jRegistrar<A extends Annotation, E, EC> e
         }
     }
 
-    private void registerBean(ResolvablePlaceholderAnnotationAttributes attributes,
-                              String attributeName,
-                              Class<?> beanType,
-                              BeanDefinitionRegistry registry) {
-        boolean supported = attributes.getBoolean(attributeName);
-        if (supported) {
-            registerBeanDefinition(registry, beanType);
-        }
-    }
-
     private void registerWebEnvironmentComponentBeans(ResolvablePlaceholderAnnotationAttributes attributes,
                                                       BeanDefinitionRegistry registry) {
         ClassLoader classLoader = this.getClassLoader();
@@ -150,7 +136,6 @@ public abstract class EnableResilience4jRegistrar<A extends Annotation, E, EC> e
         }
     }
 
-
     private ResolvableType resolveSuperType() {
         return resolveSuperType(this.getClass(), EnableResilience4jRegistrar.class);
     }
@@ -160,7 +145,7 @@ public abstract class EnableResilience4jRegistrar<A extends Annotation, E, EC> e
     }
 
     private static ResolvableType resolveSuperType(Class<?> targetClass, Class<?> superClass) {
-        ResolvableType type = ResolvableType.forType(targetClass);
+        ResolvableType type = forType(targetClass);
         return type.as(superClass);
     }
 
@@ -168,5 +153,4 @@ public abstract class EnableResilience4jRegistrar<A extends Annotation, E, EC> e
         ResolvableType superType = resolveSuperType(targetClass, superClass);
         return (Class<E>) superType.resolveGeneric(0);
     }
-
 }

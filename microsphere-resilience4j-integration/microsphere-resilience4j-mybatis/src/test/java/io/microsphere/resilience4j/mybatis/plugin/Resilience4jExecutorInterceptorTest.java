@@ -78,45 +78,6 @@ public class Resilience4jExecutorInterceptorTest {
         initData();
     }
 
-    private Resilience4jFacade createResilience4jFacade() {
-        BulkheadRegistry bulkheadRegistry = BulkheadRegistry.ofDefaults();
-        RateLimiterRegistry rateLimiterRegistry = RateLimiterRegistry.ofDefaults();
-        RetryRegistry retryRegistry = RetryRegistry.ofDefaults();
-        TimeLimiterRegistry timeLimiterRegistry = TimeLimiterRegistry.ofDefaults();
-        CircuitBreakerRegistry circuitBreakerRegistry = CircuitBreakerRegistry.ofDefaults();
-        this.facade = new ChainableResilience4jFacade(bulkheadRegistry, rateLimiterRegistry,
-                retryRegistry, timeLimiterRegistry, circuitBreakerRegistry);
-        return new ChainableResilience4jFacade(bulkheadRegistry, rateLimiterRegistry,
-                retryRegistry, timeLimiterRegistry, circuitBreakerRegistry);
-    }
-
-    private Resilience4jExecutorInterceptor createResilience4jExecutorInterceptor(Resilience4jFacade facade) {
-        return new Resilience4jExecutorInterceptor(facade);
-    }
-
-    private SqlSessionFactory buildSqlSessionFactory() throws IOException {
-        String resource = "META-INF/mybatis/config.xml";
-        InputStream inputStream = Resources.getResourceAsStream(resource);
-        SqlSessionFactoryBuilder builder = new SqlSessionFactoryBuilder();
-        SqlSessionFactory factory = builder.build(inputStream);
-        factory.getConfiguration().addInterceptor(this.interceptor);
-        return factory;
-    }
-
-    private SqlSession openSqlSession() {
-        return this.sqlSessionFactory.openSession();
-    }
-
-    private UserMapper getUserMapper(SqlSession sqlSession) throws Throwable {
-        return sqlSession.getMapper(UserMapper.class);
-    }
-
-    private void initData() throws Throwable {
-        executeStatement(statement -> {
-            statement.execute("CREATE TABLE users (id INT, name VARCHAR(50))");
-        });
-    }
-
     @Test
     void testMapper() throws Throwable {
         SqlSession sqlSession = openSqlSession();
@@ -170,6 +131,45 @@ public class Resilience4jExecutorInterceptorTest {
         transaction.close();
         connection.close();
         sqlSession.close();
+    }
+
+    private Resilience4jFacade createResilience4jFacade() {
+        BulkheadRegistry bulkheadRegistry = BulkheadRegistry.ofDefaults();
+        RateLimiterRegistry rateLimiterRegistry = RateLimiterRegistry.ofDefaults();
+        RetryRegistry retryRegistry = RetryRegistry.ofDefaults();
+        TimeLimiterRegistry timeLimiterRegistry = TimeLimiterRegistry.ofDefaults();
+        CircuitBreakerRegistry circuitBreakerRegistry = CircuitBreakerRegistry.ofDefaults();
+        this.facade = new ChainableResilience4jFacade(bulkheadRegistry, rateLimiterRegistry,
+                retryRegistry, timeLimiterRegistry, circuitBreakerRegistry);
+        return new ChainableResilience4jFacade(bulkheadRegistry, rateLimiterRegistry,
+                retryRegistry, timeLimiterRegistry, circuitBreakerRegistry);
+    }
+
+    private Resilience4jExecutorInterceptor createResilience4jExecutorInterceptor(Resilience4jFacade facade) {
+        return new Resilience4jExecutorInterceptor(facade);
+    }
+
+    private SqlSessionFactory buildSqlSessionFactory() throws IOException {
+        String resource = "META-INF/mybatis/config.xml";
+        InputStream inputStream = Resources.getResourceAsStream(resource);
+        SqlSessionFactoryBuilder builder = new SqlSessionFactoryBuilder();
+        SqlSessionFactory factory = builder.build(inputStream);
+        factory.getConfiguration().addInterceptor(this.interceptor);
+        return factory;
+    }
+
+    private SqlSession openSqlSession() {
+        return this.sqlSessionFactory.openSession();
+    }
+
+    private UserMapper getUserMapper(SqlSession sqlSession) throws Throwable {
+        return sqlSession.getMapper(UserMapper.class);
+    }
+
+    private void initData() throws Throwable {
+        executeStatement(statement -> {
+            statement.execute("CREATE TABLE users (id INT, name VARCHAR(50))");
+        });
     }
 
     private void executeStatement(ThrowableConsumer<Statement> consumer) throws Throwable {

@@ -27,20 +27,30 @@ import io.microsphere.resilience4j.common.Resilience4jFacade;
 import io.microsphere.resilience4j.mybatis.entity.User;
 import io.microsphere.resilience4j.mybatis.mapper.UserMapper;
 import org.apache.ibatis.cursor.Cursor;
+import org.apache.ibatis.executor.Executor;
+import org.apache.ibatis.executor.SimpleExecutor;
 import org.apache.ibatis.io.Resources;
+import org.apache.ibatis.plugin.Invocation;
+import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
+import org.apache.ibatis.transaction.Transaction;
+import org.apache.ibatis.transaction.jdbc.JdbcTransaction;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.Statement;
 
+import static io.microsphere.reflect.MethodUtils.findMethod;
 import static io.microsphere.resilience4j.mybatis.plugin.Resilience4jExecutorInterceptor.DEFAULT_ENTRY_NAME_PREFIX;
+import static io.microsphere.util.ArrayUtils.ofArray;
+import static java.lang.Boolean.FALSE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -60,7 +70,6 @@ public class Resilience4jExecutorInterceptorTest {
 
     private SqlSessionFactory sqlSessionFactory;
 
-
     @BeforeEach
     void setUp() throws Throwable {
         this.facade = createResilience4jFacade();
@@ -68,7 +77,6 @@ public class Resilience4jExecutorInterceptorTest {
         this.sqlSessionFactory = buildSqlSessionFactory();
         initData();
     }
-
 
     private Resilience4jFacade createResilience4jFacade() {
         BulkheadRegistry bulkheadRegistry = BulkheadRegistry.ofDefaults();
@@ -145,6 +153,23 @@ public class Resilience4jExecutorInterceptorTest {
     void testGetter() {
         assertSame(facade, interceptor.getFacade());
         assertEquals(DEFAULT_ENTRY_NAME_PREFIX, interceptor.getEntryNamePrefix());
+    }
+
+    @Test
+    void testInvoke() throws Throwable {
+        SqlSession sqlSession = openSqlSession();
+        Configuration configuration = sqlSession.getConfiguration();
+        Connection connection = sqlSession.getConnection();
+        Transaction transaction = new JdbcTransaction(connection);
+        Executor executor = new SimpleExecutor(configuration, transaction);
+
+        Method method = findMethod(Executor.class, "isClosed");
+        Invocation invocation = new Invocation(executor, method, ofArray());
+        assertEquals(FALSE, interceptor.intercept(invocation));
+
+        transaction.close();
+        connection.close();
+        sqlSession.close();
     }
 
     private void executeStatement(ThrowableConsumer<Statement> consumer) throws Throwable {

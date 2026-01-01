@@ -15,8 +15,8 @@
     <version>${revision}</version>
     <packaging>pom</packaging>
 
-    <name>Microsphere :: Resilience4j :: Integration</name>
-    <description>Microsphere Resilience4j Integration</description>
+    <name>Microsphere :: Resilience4j :: Plugins</name>
+    <description>Microsphere Resilience4j Plugins</description>
 
     <modules>
         <module>microsphere-resilience4j-alibaba-druid</module>

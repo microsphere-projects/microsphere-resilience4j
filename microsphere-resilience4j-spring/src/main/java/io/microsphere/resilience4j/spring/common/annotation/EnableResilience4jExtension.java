@@ -16,16 +16,16 @@
  */
 package io.microsphere.resilience4j.spring.common.annotation;
 
+import io.microsphere.annotation.Nonnull;
+import io.microsphere.resilience4j.spring.common.Resilience4jPlugin;
 import io.microsphere.resilience4j.spring.common.event.Resilience4jEventApplicationEventPublisher;
 import io.microsphere.resilience4j.spring.common.event.Resilience4jEventConsumerBeanRegistrar;
-import io.microsphere.resilience4j.spring.common.web.Resilience4jHandlerMethodInterceptor;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-import static io.microsphere.util.ClassLoaderUtils.isPresent;
 import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
@@ -59,117 +59,11 @@ public @interface EnableResilience4jExtension {
     boolean consumeEvents() default false;
 
     /**
-     * Which Web Environment to be supported
+     * The {@link Resilience4jPlugin#getName() names} of the {@link Resilience4jPlugin Resilience4j plugins}
      *
-     * @return empty as default
+     * @return the {@link Resilience4jPlugin#getName() names} of the {@link Resilience4jPlugin Resilience4j plugins}
+     * @see Resilience4jPlugin
      */
-    WebEnvironment[] webEnvironment() default {};
-
-    /**
-     * The Data Access Environment
-     *
-     * @return empty as default
-     */
-    DataAccessEnvironment[] dataAccessEnvironment() default {};
-
-    /**
-     * The RPC Environment
-     *
-     * @return empty as default
-     */
-    RPCEnvironment[] rpcEnvironment() default {};
-
-    enum WebEnvironment {
-
-        /**
-         * Servlet Environment
-         */
-        SERVLET("javax.servlet.Servlet"),
-
-        /**
-         * Spring WebMVC Environment
-         */
-        SPRING_WEBMVC("org.springframework.web.servlet.DispatcherServlet",
-                Resilience4jHandlerMethodInterceptor.class),
-
-        /**
-         * Spring WebFlux Environment
-         */
-        SPRING_WEBFLUX("org.springframework.web.reactive.DispatcherHandler"),
-
-        ;
-
-        private final String candidateClassName;
-
-        private final Class<?> componentClass;
-
-        private final boolean supported;
-
-        // TODO Remove this Constructor
-        WebEnvironment(String candidateClassName) {
-            this(candidateClassName, null);
-        }
-
-        WebEnvironment(String candidateClassName, Class<?> componentClass) {
-            this.candidateClassName = candidateClassName;
-            this.supported = isPresent(candidateClassName);
-            this.componentClass = componentClass;
-        }
-
-        /**
-         * Whether supports in the runtime
-         *
-         * @return <code>true</code> if supported, <code>false</code> otherwise
-         */
-        public boolean supports() {
-            return supported;
-        }
-
-        /**
-         * Get the candidate class name
-         *
-         * @return non-null
-         */
-        public String getCandidateClassName() {
-            return candidateClassName;
-        }
-
-        /**
-         * Get the component class
-         *
-         * @return non-null
-         */
-        public Class<?> getComponentClass() {
-            return componentClass;
-        }
-    }
-
-    /**
-     * The Data Access Environment
-     */
-    enum DataAccessEnvironment {
-
-        JDBC,
-
-        JPA,
-
-        HIBERNATE,
-
-        MYBATIS,
-
-        REDIS,
-
-        ;
-
-    }
-
-    enum RPCEnvironment {
-
-
-        DUBBO,
-
-        FEIGN,
-
-        ;
-    }
+    @Nonnull
+    String[] plugins() default {};
 }

@@ -19,6 +19,7 @@ package io.microsphere.resilience4j.spring.bulkhead.annotation;
 import io.github.resilience4j.bulkhead.Bulkhead;
 import io.github.resilience4j.bulkhead.configure.BulkheadConfigurationProperties;
 import io.github.resilience4j.common.bulkhead.configuration.CommonThreadPoolBulkheadConfigurationProperties;
+import io.microsphere.resilience4j.spring.common.Resilience4jPlugin;
 import io.microsphere.resilience4j.spring.common.annotation.EnableResilience4jExtension;
 import io.microsphere.spring.beans.factory.annotation.EnableConfigurationBeanBinding;
 import io.microsphere.spring.beans.factory.annotation.EnableConfigurationBeanBindings;
@@ -68,26 +69,11 @@ public @interface EnableBulkhead {
     boolean consumeEvents() default false;
 
     /**
-     * Which Web Environment to be supported
+     * The Spring Bean names of the {@link Resilience4jPlugin Resilience4j plugins}
      *
-     * @return empty as default
+     * @return the Spring Bean names of the Resilience4j plugins
+     * @see Resilience4jPlugin
      */
-    @AliasFor(annotation = EnableResilience4jExtension.class, attribute = "webEnvironment")
-    EnableResilience4jExtension.WebEnvironment[] webEnvironment() default {};
-
-    /**
-     * The Data Access Environment
-     *
-     * @return empty as default
-     */
-    @AliasFor(annotation = EnableResilience4jExtension.class, attribute = "dataAccessEnvironment")
-    EnableResilience4jExtension.DataAccessEnvironment[] dataAccessEnvironment() default {};
-
-    /**
-     * The RPC Environment
-     *
-     * @return empty as default
-     */
-    @AliasFor(annotation = EnableResilience4jExtension.class, attribute = "rpcEnvironment")
-    EnableResilience4jExtension.RPCEnvironment[] rpcEnvironment() default {};
+    @AliasFor(annotation = EnableResilience4jExtension.class, attribute = "plugins")
+    String[] plugins() default {};
 }

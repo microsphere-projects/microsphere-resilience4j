@@ -33,7 +33,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
-import static io.microsphere.resilience4j.spring.common.annotation.EnableResilience4jExtension.WebEnvironment.SPRING_WEBMVC;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
@@ -51,8 +50,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
         "microsphere.resilience4j.circuitbreaker.instances[test].slowCallRateThreshold=0.7"})
 @EnableCircuitBreaker(
         publishEvents = true,
-        consumeEvents = true,
-        webEnvironment = {SPRING_WEBMVC})
+        consumeEvents = true)
 @EnableSpringConverterAdapter
 public class EnableCircuitBreakerTest {
 

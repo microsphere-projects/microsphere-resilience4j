@@ -19,6 +19,7 @@ package io.microsphere.resilience4j.spring.common.annotation;
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.configure.CircuitBreakerConfiguration;
 import io.microsphere.resilience4j.spring.circuitbreaker.annotation.EnableCircuitBreaker;
+import io.microsphere.resilience4j.spring.common.Resilience4jPlugin;
 import io.microsphere.resilience4j.spring.common.event.Resilience4jEventApplicationEventPublisher;
 import io.microsphere.resilience4j.spring.common.event.Resilience4jEventConsumerBeanRegistrar;
 import io.microsphere.spring.context.annotation.BeanCapableImportCandidate;
@@ -36,6 +37,8 @@ import java.util.Objects;
 import static io.microsphere.collection.Maps.ofMap;
 import static io.microsphere.spring.beans.factory.support.BeanRegistrar.registerBeanDefinition;
 import static io.microsphere.spring.core.annotation.ResolvablePlaceholderAnnotationAttributes.of;
+import static io.microsphere.spring.core.io.support.SpringFactoriesLoaderUtils.loadFactories;
+import static io.microsphere.util.ArrayUtils.contains;
 import static org.springframework.core.ResolvableType.forType;
 import static org.springframework.core.io.support.SpringFactoriesLoader.loadFactoryNames;
 import static org.springframework.util.ClassUtils.resolveClassName;
@@ -89,8 +92,8 @@ public abstract class EnableResilience4jRegistrar<A extends Annotation, E, EC> e
         // Register Event Component Beans
         registerEventComponentBeans(attributes, registry);
 
-        // Register Web Environment Component Beans
-        registerWebEnvironmentComponentBeans(attributes, registry);
+        // Register plugins
+        registerPlugins(attributes, registry);
     }
 
     protected final Class<EC> getEntryConfigurationType() {
@@ -112,14 +115,14 @@ public abstract class EnableResilience4jRegistrar<A extends Annotation, E, EC> e
         }
     }
 
-    private void registerWebEnvironmentComponentBeans(ResolvablePlaceholderAnnotationAttributes attributes,
-                                                      BeanDefinitionRegistry registry) {
-        ClassLoader classLoader = this.getClassLoader();
-        EnableResilience4jExtension.WebEnvironment[] webEnvironmentArray = (EnableResilience4jExtension.WebEnvironment[]) attributes.get("webEnvironment");
-        for (EnableResilience4jExtension.WebEnvironment webEnvironment : webEnvironmentArray) {
-            if (webEnvironment.supports()) {
-                Class<?> webComponentClass = webEnvironment.getComponentClass();
-                registerComponentBean(webComponentClass, registry);
+    private void registerPlugins(ResolvablePlaceholderAnnotationAttributes attributes,
+                                 BeanDefinitionRegistry registry) {
+        String[] plugins = attributes.getStringArray("plugins");
+        List<Resilience4jPlugin> resilience4jPlugins = loadFactories(this.getBeanFactory(), Resilience4jPlugin.class);
+        for (Resilience4jPlugin resilience4jPlugin : resilience4jPlugins) {
+            String pluginName = resilience4jPlugin.getName();
+            if (contains(plugins, pluginName)) {
+                resilience4jPlugin.plugin(this.beanFactory, registry, this.environment);
             }
         }
     }

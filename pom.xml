@@ -60,7 +60,7 @@
         <module>microsphere-resilience4j-parent</module>
         <module>microsphere-resilience4j-dependencies</module>
         <module>microsphere-resilience4j-commons</module>
-        <module>microsphere-resilience4j-integration</module>
+        <module>microsphere-resilience4j-plugins</module>
         <module>microsphere-resilience4j-spring</module>
         <module>microsphere-resilience4j-spring-boot</module>
         <module>microsphere-resilience4j-spring-cloud</module>

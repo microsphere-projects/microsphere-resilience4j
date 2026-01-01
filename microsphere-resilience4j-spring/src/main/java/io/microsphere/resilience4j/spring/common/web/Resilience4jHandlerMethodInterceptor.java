@@ -30,7 +30,6 @@ import io.microsphere.spring.web.method.support.HandlerMethodInterceptor;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.context.ApplicationListener;
 import org.springframework.core.Ordered;
-import org.springframework.util.Assert;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.HandlerMethod;
 
@@ -43,6 +42,7 @@ import java.util.List;
 import static io.microsphere.logging.LoggerFactory.getLogger;
 import static io.microsphere.reflect.MethodUtils.getSignature;
 import static io.microsphere.resilience4j.util.Resilience4jUtils.createTemplate;
+import static io.microsphere.util.Assert.assertNotNull;
 import static org.springframework.web.context.request.RequestAttributes.SCOPE_REQUEST;
 
 /**
@@ -67,7 +67,7 @@ public abstract class Resilience4jHandlerMethodInterceptor<E, C, R extends Regis
 
     public Resilience4jHandlerMethodInterceptor(R registry) {
         // always keep self being a delegate
-        Assert.notNull(registry, "The 'registry' argument can't be null");
+        assertNotNull(registry, () -> "The 'registry' argument can't be null");
         this.template = createTemplate(registry);
     }
 

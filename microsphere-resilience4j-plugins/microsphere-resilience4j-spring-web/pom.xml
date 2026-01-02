@@ -6,26 +6,31 @@
         <groupId>io.github.microsphere-projects</groupId>
         <artifactId>microsphere-resilience4j-parent</artifactId>
         <version>${revision}</version>
-        <relativePath>../microsphere-resilience4j-parent/pom.xml</relativePath>
+        <relativePath>../../microsphere-resilience4j-parent/pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>io.github.microsphere-projects</groupId>
-    <artifactId>microsphere-resilience4j-spring</artifactId>
+    <artifactId>microsphere-resilience4j-spring-web</artifactId>
     <version>${revision}</version>
     <packaging>jar</packaging>
 
-
-    <name>Microsphere :: Resilience4j :: Spring</name>
-    <description>Microsphere Resilience4j Spring</description>
+    <name>Microsphere :: Resilience4j :: Spring Web</name>
+    <description>Microsphere Resilience4j Spring Web</description>
 
     <dependencies>
-
         <!-- Microsphere Resilience4j -->
         <dependency>
             <groupId>io.github.microsphere-projects</groupId>
-            <artifactId>microsphere-resilience4j-commons</artifactId>
+            <artifactId>microsphere-resilience4j-spring</artifactId>
             <version>${revision}</version>
+        </dependency>
+
+        <!-- Servlet API -->
+        <dependency>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <!-- Spring WebMVC -->
@@ -39,6 +44,13 @@
         <dependency>
             <groupId>io.github.microsphere-projects</groupId>
             <artifactId>microsphere-spring-context</artifactId>
+        </dependency>
+
+        <!-- Microsphere Spring WebMVC -->
+        <dependency>
+            <groupId>io.github.microsphere-projects</groupId>
+            <artifactId>microsphere-spring-webmvc</artifactId>
+            <optional>true</optional>
         </dependency>
 
         <!--  Resilience4j -->
@@ -62,6 +74,12 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-aop</artifactId>
+            <scope>test</scope>
+        </dependency>
+
         <!-- AspectJ -->
         <dependency>
             <groupId>org.aspectj</groupId>
@@ -77,5 +95,4 @@
         </dependency>
 
     </dependencies>
-
 </project>

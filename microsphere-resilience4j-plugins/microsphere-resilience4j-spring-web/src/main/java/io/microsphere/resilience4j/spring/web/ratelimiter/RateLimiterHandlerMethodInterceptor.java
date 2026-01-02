@@ -14,25 +14,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.microsphere.resilience4j.spring.ratelimiter.jdbc.druid;
+package io.microsphere.resilience4j.spring.web.ratelimiter;
 
-import com.alibaba.druid.filter.Filter;
 import io.github.resilience4j.ratelimiter.RateLimiter;
 import io.github.resilience4j.ratelimiter.RateLimiterConfig;
 import io.github.resilience4j.ratelimiter.RateLimiterRegistry;
-import io.microsphere.resilience4j.spring.common.jdbc.druid.Resilience4jDruidFilter;
+import io.microsphere.resilience4j.spring.web.Resilience4jHandlerMethodInterceptor;
+import org.springframework.web.servlet.HandlerInterceptor;
 
 /**
- * {@link RateLimiter} x Druid {@link Filter}
+ * {@link HandlerInterceptor} based on Resilience4j {@link RateLimiter}
  *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
+ * @see HandlerInterceptor
+ * @see RateLimiter
  * @since 1.0.0
  */
-public class RateLimiterDruidFilter extends Resilience4jDruidFilter<RateLimiter, RateLimiterConfig, RateLimiterRegistry> {
+public class RateLimiterHandlerMethodInterceptor extends Resilience4jHandlerMethodInterceptor<RateLimiter, RateLimiterConfig, RateLimiterRegistry> {
 
-    public RateLimiterDruidFilter(RateLimiterRegistry registry) {
+    public RateLimiterHandlerMethodInterceptor(RateLimiterRegistry registry) {
         super(registry);
     }
 
 }
-

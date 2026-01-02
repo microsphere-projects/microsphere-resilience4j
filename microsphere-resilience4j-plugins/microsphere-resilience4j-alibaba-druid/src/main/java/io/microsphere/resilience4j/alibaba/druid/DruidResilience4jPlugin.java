@@ -14,26 +14,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.microsphere.resilience4j.spring.ratelimiter.web;
 
-import io.github.resilience4j.ratelimiter.RateLimiter;
-import io.github.resilience4j.ratelimiter.RateLimiterConfig;
-import io.github.resilience4j.ratelimiter.RateLimiterRegistry;
-import io.microsphere.resilience4j.spring.common.web.Resilience4jHandlerMethodInterceptor;
-import org.springframework.web.servlet.HandlerInterceptor;
+package io.microsphere.resilience4j.alibaba.druid;
+
+import io.microsphere.resilience4j.spring.common.Resilience4jPlugin;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+import org.springframework.core.env.ConfigurableEnvironment;
 
 /**
- * {@link HandlerInterceptor} based on Resilience4j {@link RateLimiter}
+ * {@link Resilience4jPlugin} for Alibaba Druid
  *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
- * @see HandlerInterceptor
- * @see RateLimiter
+ * @see Resilience4jPlugin
  * @since 1.0.0
  */
-public class RateLimiterHandlerMethodInterceptor extends Resilience4jHandlerMethodInterceptor<RateLimiter, RateLimiterConfig, RateLimiterRegistry> {
+public class DruidResilience4jPlugin implements Resilience4jPlugin {
 
-    public RateLimiterHandlerMethodInterceptor(RateLimiterRegistry registry) {
-        super(registry);
+    @Override
+    public void plugin(ConfigurableListableBeanFactory beanFactory, BeanDefinitionRegistry registry,
+                       ConfigurableEnvironment environment) {
     }
 
+    @Override
+    public String getName() {
+        return "alibaba-druid";
+    }
 }

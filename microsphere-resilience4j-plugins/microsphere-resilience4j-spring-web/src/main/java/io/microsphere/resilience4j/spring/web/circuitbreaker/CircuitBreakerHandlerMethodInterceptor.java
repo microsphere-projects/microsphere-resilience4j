@@ -14,23 +14,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.microsphere.resilience4j.spring.timelimiter.jdbc.druid;
+package io.microsphere.resilience4j.spring.web.circuitbreaker;
 
-import com.alibaba.druid.filter.Filter;
-import io.github.resilience4j.timelimiter.TimeLimiter;
-import io.github.resilience4j.timelimiter.TimeLimiterConfig;
-import io.github.resilience4j.timelimiter.TimeLimiterRegistry;
-import io.microsphere.resilience4j.spring.common.jdbc.druid.Resilience4jDruidFilter;
+import io.github.resilience4j.circuitbreaker.CircuitBreaker;
+import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
+import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
+import io.microsphere.resilience4j.spring.web.Resilience4jHandlerMethodInterceptor;
+import org.springframework.web.servlet.HandlerInterceptor;
 
 /**
- * {@link TimeLimiter} x Druid {@link Filter}
+ * {@link HandlerInterceptor} based on Resilience4j {@link CircuitBreaker}
  *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
+ * @see HandlerInterceptor
+ * @see CircuitBreaker
  * @since 1.0.0
  */
-public class TimeLimiterDruidFilter extends Resilience4jDruidFilter<TimeLimiter, TimeLimiterConfig, TimeLimiterRegistry> {
+public class CircuitBreakerHandlerMethodInterceptor extends Resilience4jHandlerMethodInterceptor<CircuitBreaker, CircuitBreakerConfig, CircuitBreakerRegistry> {
 
-    public TimeLimiterDruidFilter(TimeLimiterRegistry registry) {
+    public CircuitBreakerHandlerMethodInterceptor(CircuitBreakerRegistry registry) {
         super(registry);
     }
+
 }

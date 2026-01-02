@@ -22,6 +22,7 @@
         <module>microsphere-resilience4j-alibaba-druid</module>
         <module>microsphere-resilience4j-feign</module>
         <module>microsphere-resilience4j-mybatis</module>
+        <module>microsphere-resilience4j-spring-web</module>
     </modules>
 
     <build>

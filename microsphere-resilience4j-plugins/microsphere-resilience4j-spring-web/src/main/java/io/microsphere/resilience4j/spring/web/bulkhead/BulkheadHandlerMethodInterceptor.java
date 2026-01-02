@@ -14,12 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.microsphere.resilience4j.spring.bulkhead.web;
+package io.microsphere.resilience4j.spring.web.bulkhead;
 
 import io.github.resilience4j.bulkhead.Bulkhead;
 import io.github.resilience4j.bulkhead.BulkheadConfig;
 import io.github.resilience4j.bulkhead.BulkheadRegistry;
-import io.microsphere.resilience4j.spring.common.web.Resilience4jHandlerMethodInterceptor;
+import io.microsphere.resilience4j.spring.web.Resilience4jHandlerMethodInterceptor;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 /**

@@ -69,19 +69,15 @@ public class ChainableResilience4jFacade implements Resilience4jFacade {
 
         this.templates = effectiveTemplates;
         this.size = effectiveTemplates.size();
-        if (logger.isTraceEnabled()) {
-            logger.trace("{} templates : {} -> effective {} templates : {}", size, templates, this.size, this.templates);
-        }
+        logger.trace("{} templates : {} -> effective {} templates : {}", size, templates, this.size, this.templates);
     }
 
     @Override
     public <T> T call(String name, ThrowableSupplier<T> callback) throws Throwable {
         CallbackChain<T> supplier = new CallbackChain<>(name, callback, this.templates);
         T result = supplier.get();
-        if (logger.isTraceEnabled()) {
-            logger.trace("call(name = '{}' , callback = {}) operations of {} templates were executed, result : {}",
-                    name, callback, size, result);
-        }
+        logger.trace("call(name = '{}' , callback = {}) operations of {} templates were executed, result : {}",
+                name, callback, size, result);
         return result;
     }
 
@@ -95,9 +91,7 @@ public class ChainableResilience4jFacade implements Resilience4jFacade {
                 subContexts[i] = template.begin(name);
             }
         }
-        if (logger.isTraceEnabled()) {
-            logger.trace("begin() operations of {} templates were executed -> {}", size, context);
-        }
+        logger.trace("begin() operations of {} templates were executed -> {}", size, context);
         return context;
     }
 
@@ -110,9 +104,7 @@ public class ChainableResilience4jFacade implements Resilience4jFacade {
                 template.end(subContexts[i]);
             }
         }
-        if (logger.isTraceEnabled()) {
-            logger.trace("end() operations of {} templates were executed -> {}", context);
-        }
+        logger.trace("end() operations of {} templates were executed -> {}", context);
     }
 
     /**

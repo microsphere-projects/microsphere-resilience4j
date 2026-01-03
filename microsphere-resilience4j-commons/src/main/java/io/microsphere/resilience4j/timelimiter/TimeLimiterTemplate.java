@@ -123,6 +123,4 @@ public class TimeLimiterTemplate extends Resilience4jTemplate<TimeLimiter, TimeL
         registerEntryEventConsumer(entryName, TimeLimiterOnTimeoutEvent.class, eventConsumer);
         return this;
     }
-
-
 }

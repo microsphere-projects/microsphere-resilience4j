@@ -80,9 +80,7 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> imple
         this.module = valueOf(registry.getClass());
         this.localEntriesCache = createLocalEntriesCache();
         this.priority = this.module.getDefaultAspectOrder();
-        if (logger.isTraceEnabled()) {
-            logger.trace("Resilience4jTemplate was created : {}", toString());
-        }
+        logger.trace("Resilience4jTemplate was created : {}", toString());
     }
 
     /**
@@ -166,9 +164,7 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> imple
         if (isLocalEntriesCachePresent()) {
             E entry = getEntry(name);
             localEntriesCache.put(name, entry);
-            if (logger.isTraceEnabled()) {
-                logger.info("The local entries cache for entry[name : '{}'] was initialized : {}", name, entry);
-            }
+            logger.trace("The local entries cache for entry[name : '{}'] was initialized : {}", name, entry);
         } else {
             logger.warn("The local entries cache is not required, please review the #createLocalEntriesCache() method implementation.");
             return this;
@@ -219,9 +215,7 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> imple
      */
     protected final void clearLocalEntriesCache() {
         localEntriesCache.clear();
-        if (logger.isTraceEnabled()) {
-            logger.trace("The local entries cache was cleared!");
-        }
+        logger.trace("The local entries cache was cleared!");
     }
 
     /**
@@ -235,13 +229,9 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> imple
         if (isLocalEntriesCachePresent()) {
             entry = localEntriesCache.get(name);
             if (entry == null) {
-                if (logger.isTraceEnabled()) {
-                    logger.trace("The local entries cache for entry[name : '{}'] was not found.", name);
-                }
+                logger.trace("The local entries cache for entry[name : '{}'] was not found.", name);
             } else {
-                if (logger.isTraceEnabled()) {
-                    logger.trace("The local entries cache for entry[name : '{}'] was found : {}", name, entry);
-                }
+                logger.trace("The local entries cache for entry[name : '{}'] was found : {}", name, entry);
             }
         }
         return entry;
@@ -277,9 +267,7 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> imple
         E entry = getEntry(name);
         Resilience4jContext<E> context = new Resilience4jContext(name, entry);
         doBegin(context);
-        if (logger.isTraceEnabled()) {
-            logger.trace("begin() operation was executed -> ", context);
-        }
+        logger.trace("begin() operation was executed -> ", context);
         return context;
     }
 
@@ -290,9 +278,7 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> imple
     @Override
     public final void end(Resilience4jContext<E> context) {
         doEnd(context);
-        if (logger.isTraceEnabled()) {
-            logger.trace("end() operation was executed -> {}", context);
-        }
+        logger.trace("end() operation was executed -> {}", context);
     }
 
     protected void doEnd(Resilience4jContext<E> context) {
@@ -362,9 +348,7 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> imple
                                                                     Class<? super T> eventType, EventConsumer<T> eventConsumer) {
         String name = eventType.getSimpleName();
         eventProcessor.registerConsumer(name, eventConsumer);
-        if (logger.isTraceEnabled()) {
-            logger.trace("The event[type : '{}'] consumer[name : '{}'] was registered : {}", eventType, name, eventConsumer);
-        }
+        logger.trace("The event[type : '{}'] consumer[name : '{}'] was registered : {}", eventType, name, eventConsumer);
         return this;
     }
 

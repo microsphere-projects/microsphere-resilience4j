@@ -39,7 +39,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.EnumMap;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -188,11 +187,11 @@ public abstract class Resilience4jUtils implements Utils {
         if (size < 1) {
             return emptyList();
         }
-        Map<Registry<?, ?>, Resilience4jTemplate> templatesMap = new HashMap<>(size);
+        Map<Registry<?, ?>, Resilience4jTemplate> templatesMap = newFixedHashMap(size);
         for (Registry<?, ?> registry : registries) {
             templatesMap.computeIfAbsent(registry, Resilience4jUtils::createTemplate);
         }
-        List<Resilience4jTemplate> templates = new ArrayList<>(templatesMap.size());
+        List<Resilience4jTemplate> templates = new ArrayList<>(size);
         templates.addAll(templatesMap.values());
         // Sort
         templates.sort(COMPARATOR);
@@ -202,7 +201,7 @@ public abstract class Resilience4jUtils implements Utils {
     static Map<Resilience4jModule, Class<? extends Resilience4jTemplate>> loadDefaultTemplates() {
         Resilience4jModule[] modules = values();
         int size = modules.length;
-        Map<Resilience4jModule, Class<? extends Resilience4jTemplate>> defaultTemplates = new HashMap<>(size);
+        Map<Resilience4jModule, Class<? extends Resilience4jTemplate>> defaultTemplates = newFixedHashMap(size);
 
         ClassLoader classLoader = getClassLoader(Resilience4jTemplate.class);
         Properties properties = loadDefaultTemplatesProperties(classLoader);

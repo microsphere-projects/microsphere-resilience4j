@@ -222,5 +222,4 @@ public enum Resilience4jModule {
         }
         return module;
     }
-
 }

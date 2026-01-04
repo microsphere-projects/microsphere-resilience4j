@@ -19,6 +19,9 @@ package io.microsphere.resilience4j.common;
 import io.github.resilience4j.bulkhead.Bulkhead;
 import io.github.resilience4j.bulkhead.BulkheadConfig;
 import io.github.resilience4j.bulkhead.BulkheadRegistry;
+import io.github.resilience4j.bulkhead.ThreadPoolBulkhead;
+import io.github.resilience4j.bulkhead.ThreadPoolBulkheadConfig;
+import io.github.resilience4j.bulkhead.ThreadPoolBulkheadRegistry;
 import io.github.resilience4j.bulkhead.event.BulkheadEvent;
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
@@ -26,6 +29,7 @@ import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 import io.github.resilience4j.circuitbreaker.event.CircuitBreakerEvent;
 import io.github.resilience4j.common.CommonProperties;
 import io.github.resilience4j.common.bulkhead.configuration.CommonBulkheadConfigurationProperties;
+import io.github.resilience4j.common.bulkhead.configuration.CommonThreadPoolBulkheadConfigurationProperties;
 import io.github.resilience4j.common.circuitbreaker.configuration.CommonCircuitBreakerConfigurationProperties;
 import io.github.resilience4j.common.ratelimiter.configuration.CommonRateLimiterConfigurationProperties;
 import io.github.resilience4j.common.retry.configuration.CommonRetryConfigurationProperties;
@@ -48,6 +52,7 @@ import static io.microsphere.resilience4j.common.Resilience4jConstants.BULKHEAD_
 import static io.microsphere.resilience4j.common.Resilience4jConstants.CIRCUIT_BREAKER_MODULE_NAME;
 import static io.microsphere.resilience4j.common.Resilience4jConstants.RATE_LIMITER_MODULE_NAME;
 import static io.microsphere.resilience4j.common.Resilience4jConstants.RETRY_MODULE_NAME;
+import static io.microsphere.resilience4j.common.Resilience4jConstants.THREAD_POOL_BULKHEAD_MODULE_NAME;
 import static io.microsphere.resilience4j.common.Resilience4jConstants.TIME_LIMITER_MODULE_NAME;
 import static io.microsphere.util.ClassUtils.isAssignableFrom;
 
@@ -82,7 +87,12 @@ public enum Resilience4jModule {
     /**
      * {@link Bulkhead} module
      */
-    BULKHEAD(BULKHEAD_MODULE_NAME, Bulkhead.class, BulkheadConfig.class, CommonBulkheadConfigurationProperties.class, BulkheadEvent.class, BulkheadRegistry.class, 4);
+    BULKHEAD(BULKHEAD_MODULE_NAME, Bulkhead.class, BulkheadConfig.class, CommonBulkheadConfigurationProperties.class, BulkheadEvent.class, BulkheadRegistry.class, 4),
+
+    /**
+     * {@link ThreadPoolBulkhead} module
+     */
+    THREAD_POOL_BULKHEAD(THREAD_POOL_BULKHEAD_MODULE_NAME, ThreadPoolBulkhead.class, ThreadPoolBulkheadConfig.class, CommonThreadPoolBulkheadConfigurationProperties.class, BulkheadEvent.class, ThreadPoolBulkheadRegistry.class, 4);
 
     private final String name;
 

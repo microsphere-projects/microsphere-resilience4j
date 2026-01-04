@@ -182,7 +182,7 @@ public abstract class Resilience4jUtils implements Utils {
      * @param registries {@link Registry registries}
      * @return non-null read-only {@link List}
      */
-    public static List<Resilience4jTemplate> createTemplates(Collection<Registry<?, ?>> registries) {
+    public static List<Resilience4jTemplate> createTemplates(Collection<Registry> registries) {
         int size = size(registries);
         if (size < 1) {
             return emptyList();

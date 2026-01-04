@@ -48,11 +48,11 @@ public class ChainableResilience4jFacade implements Resilience4jFacade {
 
     private final int size;
 
-    public ChainableResilience4jFacade(Registry<?, ?>... registries) {
+    public ChainableResilience4jFacade(Registry... registries) {
         this(asList(registries));
     }
 
-    public ChainableResilience4jFacade(Collection<Registry<?, ?>> registries) {
+    public ChainableResilience4jFacade(Collection<Registry> registries) {
         this(createTemplates(registries));
     }
 

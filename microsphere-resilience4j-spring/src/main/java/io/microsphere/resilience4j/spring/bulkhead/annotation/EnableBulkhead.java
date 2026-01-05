@@ -31,6 +31,8 @@ import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
+import static io.microsphere.resilience4j.common.Resilience4jConstants.BULKHEAD_PREFIX;
+import static io.microsphere.resilience4j.common.Resilience4jConstants.THREAD_POOL_BULKHEAD_PREFIX;
 import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
@@ -47,8 +49,8 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Import(EnableBulkheadRegistrar.class)
 @EnableResilience4jExtension
 @EnableConfigurationBeanBindings({
-        @EnableConfigurationBeanBinding(prefix = "microsphere.resilience4j.bulkhead", type = BulkheadConfigurationProperties.class),
-        @EnableConfigurationBeanBinding(prefix = "microsphere.resilience4j.thread-pool-bulkhead", type = CommonThreadPoolBulkheadConfigurationProperties.class)
+        @EnableConfigurationBeanBinding(prefix = BULKHEAD_PREFIX, type = BulkheadConfigurationProperties.class),
+        @EnableConfigurationBeanBinding(prefix = THREAD_POOL_BULKHEAD_PREFIX, type = CommonThreadPoolBulkheadConfigurationProperties.class)
 })
 public @interface EnableBulkhead {
 

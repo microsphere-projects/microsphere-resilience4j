@@ -18,12 +18,17 @@ package io.microsphere.resilience4j.spring.common.annotation;
 
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.configure.CircuitBreakerConfiguration;
+import io.microsphere.resilience4j.common.Resilience4jModule;
+import io.microsphere.resilience4j.spring.LazyResilience4jFacade;
 import io.microsphere.resilience4j.spring.circuitbreaker.annotation.EnableCircuitBreaker;
 import io.microsphere.resilience4j.spring.common.Resilience4jPlugin;
 import io.microsphere.resilience4j.spring.common.event.Resilience4jEventApplicationEventPublisher;
 import io.microsphere.resilience4j.spring.common.event.Resilience4jEventConsumerBeanRegistrar;
 import io.microsphere.spring.context.annotation.BeanCapableImportCandidate;
 import io.microsphere.spring.core.annotation.ResolvablePlaceholderAnnotationAttributes;
+import org.springframework.beans.MutablePropertyValues;
+import org.springframework.beans.PropertyValue;
+import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
 import org.springframework.core.ResolvableType;
@@ -33,8 +38,12 @@ import java.lang.annotation.Annotation;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 import static io.microsphere.collection.Maps.ofMap;
+import static io.microsphere.resilience4j.common.Resilience4jModule.valueOf;
+import static io.microsphere.resilience4j.spring.LazyResilience4jFacade.BEAN_NAME;
+import static io.microsphere.spring.beans.factory.config.BeanDefinitionUtils.genericBeanDefinition;
 import static io.microsphere.spring.beans.factory.support.BeanRegistrar.registerBeanDefinition;
 import static io.microsphere.spring.core.annotation.ResolvablePlaceholderAnnotationAttributes.of;
 import static io.microsphere.spring.core.io.support.SpringFactoriesLoaderUtils.loadFactories;
@@ -42,6 +51,7 @@ import static io.microsphere.util.ArrayUtils.contains;
 import static org.springframework.core.ResolvableType.forType;
 import static org.springframework.core.io.support.SpringFactoriesLoader.loadFactoryNames;
 import static org.springframework.util.ClassUtils.resolveClassName;
+import static org.springframework.util.CollectionUtils.newHashSet;
 
 /**
  * The abstract {@link ImportBeanDefinitionRegistrar} class to {@link EnableResilience4jExtension enable
@@ -94,6 +104,9 @@ public abstract class EnableResilience4jRegistrar<A extends Annotation, E, EC> e
 
         // Register plugins
         registerPlugins(attributes, registry);
+
+        // Register Resilience4jFacade as the primary bean
+        registerResilience4jFacade(registry);
     }
 
     protected final Class<EC> getEntryConfigurationType() {
@@ -115,6 +128,18 @@ public abstract class EnableResilience4jRegistrar<A extends Annotation, E, EC> e
         }
     }
 
+    private void registerComponentBean(Class<?> componentClass, BeanDefinitionRegistry registry) {
+        ClassLoader classLoader = this.getClassLoader();
+        List<String> actualComponentClassNames = loadFactoryNames(componentClass, classLoader);
+        for (String actualComponentClassName : actualComponentClassNames) {
+            Class<?> actualComponentClass = resolveClassName(actualComponentClassName, classLoader);
+            Class<E> entryTypeFromComponent = resolveEntryType(actualComponentClass, componentClass);
+            if (Objects.equals(entryTypeFromComponent, this.entryType)) {
+                registerBeanDefinition(registry, actualComponentClass);
+            }
+        }
+    }
+
     private void registerPlugins(ResolvablePlaceholderAnnotationAttributes attributes,
                                  BeanDefinitionRegistry registry) {
         String[] plugins = attributes.getStringArray("plugins");
@@ -127,16 +152,27 @@ public abstract class EnableResilience4jRegistrar<A extends Annotation, E, EC> e
         }
     }
 
-    private void registerComponentBean(Class<?> componentClass, BeanDefinitionRegistry registry) {
-        ClassLoader classLoader = this.getClassLoader();
-        List<String> actualComponentClassNames = loadFactoryNames(componentClass, classLoader);
-        for (String actualComponentClassName : actualComponentClassNames) {
-            Class<?> actualComponentClass = resolveClassName(actualComponentClassName, classLoader);
-            Class<E> entryTypeFromComponent = resolveEntryType(actualComponentClass, componentClass);
-            if (Objects.equals(entryTypeFromComponent, this.entryType)) {
-                registerBeanDefinition(registry, actualComponentClass);
-            }
+    private void registerResilience4jFacade(BeanDefinitionRegistry registry) {
+        Resilience4jModule module = valueOf(this.entryType);
+        String beanName = BEAN_NAME;
+        String propertyName = "modules";
+
+        Set<Resilience4jModule> modules;
+        AbstractBeanDefinition beanDefinition;
+        PropertyValue modulesPropertyValue;
+        if (registry.containsBeanDefinition(beanName)) {
+            beanDefinition = (AbstractBeanDefinition) registry.getBeanDefinition(beanName);
+            modulesPropertyValue = beanDefinition.getPropertyValues().getPropertyValue(propertyName);
+            modules = (Set<Resilience4jModule>) modulesPropertyValue.getValue();
+        } else {
+            modules = newHashSet(Resilience4jModule.values().length);
+            beanDefinition = genericBeanDefinition(LazyResilience4jFacade.class);
+            beanDefinition.setPrimary(true);
+            MutablePropertyValues propertyValues = beanDefinition.getPropertyValues();
+            propertyValues.add(propertyName, modules);
+            registerBeanDefinition(registry, beanName, beanDefinition);
         }
+        modules.add(module);
     }
 
     private ResolvableType resolveSuperType() {

@@ -23,12 +23,10 @@ import io.github.resilience4j.circuitbreaker.event.CircuitBreakerOnSuccessEvent;
 import io.github.resilience4j.common.circuitbreaker.configuration.CommonCircuitBreakerConfigurationProperties;
 import io.microsphere.spring.core.convert.annotation.EnableSpringConverterAdapter;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
@@ -42,8 +40,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
  * @since 1.0.0
  */
-@ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {EnableCircuitBreakerTest.class})
+@SpringJUnitConfig(classes = EnableCircuitBreakerTest.class)
 @TestPropertySource(properties = {
         "microsphere.resilience4j.circuit-breaker.instances[test].waitDurationInOpenState=PT30S",
         "microsphere.resilience4j.circuit-breaker.instances[test].slidingWindowSize=100",

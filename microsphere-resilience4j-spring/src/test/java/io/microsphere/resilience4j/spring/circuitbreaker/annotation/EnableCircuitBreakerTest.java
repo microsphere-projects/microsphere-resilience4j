@@ -45,9 +45,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {EnableCircuitBreakerTest.class})
 @TestPropertySource(properties = {
-        "microsphere.resilience4j.circuitbreaker.instances[test].waitDurationInOpenState=PT30S",
-        "microsphere.resilience4j.circuitbreaker.instances[test].slidingWindowSize=100",
-        "microsphere.resilience4j.circuitbreaker.instances[test].slowCallRateThreshold=0.7"})
+        "microsphere.resilience4j.circuit-breaker.instances[test].waitDurationInOpenState=PT30S",
+        "microsphere.resilience4j.circuit-breaker.instances[test].slidingWindowSize=100",
+        "microsphere.resilience4j.circuit-breaker.instances[test].slowCallRateThreshold=0.7"})
 @EnableCircuitBreaker(
         publishEvents = true,
         consumeEvents = true)

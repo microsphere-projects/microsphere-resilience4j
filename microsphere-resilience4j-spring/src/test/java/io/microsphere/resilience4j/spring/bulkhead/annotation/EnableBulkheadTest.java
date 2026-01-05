@@ -23,12 +23,10 @@ import io.github.resilience4j.bulkhead.event.BulkheadOnCallPermittedEvent;
 import io.github.resilience4j.common.bulkhead.configuration.CommonBulkheadConfigurationProperties;
 import io.microsphere.spring.core.convert.annotation.EnableSpringConverterAdapter;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import java.time.Duration;
 
@@ -41,12 +39,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
  * @since 1.0.0
  */
-@ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {EnableBulkheadTest.class})
+@SpringJUnitConfig(classes = EnableBulkheadTest.class)
 @TestPropertySource(properties = {
         "microsphere.resilience4j.bulkhead.instances[test].maxConcurrentCalls=10",
         "microsphere.resilience4j.bulkhead.instances[test].eventConsumerBufferSize=100",
-        "microsphere.resilience4j.bulkhead.instances[test].maxWaitDuration=PT30S"})
+        "microsphere.resilience4j.bulkhead.instances[test].maxWaitDuration=PT30S"
+})
 @EnableBulkhead(publishEvents = true)
 @EnableSpringConverterAdapter
 public class EnableBulkheadTest {

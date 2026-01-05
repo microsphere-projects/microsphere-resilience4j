@@ -43,9 +43,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {EnableRateLimiterTest.class})
 @TestPropertySource(properties = {
-        "microsphere.resilience4j.ratelimiter.instances[test].timeoutDuration=PT10S",
-        "microsphere.resilience4j.ratelimiter.instances[test].limitRefreshPeriod=PT0.000001S",
-        "microsphere.resilience4j.ratelimiter.instances[test].limitForPeriod=20"})
+        "microsphere.resilience4j.rate-limiter.instances[test].timeoutDuration=PT10S",
+        "microsphere.resilience4j.rate-limiter.instances[test].limitRefreshPeriod=PT0.000001S",
+        "microsphere.resilience4j.rate-limiter.instances[test].limitForPeriod=20"})
 @EnableRateLimiter
 @EnableSpringConverterAdapter
 public class EnableRateLimiterTest {

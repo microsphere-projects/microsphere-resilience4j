@@ -29,6 +29,7 @@ import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
+import static io.microsphere.resilience4j.common.Resilience4jConstants.CIRCUIT_BREAKER_PREFIX;
 import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
@@ -44,7 +45,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Inherited
 @Import(EnableCircuitBreakerRegistrar.class)
 @EnableResilience4jExtension
-@EnableConfigurationBeanBinding(prefix = "microsphere.resilience4j.circuitbreaker", type = CircuitBreakerConfigurationProperties.class)
+@EnableConfigurationBeanBinding(prefix = CIRCUIT_BREAKER_PREFIX, type = CircuitBreakerConfigurationProperties.class)
 public @interface EnableCircuitBreaker {
 
     /**

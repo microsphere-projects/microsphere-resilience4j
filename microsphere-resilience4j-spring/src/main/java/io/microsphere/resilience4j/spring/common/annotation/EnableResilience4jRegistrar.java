@@ -41,6 +41,7 @@ import java.util.Objects;
 import java.util.Set;
 
 import static io.microsphere.collection.Maps.ofMap;
+import static io.microsphere.collection.SetUtils.newHashSet;
 import static io.microsphere.resilience4j.common.Resilience4jModule.valueOf;
 import static io.microsphere.resilience4j.spring.LazyResilience4jFacade.BEAN_NAME;
 import static io.microsphere.spring.beans.factory.config.BeanDefinitionUtils.genericBeanDefinition;
@@ -51,7 +52,6 @@ import static io.microsphere.util.ArrayUtils.contains;
 import static org.springframework.core.ResolvableType.forType;
 import static org.springframework.core.io.support.SpringFactoriesLoader.loadFactoryNames;
 import static org.springframework.util.ClassUtils.resolveClassName;
-import static org.springframework.util.CollectionUtils.newHashSet;
 
 /**
  * The abstract {@link ImportBeanDefinitionRegistrar} class to {@link EnableResilience4jExtension enable

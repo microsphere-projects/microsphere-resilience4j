@@ -22,13 +22,11 @@ import io.github.resilience4j.timelimiter.configure.TimeLimiterConfigurationProp
 import io.github.resilience4j.timelimiter.event.TimeLimiterOnSuccessEvent;
 import io.microsphere.spring.core.convert.annotation.EnableSpringConverterAdapter;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.event.EventListener;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import java.time.Duration;
 
@@ -40,12 +38,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
  * @since 1.0.0
  */
-@ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {EnableTimeLimiterTest.class})
+@SpringJUnitConfig(classes = EnableTimeLimiterTest.class)
 @TestPropertySource(properties = {
         "microsphere.resilience4j.time-limiter.instances[test].timeoutDuration=PT10S",
         "microsphere.resilience4j.time-limiter.instances[test].cancelRunningFuture=true",
-        "microsphere.resilience4j.time-limiter.instances[test].eventConsumerBufferSize=200"})
+        "microsphere.resilience4j.time-limiter.instances[test].eventConsumerBufferSize=200"
+})
 @EnableTimeLimiter
 @EnableSpringConverterAdapter
 public class EnableTimeLimiterTest {

@@ -43,9 +43,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {EnableTimeLimiterTest.class})
 @TestPropertySource(properties = {
-        "microsphere.resilience4j.timelimiter.instances[test].timeoutDuration=PT10S",
-        "microsphere.resilience4j.timelimiter.instances[test].cancelRunningFuture=true",
-        "microsphere.resilience4j.timelimiter.instances[test].eventConsumerBufferSize=200"})
+        "microsphere.resilience4j.time-limiter.instances[test].timeoutDuration=PT10S",
+        "microsphere.resilience4j.time-limiter.instances[test].cancelRunningFuture=true",
+        "microsphere.resilience4j.time-limiter.instances[test].eventConsumerBufferSize=200"})
 @EnableTimeLimiter
 @EnableSpringConverterAdapter
 public class EnableTimeLimiterTest {

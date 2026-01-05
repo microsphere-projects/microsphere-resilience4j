@@ -29,6 +29,7 @@ import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
+import static io.microsphere.resilience4j.common.Resilience4jConstants.RETRY_PREFIX;
 import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
@@ -44,7 +45,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Inherited
 @Import(EnableRetryRegistrar.class)
 @EnableResilience4jExtension
-@EnableConfigurationBeanBinding(prefix = "microsphere.resilience4j.retry", type = RetryConfigurationProperties.class)
+@EnableConfigurationBeanBinding(prefix = RETRY_PREFIX, type = RetryConfigurationProperties.class)
 public @interface EnableRetry {
 
     /**

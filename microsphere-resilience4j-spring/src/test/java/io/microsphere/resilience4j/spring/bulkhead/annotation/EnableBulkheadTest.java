@@ -31,6 +31,7 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import java.time.Duration;
 
 import static io.github.resilience4j.bulkhead.event.BulkheadEvent.Type.CALL_PERMITTED;
+import static io.microsphere.resilience4j.spring.LoggingResilience4jPlugin.NAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
@@ -45,7 +46,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
         "microsphere.resilience4j.bulkhead.instances[test].eventConsumerBufferSize=100",
         "microsphere.resilience4j.bulkhead.instances[test].maxWaitDuration=PT30S"
 })
-@EnableBulkhead(publishEvents = true, consumeEvents = true)
+@EnableBulkhead(publishEvents = true, consumeEvents = true, plugins = NAME)
 @EnableSpringConverterAdapter
 public class EnableBulkheadTest {
 

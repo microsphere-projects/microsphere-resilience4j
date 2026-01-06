@@ -32,6 +32,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.time.Duration;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
@@ -62,6 +63,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * @since 1.0.0
  */
 public abstract class AbstractResilience4jTemplateTest<E, C, R extends Registry<E, C>, RT extends Resilience4jTemplate<E, C, R>> {
+
+    private static final Random random = new Random();
 
     protected final static String TEST_DATA = "test-data";
 
@@ -142,8 +145,14 @@ public abstract class AbstractResilience4jTemplateTest<E, C, R extends Registry<
     }
 
     protected RT createTemplate(R registry) throws Throwable {
-        Constructor constructor = templateClass.getConstructor(registryClass);
-        return (RT) constructor.newInstance(registry);
+        boolean localEntriesCached = random.nextBoolean();
+        if (localEntriesCached) {
+            Constructor constructor = templateClass.getConstructor(registryClass);
+            return (RT) constructor.newInstance(registry);
+        } else {
+            Constructor constructor = templateClass.getConstructor(registryClass, boolean.class);
+            return (RT) constructor.newInstance(registry, localEntriesCached);
+        }
     }
 
     /**
@@ -275,7 +284,7 @@ public abstract class AbstractResilience4jTemplateTest<E, C, R extends Registry<
     @Test
     void testLocalEntriesCache() {
         String entryName = "test-1";
-        if (this.template.isLocalEntriesCachePresent()) {
+        if (this.template.isLocalEntriesCached()) {
             this.template.initLocalEntriesCache(asList(entryName));
             E entry = this.template.getEntryFromCache(entryName);
             assertNotNull(entry);
@@ -386,7 +395,6 @@ public abstract class AbstractResilience4jTemplateTest<E, C, R extends Registry<
         int priority = 1;
         assertEquals(priority, template.setPriority(priority).getPriority());
     }
-
 
     @AfterEach
     void tearDown() {

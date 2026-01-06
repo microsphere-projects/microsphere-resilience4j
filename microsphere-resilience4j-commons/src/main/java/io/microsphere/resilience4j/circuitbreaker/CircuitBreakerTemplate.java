@@ -52,6 +52,10 @@ public class CircuitBreakerTemplate extends Resilience4jTemplate<CircuitBreaker,
         super(registry);
     }
 
+    public CircuitBreakerTemplate(CircuitBreakerRegistry registry, boolean localEntriesCached) {
+        super(registry, localEntriesCached);
+    }
+
     /**
      * Create the {@link CircuitBreaker}
      *

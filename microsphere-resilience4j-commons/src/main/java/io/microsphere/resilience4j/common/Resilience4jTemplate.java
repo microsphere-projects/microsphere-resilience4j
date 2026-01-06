@@ -74,11 +74,15 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> imple
     private int priority;
 
     public Resilience4jTemplate(R registry) {
+        this(registry, true);
+    }
+
+    public Resilience4jTemplate(R registry, boolean localEntriesCached) {
         assertNotNull(registry, "The registry must not be null");
         this.registry = registry;
-        this.registryEventProcessor = getEventProcessor(registry);
         this.module = valueOf(registry.getClass());
-        this.localEntriesCache = createLocalEntriesCache();
+        this.registryEventProcessor = getEventProcessor(registry);
+        this.localEntriesCache = localEntriesCached ? createLocalEntriesCache() : null;
         this.priority = this.module.getDefaultAspectOrder();
         logger.trace("Resilience4jTemplate was created : {}", this);
     }
@@ -161,7 +165,7 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> imple
      * @param name the name of entry
      */
     public final Resilience4jTemplate<E, C, R> initLocalEntriesCache(String name) {
-        if (isLocalEntriesCachePresent()) {
+        if (isLocalEntriesCached()) {
             E entry = getEntry(name);
             localEntriesCache.put(name, entry);
             logger.trace("The local entries cache for entry[name : '{}'] was initialized : {}", name, entry);
@@ -201,21 +205,22 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> imple
     }
 
     /**
-     * Is local entries caches present or not?
+     * Is local entries cached or not?
      *
-     * @return <code>true</code> if present, otherwise <code>false</code>
+     * @return <code>true</code> if cached, otherwise <code>false</code>
      */
-    protected final boolean isLocalEntriesCachePresent() {
+    protected final boolean isLocalEntriesCached() {
         return this.localEntriesCache != null;
     }
-
 
     /**
      * Clear the local entries cache
      */
     protected final void clearLocalEntriesCache() {
-        localEntriesCache.clear();
-        logger.trace("The local entries cache was cleared!");
+        if (isLocalEntriesCached()) {
+            localEntriesCache.clear();
+            logger.trace("The local entries cache was cleared!");
+        }
     }
 
     /**
@@ -226,7 +231,7 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> imple
      */
     protected final E getEntryFromCache(String name) {
         E entry = null;
-        if (isLocalEntriesCachePresent()) {
+        if (isLocalEntriesCached()) {
             entry = localEntriesCache.get(name);
             if (entry == null) {
                 logger.trace("The local entries cache for entry[name : '{}'] was not found.", name);
@@ -375,9 +380,7 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> imple
      * </ul>
      */
     public void destroy() {
-        if (isLocalEntriesCachePresent()) {
-            clearLocalEntriesCache();
-        }
+        clearLocalEntriesCache();
     }
 
     @Override

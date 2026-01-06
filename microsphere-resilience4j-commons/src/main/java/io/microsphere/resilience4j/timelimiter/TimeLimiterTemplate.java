@@ -46,11 +46,19 @@ public class TimeLimiterTemplate extends Resilience4jTemplate<TimeLimiter, TimeL
     private final ExecutorService executorService;
 
     public TimeLimiterTemplate(TimeLimiterRegistry registry) {
-        this(registry, commonPool());
+        this(registry, true);
+    }
+
+    public TimeLimiterTemplate(TimeLimiterRegistry registry, boolean localEntriesCached) {
+        this(registry, commonPool(), localEntriesCached);
     }
 
     public TimeLimiterTemplate(TimeLimiterRegistry registry, ExecutorService executorService) {
-        super(registry);
+        this(registry, executorService, true);
+    }
+
+    public TimeLimiterTemplate(TimeLimiterRegistry registry, ExecutorService executorService, boolean localEntriesCached) {
+        super(registry, localEntriesCached);
         this.executorService = executorService;
     }
 

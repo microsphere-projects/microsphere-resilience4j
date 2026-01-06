@@ -45,6 +45,10 @@ public class ThreadPoolBulkheadTemplate extends Resilience4jTemplate<ThreadPoolB
         super(registry);
     }
 
+    public ThreadPoolBulkheadTemplate(ThreadPoolBulkheadRegistry registry, boolean localEntriesCached) {
+        super(registry, localEntriesCached);
+    }
+
     /**
      * Create the {@link ThreadPoolBulkhead}
      *

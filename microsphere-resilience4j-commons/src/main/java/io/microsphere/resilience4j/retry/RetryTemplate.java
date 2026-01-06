@@ -45,6 +45,10 @@ public class RetryTemplate extends Resilience4jTemplate<Retry, RetryConfig, Retr
         super(registry);
     }
 
+    public RetryTemplate(RetryRegistry registry, boolean localEntriesCached) {
+        super(registry, localEntriesCached);
+    }
+
     @Override
     public Retry createEntry(String name) {
         RetryRegistry registry = super.getRegistry();

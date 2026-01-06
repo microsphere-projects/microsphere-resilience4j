@@ -45,9 +45,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
         "microsphere.resilience4j.circuit-breaker.instances[test].waitDurationInOpenState=PT30S",
         "microsphere.resilience4j.circuit-breaker.instances[test].slidingWindowSize=100",
         "microsphere.resilience4j.circuit-breaker.instances[test].slowCallRateThreshold=0.7"})
-@EnableCircuitBreaker(
-        publishEvents = true,
-        consumeEvents = true)
+@EnableCircuitBreaker(publishEvents = true, consumeEvents = true)
 @EnableSpringConverterAdapter
 public class EnableCircuitBreakerTest {
 

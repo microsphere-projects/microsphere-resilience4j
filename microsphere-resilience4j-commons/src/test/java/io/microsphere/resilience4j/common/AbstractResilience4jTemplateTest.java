@@ -64,7 +64,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 public abstract class AbstractResilience4jTemplateTest<E, C, R extends Registry<E, C>, RT extends Resilience4jTemplate<E, C, R>> {
 
-    private static final Random random = new Random();
+    protected static final Random random = new Random();
 
     protected final static String TEST_DATA = "test-data";
 
@@ -151,7 +151,7 @@ public abstract class AbstractResilience4jTemplateTest<E, C, R extends Registry<
             return (RT) constructor.newInstance(registry);
         } else {
             Constructor constructor = templateClass.getConstructor(registryClass, boolean.class);
-            return (RT) constructor.newInstance(registry, localEntriesCached);
+            return (RT) constructor.newInstance(registry, false);
         }
     }
 

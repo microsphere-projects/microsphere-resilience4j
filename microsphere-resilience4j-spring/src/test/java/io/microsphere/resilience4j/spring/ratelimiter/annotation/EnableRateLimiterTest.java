@@ -44,7 +44,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
         "microsphere.resilience4j.rate-limiter.instances[test].limitRefreshPeriod=PT0.000001S",
         "microsphere.resilience4j.rate-limiter.instances[test].limitForPeriod=20"
 })
-@EnableRateLimiter
+@EnableRateLimiter(publishEvents = true, consumeEvents = true)
 @EnableSpringConverterAdapter
 public class EnableRateLimiterTest {
 

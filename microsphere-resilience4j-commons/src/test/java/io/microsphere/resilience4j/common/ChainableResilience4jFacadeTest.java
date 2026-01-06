@@ -21,10 +21,12 @@ import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 import io.github.resilience4j.ratelimiter.RateLimiterRegistry;
 import io.github.resilience4j.retry.RetryRegistry;
 import io.github.resilience4j.timelimiter.TimeLimiterRegistry;
+import io.microsphere.resilience4j.bulkhead.BulkheadTemplate;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import static java.util.Arrays.asList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
@@ -61,6 +63,14 @@ public class ChainableResilience4jFacadeTest {
                 circuitBreakerRegistry,
                 circuitBreakerRegistry
         );
+    }
+
+    @Test
+    void testConstructor() {
+        BulkheadRegistry bulkheadRegistry = BulkheadRegistry.ofDefaults();
+        BulkheadTemplate bulkheadTemplate = new BulkheadTemplate(bulkheadRegistry);
+        this.facade = new ChainableResilience4jFacade(asList(bulkheadTemplate, bulkheadTemplate, bulkheadTemplate));
+        assertEquals(1, this.facade.getSize());
     }
 
     @Test

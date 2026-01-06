@@ -41,7 +41,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
         "microsphere.resilience4j.retry.instances[test].maxAttempts=1",
         "microsphere.resilience4j.retry.instances[test].eventConsumerBufferSize=99"
 })
-@EnableRetry
+@EnableRetry(publishEvents = true, consumeEvents = true)
 @EnableSpringConverterAdapter
 public class EnableRetryTest {
 

@@ -44,7 +44,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
         "microsphere.resilience4j.time-limiter.instances[test].cancelRunningFuture=true",
         "microsphere.resilience4j.time-limiter.instances[test].eventConsumerBufferSize=200"
 })
-@EnableTimeLimiter
+@EnableTimeLimiter(publishEvents = true, consumeEvents = true)
 @EnableSpringConverterAdapter
 public class EnableTimeLimiterTest {
 

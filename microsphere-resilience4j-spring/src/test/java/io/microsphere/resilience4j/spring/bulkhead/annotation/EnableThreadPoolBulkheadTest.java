@@ -44,9 +44,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @TestPropertySource(properties = {
         "microsphere.resilience4j.thread-pool-bulkhead.instances[test].maxThreadPoolSize=1",
         "microsphere.resilience4j.thread-pool-bulkhead.instances[test].coreThreadPoolSize=1",
-        "microsphere.resilience4j.thread-pool-bulkhead.instances[test].queueCapacity=1"
+        "microsphere.resilience4j.thread-pool-bulkhead.instances[test].queueCapacity=1",
+        "microsphere.resilience4j.bulkhead.instances[test].maxConcurrentCalls=10",
+        "microsphere.resilience4j.bulkhead.instances[test].eventConsumerBufferSize=100",
+        "microsphere.resilience4j.bulkhead.instances[test].maxWaitDuration=PT30S"
 })
-@EnableThreadPoolBulkhead
+@EnableBulkhead
+@EnableThreadPoolBulkhead(publishEvents = true, consumeEvents = true)
 @EnableSpringConverterAdapter
 public class EnableThreadPoolBulkheadTest {
 

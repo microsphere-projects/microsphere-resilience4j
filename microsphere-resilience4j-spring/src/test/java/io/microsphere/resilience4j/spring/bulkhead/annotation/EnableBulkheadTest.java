@@ -45,7 +45,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
         "microsphere.resilience4j.bulkhead.instances[test].eventConsumerBufferSize=100",
         "microsphere.resilience4j.bulkhead.instances[test].maxWaitDuration=PT30S"
 })
-@EnableBulkhead(publishEvents = true)
+@EnableBulkhead(publishEvents = true, consumeEvents = true)
 @EnableSpringConverterAdapter
 public class EnableBulkheadTest {
 

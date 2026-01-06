@@ -46,7 +46,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
         "microsphere.resilience4j.thread-pool-bulkhead.instances[test].coreThreadPoolSize=1",
         "microsphere.resilience4j.thread-pool-bulkhead.instances[test].queueCapacity=1"
 })
-@EnableThreadPoolBulkhead(publishEvents = true)
+@EnableThreadPoolBulkhead
 @EnableSpringConverterAdapter
 public class EnableThreadPoolBulkheadTest {
 

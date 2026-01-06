@@ -80,7 +80,7 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> imple
         this.module = valueOf(registry.getClass());
         this.localEntriesCache = createLocalEntriesCache();
         this.priority = this.module.getDefaultAspectOrder();
-        logger.trace("Resilience4jTemplate was created : {}", toString());
+        logger.trace("Resilience4jTemplate was created : {}", this);
     }
 
     /**

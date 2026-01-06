@@ -24,9 +24,9 @@ import io.github.resilience4j.bulkhead.event.BulkheadOnCallPermittedEvent;
 import io.github.resilience4j.bulkhead.event.BulkheadOnCallRejectedEvent;
 import io.github.resilience4j.core.EventConsumer;
 import io.microsphere.lang.function.ThrowableSupplier;
-import io.microsphere.resilience4j.common.Resilience4jContext;
 import io.microsphere.resilience4j.common.Resilience4jTemplate;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 /**
@@ -68,18 +68,15 @@ public class ThreadPoolBulkheadTemplate extends Resilience4jTemplate<ThreadPoolB
     }
 
     @Override
-    protected void doBegin(Resilience4jContext<ThreadPoolBulkhead> context) {
-    }
-
-    @Override
-    protected void doEnd(Resilience4jContext<ThreadPoolBulkhead> context) {
-    }
-
-    @Override
     public <T> T call(String name, ThrowableSupplier<T> callback) throws Throwable {
         ThreadPoolBulkhead threadPoolBulkhead = getEntry(name);
         CompletionStage<T> completionStage = threadPoolBulkhead.executeCallable(() -> ThrowableSupplier.execute(callback));
-        return completionStage.toCompletableFuture().get();
+        CompletableFuture<T> future = completionStage.toCompletableFuture();
+        try {
+            return future.get();
+        } catch (Throwable e) {
+            throw e.getCause().getCause();
+        }
     }
 
     /**

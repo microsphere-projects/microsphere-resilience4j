@@ -191,7 +191,7 @@ public abstract class AbstractResilience4jTemplateTest<E, C, R extends Registry<
     void testIsBeginSupported() {
         Resilience4jModule module = template.getModule();
         switch (module) {
-            case RETRY, TIME_LIMITER:
+            case RETRY, TIME_LIMITER, THREAD_POOL_BULKHEAD:
                 assertFalse(this.template.isBeginSupported());
                 break;
             default:
@@ -213,9 +213,7 @@ public abstract class AbstractResilience4jTemplateTest<E, C, R extends Registry<
         }
 
         switch (module) {
-            case RETRY:
-                ;
-            case TIME_LIMITER:
+            case RETRY, TIME_LIMITER, THREAD_POOL_BULKHEAD:
                 assertTrue(resultHolder.getValue() instanceof Throwable);
                 break;
             default:
@@ -245,9 +243,7 @@ public abstract class AbstractResilience4jTemplateTest<E, C, R extends Registry<
         }
 
         switch (module) {
-            case RETRY:
-                ;
-            case TIME_LIMITER:
+            case RETRY, TIME_LIMITER, THREAD_POOL_BULKHEAD:
                 assertTrue(resultHolder.getValue() instanceof Throwable);
                 break;
             default:

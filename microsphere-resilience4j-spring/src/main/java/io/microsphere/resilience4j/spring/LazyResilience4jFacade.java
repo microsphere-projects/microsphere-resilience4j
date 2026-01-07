@@ -18,6 +18,7 @@
 package io.microsphere.resilience4j.spring;
 
 import io.github.resilience4j.core.Registry;
+import io.microsphere.lang.DelegatingWrapper;
 import io.microsphere.lang.function.ThrowableAction;
 import io.microsphere.lang.function.ThrowableSupplier;
 import io.microsphere.resilience4j.common.ChainableResilience4jFacade;
@@ -42,7 +43,7 @@ import static io.microsphere.collection.ListUtils.newArrayList;
  * @see Registry
  * @since 1.0.0
  */
-public class LazyResilience4jFacade implements Resilience4jFacade, ApplicationListener<ContextRefreshedEvent> {
+public class LazyResilience4jFacade implements Resilience4jFacade, ApplicationListener<ContextRefreshedEvent>, DelegatingWrapper {
 
     public static final String BEAN_NAME = "lazyResilience4jFacade";
 
@@ -122,5 +123,10 @@ public class LazyResilience4jFacade implements Resilience4jFacade, ApplicationLi
             registries.add(registry);
         }
         this.delegate = new ChainableResilience4jFacade(registries);
+    }
+
+    @Override
+    public Object getDelegate() {
+        return this.delegate;
     }
 }

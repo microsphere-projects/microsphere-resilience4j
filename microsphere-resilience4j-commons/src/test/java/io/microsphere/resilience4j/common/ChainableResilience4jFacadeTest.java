@@ -26,6 +26,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import static java.util.Arrays.asList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -65,6 +67,11 @@ public class ChainableResilience4jFacadeTest {
         );
     }
 
+    @AfterEach
+    void tearDown() {
+        this.facade.destroy();
+    }
+
     @Test
     void testConstructor() {
         BulkheadRegistry bulkheadRegistry = BulkheadRegistry.ofDefaults();
@@ -99,8 +106,9 @@ public class ChainableResilience4jFacadeTest {
         assertEquals(this.size, size);
     }
 
-    @AfterEach
-    void tearDown() {
-        this.facade.destroy();
+    @Test
+    void testGetTemplates() {
+        List<Resilience4jTemplate> templates = this.facade.getTemplates();
+        assertEquals(this.size, templates.size());
     }
 }

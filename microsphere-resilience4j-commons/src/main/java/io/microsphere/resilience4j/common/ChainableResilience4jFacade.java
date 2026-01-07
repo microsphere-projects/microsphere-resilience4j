@@ -17,6 +17,7 @@
 package io.microsphere.resilience4j.common;
 
 import io.github.resilience4j.core.Registry;
+import io.microsphere.annotation.Nonnull;
 import io.microsphere.lang.function.ThrowableSupplier;
 import io.microsphere.logging.Logger;
 
@@ -105,6 +106,16 @@ public class ChainableResilience4jFacade implements Resilience4jFacade {
             }
         }
         logger.trace("end() operations of {} templates were executed -> {}", context);
+    }
+
+    /**
+     * Get the delegates
+     *
+     * @return non-null
+     */
+    @Nonnull
+    public List<Resilience4jTemplate> getTemplates() {
+        return templates;
     }
 
     /**

@@ -54,7 +54,12 @@ import static io.microsphere.resilience4j.common.Resilience4jModule.CIRCUIT_BREA
 import static io.microsphere.resilience4j.common.Resilience4jModule.RATE_LIMITER;
 import static io.microsphere.resilience4j.common.Resilience4jModule.RETRY;
 import static io.microsphere.resilience4j.common.Resilience4jModule.TIME_LIMITER;
+import static io.microsphere.resilience4j.common.Resilience4jModule.valueOf;
+import static io.microsphere.resilience4j.common.Resilience4jModule.values;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * {@link Resilience4jModule} Test
@@ -74,6 +79,18 @@ public class Resilience4jModuleTest {
         assertModule(BULKHEAD, BULKHEAD_MODULE_NAME, Bulkhead.class, BulkheadConfig.class, CommonBulkheadConfigurationProperties.class, BulkheadEvent.class, BulkheadRegistry.class, 4);
     }
 
+    @Test
+    void testValueOfOnIllegalArgumentException() {
+        assertThrows(IllegalArgumentException.class, () -> valueOf(Resilience4jModule.class));
+    }
+
+    @Test
+    void testToString() {
+        for (Resilience4jModule module : values()) {
+            assertNotNull(module.toString());
+        }
+    }
+
     private void assertModule(Resilience4jModule module, String moduleName, Class<?> entryClass, Class<?> configClass,
                               Class<?> configurationPropertiesClass, Class<?> eventClass,
                               Class<? extends Registry> registryClass, int defaultAspectOrder) {
@@ -84,5 +101,11 @@ public class Resilience4jModuleTest {
         assertEquals(eventClass, module.getEventClass());
         assertEquals(registryClass, module.getRegistryClass());
         assertEquals(defaultAspectOrder, module.getDefaultAspectOrder());
+
+        assertSame(module, valueOf(entryClass));
+        assertSame(module, valueOf(configClass));
+        assertSame(module, valueOf(configurationPropertiesClass));
+        assertSame(module, valueOf(eventClass));
+        assertSame(module, valueOf(registryClass));
     }
 }

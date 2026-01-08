@@ -16,73 +16,81 @@
  */
 package io.microsphere.resilience4j.spring.web;
 
-import io.github.resilience4j.circuitbreaker.CircuitBreaker;
-import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
-import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
-import io.github.resilience4j.core.Registry;
+import io.microsphere.annotation.Nonnull;
 import io.microsphere.logging.Logger;
+import io.microsphere.resilience4j.common.ChainableResilience4jFacade;
 import io.microsphere.resilience4j.common.Resilience4jContext;
-import io.microsphere.resilience4j.common.Resilience4jModule;
+import io.microsphere.resilience4j.common.Resilience4jFacade;
 import io.microsphere.resilience4j.common.Resilience4jTemplate;
+import io.microsphere.resilience4j.spring.common.Resilience4jPlugin;
 import io.microsphere.spring.web.event.WebEndpointMappingsReadyEvent;
 import io.microsphere.spring.web.metadata.WebEndpointMapping;
 import io.microsphere.spring.web.method.support.HandlerMethodInterceptor;
-import org.springframework.beans.factory.DisposableBean;
+import io.microsphere.spring.webmvc.annotation.EnableWebMvcExtension;
 import org.springframework.context.ApplicationListener;
 import org.springframework.core.Ordered;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.HandlerMethod;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
+import static io.microsphere.collection.MapUtils.newFixedHashMap;
+import static io.microsphere.lang.Wrapper.tryUnwrap;
 import static io.microsphere.logging.LoggerFactory.getLogger;
-import static io.microsphere.reflect.MethodUtils.getSignature;
-import static io.microsphere.resilience4j.util.Resilience4jUtils.createTemplate;
+import static io.microsphere.resilience4j.spring.web.SpringWebResilience4jPlugin.PLUGIN_NAME;
+import static io.microsphere.spring.web.util.WebScope.REQUEST;
 import static io.microsphere.util.Assert.assertNotNull;
-import static org.springframework.web.context.request.RequestAttributes.SCOPE_REQUEST;
 
 /**
  * The abstract template class for Resilience4j's {@link HandlerMethodInterceptor}
  *
- * @param <E> the type of Resilience4j's entry, e.g., {@link CircuitBreaker}
- * @param <C> the type of Resilience4j's entry configuration, e.g., {@link CircuitBreakerConfig}
- * @param <R> the type of Resilience4j's entry registry, e.g., {@link CircuitBreakerRegistry}
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
+ * @see Resilience4jPlugin
  * @see HandlerMethodInterceptor
- * @see Resilience4jModule
+ * @see EnableWebMvcExtension
  * @since 1.0.0
  */
-public abstract class Resilience4jHandlerMethodInterceptor<E, C, R extends Registry<E, C>> implements HandlerMethodInterceptor,
-        ApplicationListener<WebEndpointMappingsReadyEvent>, DisposableBean, Ordered {
+public class Resilience4jHandlerMethodInterceptor implements HandlerMethodInterceptor,
+        ApplicationListener<WebEndpointMappingsReadyEvent>, Ordered {
+
+    public static final String BEAN_NAME = "resilience4jHandlerMethodInterceptor";
 
     private static final String RESILIENCE4J_CONTEXT_ATTRIBUTE_NAME = Resilience4jContext.class.getName();
 
-    protected final Logger logger = getLogger(getClass());
+    private static final Logger logger = getLogger(Resilience4jHandlerMethodInterceptor.class);
 
-    protected final Resilience4jTemplate<E, C, R> template;
+    private final Resilience4jFacade resilience4jFacade;
 
-    public Resilience4jHandlerMethodInterceptor(R registry) {
+    private int order;
+
+    private Map<Method, String> methodEntryNamesCache;
+
+    public Resilience4jHandlerMethodInterceptor(Resilience4jFacade resilience4jFacade) {
         // always keep self being a delegate
-        assertNotNull(registry, () -> "The 'registry' argument can't be null");
-        this.template = createTemplate(registry);
+        assertNotNull(resilience4jFacade, () -> "The 'resilience4jFacade' argument can't be null");
+        this.resilience4jFacade = resilience4jFacade;
     }
 
     @Override
-    public void beforeExecute(HandlerMethod handlerMethod, Object[] args, NativeWebRequest request) throws Exception {
-        Resilience4jContext<E> context = template.begin(getEntryName(handlerMethod));
-        request.setAttribute(RESILIENCE4J_CONTEXT_ATTRIBUTE_NAME, context, SCOPE_REQUEST);
+    public void beforeExecute(HandlerMethod handlerMethod, Object[] args, NativeWebRequest request) {
+        Resilience4jContext<Resilience4jContext[]> context = resilience4jFacade.begin(getEntryName(handlerMethod));
+        REQUEST.setAttribute(request, RESILIENCE4J_CONTEXT_ATTRIBUTE_NAME, context);
     }
 
     @Override
-    public void afterExecute(HandlerMethod handlerMethod, Object[] args, Object returnValue, Throwable error, NativeWebRequest request) throws Exception {
-        Resilience4jContext<E> context = (Resilience4jContext<E>) request.getAttribute(RESILIENCE4J_CONTEXT_ATTRIBUTE_NAME, SCOPE_REQUEST);
+    public void afterExecute(HandlerMethod handlerMethod, Object[] args, Object returnValue, Throwable error, NativeWebRequest request) {
+        Resilience4jContext<Resilience4jContext[]> context = (Resilience4jContext<Resilience4jContext[]>) REQUEST.removeAttribute(request, RESILIENCE4J_CONTEXT_ATTRIBUTE_NAME);
+        if (context == null) {
+            logger.trace("The 'context' is null , please check whether the 'resilience4jFacade' is a 'ChainableResilience4jFacade'", error);
+            return;
+        }
         context.setResult(returnValue)
                 .setFailure(error);
-        this.template.end(context);
+        this.resilience4jFacade.end(context);
     }
 
     @Override
@@ -90,35 +98,32 @@ public abstract class Resilience4jHandlerMethodInterceptor<E, C, R extends Regis
         initEntryCache(event);
     }
 
-    @Override
-    public void destroy() throws Exception {
-        this.template.destroy();
-    }
-
     /**
      * Get the {@link Resilience4jTemplate}
      *
      * @return non-null
      */
-    public final <T extends Resilience4jTemplate<E, C, R>> T getTemplate() {
-        return (T) this.template;
+    @Nonnull
+    public final Resilience4jFacade getResilience4jFacade() {
+        return this.resilience4jFacade;
     }
 
-    /**
-     * Get the order of current interceptor bean
-     *
-     * @return {@link Resilience4jTemplate current module}'s {@link Resilience4jModule#getDefaultAspectOrder() aspect order} as default
-     * @see <a href="https://resilience4j.readme.io/docs/getting-started-3#aspect-order">Resilience4j Aspect order</a>
-     */
+    @Override
     public int getOrder() {
-        return this.template.getModule().getDefaultAspectOrder();
+        return order;
+    }
+
+    public void setOrder(int order) {
+        this.order = order;
     }
 
     protected void initEntryCache(WebEndpointMappingsReadyEvent event) {
         Collection<WebEndpointMapping> webEndpointMappings = event.getMappings();
         int size = webEndpointMappings.size();
 
-        List<String> entryNames = new ArrayList<>(size);
+
+        Map<Method, String> methodEntryNamesCache = newFixedHashMap(size);
+        this.methodEntryNamesCache = methodEntryNamesCache;
 
         Iterator<WebEndpointMapping> iterator = webEndpointMappings.iterator();
         while (iterator.hasNext()) {
@@ -127,10 +132,17 @@ public abstract class Resilience4jHandlerMethodInterceptor<E, C, R extends Regis
             if (endpoint instanceof HandlerMethod) {
                 HandlerMethod handlerMethod = (HandlerMethod) endpoint;
                 String entryName = getEntryName(handlerMethod);
-                entryNames.add(entryName);
+                logger.trace("Create the entryName : '{}' for HandlerMethod : {}", entryName, handlerMethod);
             }
         }
-        this.template.initLocalEntriesCache(entryNames);
+
+        ChainableResilience4jFacade facade = tryUnwrap(this.resilience4jFacade, ChainableResilience4jFacade.class);
+        if (facade != null) {
+            List<Resilience4jTemplate> templates = facade.getTemplates();
+            for (Resilience4jTemplate template : templates) {
+                template.initLocalEntriesCache(methodEntryNamesCache.values());
+            }
+        }
     }
 
     /**
@@ -140,9 +152,7 @@ public abstract class Resilience4jHandlerMethodInterceptor<E, C, R extends Regis
      * @return non-null
      */
     public String getEntryName(HandlerMethod handlerMethod) {
-        String moduleName = this.template.getModule().name();
         Method method = handlerMethod.getMethod();
-        String signature = getSignature(method);
-        return "spring:webmvc:" + moduleName + "@" + signature;
+        return this.methodEntryNamesCache.computeIfAbsent(method, m -> PLUGIN_NAME + "@" + handlerMethod);
     }
 }

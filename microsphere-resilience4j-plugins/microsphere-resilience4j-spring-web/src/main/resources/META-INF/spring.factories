@@ -1,5 +1,3 @@
-# Resilience4jHandlerMethodInterceptor
-io.microsphere.resilience4j.spring.web.Resilience4jHandlerMethodInterceptor=\
-io.microsphere.resilience4j.spring.web.bulkhead.BulkheadHandlerMethodInterceptor,\
-io.microsphere.resilience4j.spring.web.circuitbreaker.CircuitBreakerHandlerMethodInterceptor,\
-io.microsphere.resilience4j.spring.web.ratelimiter.RateLimiterHandlerMethodInterceptor
+# Resilience4jPlugin
+io.microsphere.resilience4j.spring.common.Resilience4jPlugin=\
+io.microsphere.resilience4j.spring.web.SpringWebResilience4jPlugin

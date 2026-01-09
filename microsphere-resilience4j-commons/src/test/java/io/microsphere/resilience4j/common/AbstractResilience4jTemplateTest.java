@@ -23,7 +23,6 @@ import io.github.resilience4j.core.Registry;
 import io.microsphere.lang.function.ThrowableAction;
 import io.microsphere.lang.function.ThrowableSupplier;
 import io.microsphere.logging.Logger;
-import io.microsphere.util.ValueHolder;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -45,6 +44,7 @@ import static java.lang.System.nanoTime;
 import static java.util.Arrays.asList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -211,52 +211,52 @@ public abstract class AbstractResilience4jTemplateTest<E, C, R extends Registry<
     @Test
     void testBegin() {
         RT template = this.template;
-        String entryName = this.entryName;
-        Resilience4jModule module = template.getModule();
-        ValueHolder<Object> resultHolder = new ValueHolder<>();
-        try {
+        if (template.isBeginSupported()) {
+            String entryName = this.entryName;
             Resilience4jContext<E> context = template.begin(entryName);
-            resultHolder.setValue(context.getEntry());
-        } catch (Throwable e) {
-            resultHolder.setValue(e);
-        }
-
-        switch (module) {
-            case RETRY, TIME_LIMITER, THREAD_POOL_BULKHEAD:
-                assertTrue(resultHolder.getValue() instanceof Throwable);
-                break;
-            default:
-                assertTrue(template.getEntryClass().isInstance(resultHolder.getValue()));
+            assertNotNull(context);
+            assertSame(entryName, context.getEntryName());
+            assertSame(template.getEntry(entryName), context.getEntry());
+            assertNotEquals(nanoTime(), context.getStartTime());
+            assertNull(context.getFailure());
+            assertNull(context.getResult());
+        } else {
+            assertThrows(UnsupportedOperationException.class, () -> template.begin(entryName));
         }
     }
 
     @Test
     void testIsEndSupported() {
-        assertEquals(this.template.isBeginSupported(), this.template.isEndSupported());
+        Resilience4jModule module = template.getModule();
+        switch (module) {
+            case RETRY, TIME_LIMITER, THREAD_POOL_BULKHEAD:
+                assertFalse(this.template.isEndSupported());
+                break;
+            default:
+                assertTrue(this.template.isEndSupported());
+        }
     }
 
     @Test
     void testEnd() {
-        String entryName = this.entryName;
         RT template = this.template;
-        Resilience4jModule module = template.getModule();
-        ValueHolder<Object> resultHolder = new ValueHolder<>();
-
-        try {
-            Resilience4jContext<E> context = new Resilience4jContext<>(entryName, template.getEntry(entryName));
-            context.setStartTime(nanoTime());
+        String entryName = this.entryName;
+        Resilience4jContext<E> context = new Resilience4jContext<>(entryName, template.getEntry(entryName));
+        context.setStartTime(nanoTime());
+        if (template.isEndSupported()) {
+            // Success
             template.end(context);
-            resultHolder.setValue(context.getEntry());
-        } catch (Throwable e) {
-            resultHolder.setValue(e);
-        }
 
-        switch (module) {
-            case RETRY, TIME_LIMITER, THREAD_POOL_BULKHEAD:
-                assertTrue(resultHolder.getValue() instanceof Throwable);
-                break;
-            default:
-                assertTrue(template.getEntryClass().isInstance(resultHolder.getValue()));
+            // Result
+            context.setResult("For testing");
+            template.end(context);
+
+            // Failure
+            Throwable failure = new Throwable("For testing");
+            context.setFailure(failure);
+            template.end(context);
+        } else {
+            assertThrows(UnsupportedOperationException.class, () -> template.end(context));
         }
     }
 

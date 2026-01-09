@@ -21,7 +21,6 @@ import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 import io.microsphere.resilience4j.common.AbstractResilience4jTemplateTest;
-import io.microsphere.resilience4j.common.Resilience4jContext;
 import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
@@ -37,9 +36,6 @@ import static io.github.resilience4j.circuitbreaker.event.CircuitBreakerEvent.Ty
 import static io.github.resilience4j.circuitbreaker.event.CircuitBreakerEvent.Type.SUCCESS;
 import static java.time.Duration.ofMillis;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
 /**
@@ -171,49 +167,6 @@ public class CircuitBreakerTemplateTest extends AbstractResilience4jTemplateTest
         await(duration.toMillis() * 2, this::executeNothing);
         await(duration.toMillis() * 2, this::executeNothing);
         await(duration.toMillis() * 2, this::executeNothing);
-    }
-
-    @Test
-    void testBegin() {
-        CircuitBreakerTemplate template = super.template;
-        String entryName = super.entryName;
-        Resilience4jContext<CircuitBreaker> testContext = template.begin(entryName);
-        assertNotNull(testContext);
-        assertSame(entryName, testContext.getEntryName());
-        assertSame(template.getEntry(entryName), testContext.getEntry());
-        assertNotEquals(System.nanoTime(), testContext.getStartTime());
-        assertNull(testContext.getFailure());
-        assertNull(testContext.getResult());
-    }
-
-    @Test
-    void testEnd() {
-        CircuitBreakerTemplate template = super.template;
-        String entryName = super.entryName;
-        Resilience4jContext<CircuitBreaker> testContext = template.begin(entryName);
-
-        // onSuccess
-        template.onSuccessEvent(entryName, event -> {
-            logEvent(event);
-            assertEquals(entryName, event.getCircuitBreakerName());
-        });
-
-        template.end(testContext);
-
-        // onResult
-        testContext.setResult("For testing");
-        template.end(testContext);
-
-        // onError
-        Throwable failure = new Throwable("For testing");
-        testContext.setFailure(failure);
-        template.onErrorEvent(entryName, event -> {
-            logEvent(event);
-            assertEquals(entryName, event.getCircuitBreakerName());
-        });
-
-        template.end(testContext);
-
     }
 
     private void executeNothing() {

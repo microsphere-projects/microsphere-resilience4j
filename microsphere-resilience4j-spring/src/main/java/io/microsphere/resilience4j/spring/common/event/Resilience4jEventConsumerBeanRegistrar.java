@@ -22,6 +22,7 @@ import io.github.resilience4j.core.registry.EntryAddedEvent;
 import io.github.resilience4j.core.registry.EntryRemovedEvent;
 import io.github.resilience4j.core.registry.EntryReplacedEvent;
 import io.github.resilience4j.core.registry.RegistryEventConsumer;
+import io.microsphere.logging.Logger;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
@@ -29,8 +30,9 @@ import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.core.ResolvableType;
 
 import java.lang.reflect.Method;
-import java.util.function.Supplier;
 
+import static io.microsphere.logging.LoggerFactory.getLogger;
+import static org.springframework.core.ResolvableType.forMethodParameter;
 import static org.springframework.util.ReflectionUtils.doWithLocalMethods;
 import static org.springframework.util.ReflectionUtils.findMethod;
 import static org.springframework.util.ReflectionUtils.invokeMethod;
@@ -44,20 +46,31 @@ import static org.springframework.util.ReflectionUtils.invokeMethod;
  */
 public abstract class Resilience4jEventConsumerBeanRegistrar<E> implements RegistryEventConsumer<E>, BeanFactoryAware {
 
+    protected final Logger logger = getLogger(getClass());
+
     private BeanFactory beanFactory;
 
     @Override
     public void onEntryAddedEvent(EntryAddedEvent<E> entryAddedEvent) {
-        register(entryAddedEvent::getAddedEntry);
+        E entry = entryAddedEvent.getAddedEntry();
+        logger.trace("A new entry was added : {} , event-type : {} , creation-time : {}", entry,
+                entryAddedEvent.getEventType(), entryAddedEvent.getCreationTime());
+        register(entry);
     }
 
     @Override
     public void onEntryRemovedEvent(EntryRemovedEvent<E> entryRemoveEvent) {
+        logger.trace("The entry was removed : {} , event-type : {} , creation-time : {}", entryRemoveEvent.getRemovedEntry(),
+                entryRemoveEvent.getEventType(), entryRemoveEvent.getCreationTime());
     }
 
     @Override
     public void onEntryReplacedEvent(EntryReplacedEvent<E> entryReplacedEvent) {
-        register(entryReplacedEvent::getNewEntry);
+        E newEntry = entryReplacedEvent.getNewEntry();
+        logger.trace("The entry was replaced[old : {} , new : {}], event-type : {} , creation-time : {}",
+                entryReplacedEvent.getOldEntry(), newEntry,
+                entryReplacedEvent.getEventType(), entryReplacedEvent.getCreationTime());
+        register(newEntry);
     }
 
     @Override
@@ -65,15 +78,14 @@ public abstract class Resilience4jEventConsumerBeanRegistrar<E> implements Regis
         this.beanFactory = beanFactory;
     }
 
-    private void register(Supplier<E> entrySupplier) {
-        E entry = entrySupplier.get();
+    private void register(E entry) {
         Class<?> entryClass = entry.getClass();
         Method eventPublisherMethod = findMethod(entryClass, "getEventPublisher");
         Class<?> eventPublisherClass = eventPublisherMethod.getReturnType();
         Object eventPublisher = invokeMethod(eventPublisherMethod, entry);
         doWithLocalMethods(eventPublisherClass, method -> {
             if (method.getParameterCount() == 1 && EventConsumer.class.equals(method.getParameterTypes()[0])) {
-                ResolvableType type = ResolvableType.forMethodParameter(method, 0);
+                ResolvableType type = forMethodParameter(method, 0);
                 ObjectProvider objectProvider = beanFactory.getBeanProvider(type);
                 objectProvider.forEach(eventConsumerBean -> invokeMethod(method, eventPublisher, eventConsumerBean));
             }

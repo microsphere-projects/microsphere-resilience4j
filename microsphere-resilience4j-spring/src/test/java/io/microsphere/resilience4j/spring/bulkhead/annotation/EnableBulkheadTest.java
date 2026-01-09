@@ -58,13 +58,20 @@ public class EnableBulkheadTest {
 
     @Test
     void test() {
-        Bulkhead circuitBreaker = registry.bulkhead("test");
+        String entryName = "test";
+        Bulkhead circuitBreaker = registry.bulkhead(entryName);
         circuitBreaker.acquirePermission();
 
         CommonBulkheadConfigurationProperties.InstanceProperties instanceProperties = properties.getInstances().get("test");
         assertEquals(Integer.valueOf(10), instanceProperties.getMaxConcurrentCalls());
         assertEquals(Integer.valueOf(100), instanceProperties.getEventConsumerBufferSize());
         assertEquals(Duration.ofSeconds(30), instanceProperties.getMaxWaitDuration());
+
+        // replace entry
+        registry.replace(entryName, circuitBreaker);
+
+        // remove entry
+        registry.remove(entryName);
     }
 
     @EventListener(BulkheadOnCallPermittedEvent.class)

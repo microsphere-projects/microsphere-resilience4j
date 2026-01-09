@@ -31,7 +31,6 @@ import io.microsphere.resilience4j.common.Resilience4jTemplate;
 import io.microsphere.util.BaseUtils;
 import io.microsphere.util.Utils;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.net.URL;
@@ -53,7 +52,6 @@ import static io.microsphere.resilience4j.common.Resilience4jModule.valueOf;
 import static io.microsphere.resilience4j.common.Resilience4jModule.values;
 import static io.microsphere.text.FormatUtils.format;
 import static io.microsphere.util.ClassLoaderUtils.getClassLoader;
-import static io.microsphere.util.ClassLoaderUtils.getResource;
 import static io.microsphere.util.ClassLoaderUtils.loadClass;
 import static io.microsphere.util.ClassUtils.newInstance;
 import static java.beans.Introspector.decapitalize;
@@ -107,7 +105,7 @@ public abstract class Resilience4jUtils implements Utils {
         try {
             return invokeMethod(registry, method, name, configuration);
         } catch (Throwable e) {
-            throw new IllegalStateException(e);
+            throw new IllegalArgumentException(e);
         }
     }
 
@@ -152,12 +150,12 @@ public abstract class Resilience4jUtils implements Utils {
         return asEventProcessor(eventPublisher);
     }
 
-    private static EventProcessor asEventProcessor(EventPublisher eventPublisher) {
+    static EventProcessor asEventProcessor(EventPublisher eventPublisher) {
         if (eventPublisher instanceof EventProcessor) {
             return (EventProcessor) eventPublisher;
         }
-        String errorMessage = format("The eventPublisher should be an instance of EventProcessor, actual : {}", eventPublisher.getClass());
-        throw new UnsupportedOperationException(errorMessage);
+        String errorMessage = format("The eventPublisher should be an instance of EventProcessor, actual : {}", eventPublisher);
+        throw new IllegalArgumentException(errorMessage);
     }
 
     /**
@@ -218,13 +216,17 @@ public abstract class Resilience4jUtils implements Utils {
     }
 
     private static Properties loadDefaultTemplatesProperties(ClassLoader classLoader) {
+        return loadProperties(classLoader, DEFAULT_TEMPLATES_RESOURCE_PATH);
+    }
+
+    static Properties loadProperties(ClassLoader classLoader, String resourcePath) {
         Properties properties = new Properties();
-        URL url = getResource(classLoader, DEFAULT_TEMPLATES_RESOURCE_PATH);
+        URL url = classLoader.getResource(resourcePath);
         InputStream inputStream = null;
         try {
             inputStream = url.openStream();
             properties.load(inputStream);
-        } catch (IOException e) {
+        } catch (Throwable e) {
             throw new RuntimeException(e);
         } finally {
             close(inputStream);

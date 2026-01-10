@@ -351,7 +351,7 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> imple
 
     private <T> Resilience4jTemplate<E, C, R> registerEventConsumer(EventProcessor eventProcessor,
                                                                     Class<? super T> eventType, EventConsumer<T> eventConsumer) {
-        String name = eventType.getSimpleName();
+        String name = eventType.getName();
         eventProcessor.registerConsumer(name, eventConsumer);
         logger.trace("The event[type : '{}'] consumer[name : '{}'] was registered : {}", eventType, name, eventConsumer);
         return this;

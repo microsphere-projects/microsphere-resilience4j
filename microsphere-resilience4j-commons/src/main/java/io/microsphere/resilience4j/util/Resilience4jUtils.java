@@ -17,6 +17,7 @@
 package io.microsphere.resilience4j.util;
 
 import io.github.resilience4j.bulkhead.Bulkhead;
+import io.github.resilience4j.bulkhead.ThreadPoolBulkhead;
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
@@ -114,6 +115,8 @@ public abstract class Resilience4jUtils implements Utils {
             return getEventProcessor((CircuitBreaker) entry);
         } else if (entry instanceof Bulkhead) {
             return getEventProcessor((Bulkhead) entry);
+        } else if (entry instanceof ThreadPoolBulkhead) {
+            return getEventProcessor((ThreadPoolBulkhead) entry);
         } else if (entry instanceof RateLimiter) {
             return getEventProcessor((RateLimiter) entry);
         } else if (entry instanceof TimeLimiter) {
@@ -139,6 +142,10 @@ public abstract class Resilience4jUtils implements Utils {
 
     public static <E> EventProcessor<E> getEventProcessor(Bulkhead bulkhead) {
         return asEventProcessor(bulkhead.getEventPublisher());
+    }
+
+    public static <E> EventProcessor<E> getEventProcessor(ThreadPoolBulkhead threadPoolBulkhead) {
+        return asEventProcessor(threadPoolBulkhead.getEventPublisher());
     }
 
     public static <E> EventProcessor<E> getEventProcessor(CircuitBreaker circuitBreaker) {

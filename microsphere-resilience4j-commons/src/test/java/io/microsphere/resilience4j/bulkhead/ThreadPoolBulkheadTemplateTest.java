@@ -21,8 +21,17 @@ package io.microsphere.resilience4j.bulkhead;
 import io.github.resilience4j.bulkhead.ThreadPoolBulkhead;
 import io.github.resilience4j.bulkhead.ThreadPoolBulkheadConfig;
 import io.github.resilience4j.bulkhead.ThreadPoolBulkheadRegistry;
+import io.github.resilience4j.core.ContextPropagator;
 import io.microsphere.resilience4j.common.AbstractResilience4jTemplateTest;
 import org.junit.jupiter.api.Test;
+
+import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+
+import static io.github.resilience4j.bulkhead.ThreadPoolBulkheadConfig.custom;
+import static java.util.Optional.of;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * {@link ThreadPoolBulkheadTemplate} Test
@@ -32,15 +41,49 @@ import org.junit.jupiter.api.Test;
  * @since 1.0.0
  */
 class ThreadPoolBulkheadTemplateTest extends AbstractResilience4jTemplateTest<ThreadPoolBulkhead, ThreadPoolBulkheadConfig,
-        ThreadPoolBulkheadRegistry, ThreadPoolBulkheadTemplate> {
+        ThreadPoolBulkheadRegistry, ThreadPoolBulkheadTemplate> implements ContextPropagator {
 
     @Override
     protected ThreadPoolBulkheadConfig createEntryConfig() {
-        return super.createEntryConfig();
+        return custom()
+                .coreThreadPoolSize(1)
+                .maxThreadPoolSize(1)
+                .queueCapacity(0)
+                .contextPropagator(this)
+                .build();
     }
 
     @Test
-    void testExecute() throws Throwable {
+    void testOnCallPermittedEvent() {
+        String entryName = super.entryName;
+        ThreadPoolBulkheadTemplate template = super.template;
 
+        template.onCallPermittedEvent(entryName, event -> {
+            assertEquals(entryName, event.getBulkheadName());
+        });
+
+        template.onCallFinishedEvent(entryName, event -> {
+            assertEquals(entryName, event.getBulkheadName());
+        });
+
+        assertEquals(entryName, template.execute(entryName, () -> entryName));
+    }
+
+    @Override
+    public Supplier<Optional> retrieve() {
+        return () -> of(entryName);
+    }
+
+    @Override
+    public Consumer<Optional> copy() {
+        return e -> {
+        };
+    }
+
+    @Override
+    public Consumer<Optional> clear() {
+        return e -> {
+
+        };
     }
 }

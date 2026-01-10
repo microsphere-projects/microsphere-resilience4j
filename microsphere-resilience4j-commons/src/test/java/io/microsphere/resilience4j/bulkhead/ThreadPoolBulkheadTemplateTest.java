@@ -54,7 +54,7 @@ class ThreadPoolBulkheadTemplateTest extends AbstractResilience4jTemplateTest<Th
     }
 
     @Test
-    void testOnCallPermittedEvent() {
+    void testOnEvents() {
         String entryName = super.entryName;
         ThreadPoolBulkheadTemplate template = super.template;
 
@@ -66,7 +66,13 @@ class ThreadPoolBulkheadTemplateTest extends AbstractResilience4jTemplateTest<Th
             assertEquals(entryName, event.getBulkheadName());
         });
 
-        assertEquals(entryName, template.execute(entryName, () -> entryName));
+        template.onCallRejectedEvent(entryName, event -> {
+            assertEquals(entryName, event.getBulkheadName());
+        });
+
+        for (int i = 0; i < 100; i++) {
+            assertEquals(entryName, template.execute(entryName, () -> entryName));
+        }
     }
 
     @Override

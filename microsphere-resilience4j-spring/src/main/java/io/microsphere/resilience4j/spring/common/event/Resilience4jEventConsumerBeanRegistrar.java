@@ -32,8 +32,9 @@ import org.springframework.core.ResolvableType;
 import java.lang.reflect.Method;
 
 import static io.microsphere.logging.LoggerFactory.getLogger;
+import static io.microsphere.resilience4j.spring.common.event.EventConsumerMethodFilter.INSTANCE;
 import static org.springframework.core.ResolvableType.forMethodParameter;
-import static org.springframework.util.ReflectionUtils.doWithLocalMethods;
+import static org.springframework.util.ReflectionUtils.doWithMethods;
 import static org.springframework.util.ReflectionUtils.findMethod;
 import static org.springframework.util.ReflectionUtils.invokeMethod;
 
@@ -83,12 +84,10 @@ public abstract class Resilience4jEventConsumerBeanRegistrar<E> implements Regis
         Method eventPublisherMethod = findMethod(entryClass, "getEventPublisher");
         Class<?> eventPublisherClass = eventPublisherMethod.getReturnType();
         Object eventPublisher = invokeMethod(eventPublisherMethod, entry);
-        doWithLocalMethods(eventPublisherClass, method -> {
-            if (method.getParameterCount() == 1 && EventConsumer.class.equals(method.getParameterTypes()[0])) {
-                ResolvableType type = forMethodParameter(method, 0);
-                ObjectProvider objectProvider = beanFactory.getBeanProvider(type);
-                objectProvider.forEach(eventConsumerBean -> invokeMethod(method, eventPublisher, eventConsumerBean));
-            }
-        });
+        doWithMethods(eventPublisherClass, method -> {
+            ResolvableType type = forMethodParameter(method, 0);
+            ObjectProvider objectProvider = beanFactory.getBeanProvider(type);
+            objectProvider.forEach(eventConsumerBean -> invokeMethod(method, eventPublisher, eventConsumerBean));
+        }, INSTANCE);
     }
 }

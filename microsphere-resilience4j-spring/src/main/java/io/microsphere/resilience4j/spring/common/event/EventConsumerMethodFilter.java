@@ -22,7 +22,6 @@ import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.core.EventConsumer;
 import io.github.resilience4j.core.EventPublisher;
 import io.github.resilience4j.core.Registry;
-import io.github.resilience4j.micrometer.Timer;
 import io.github.resilience4j.ratelimiter.RateLimiter;
 import io.github.resilience4j.retry.Retry;
 import io.github.resilience4j.timelimiter.TimeLimiter;
@@ -43,7 +42,6 @@ import java.lang.reflect.Method;
  * @see Registry.EventPublisher
  * @see Retry.EventPublisher
  * @see TimeLimiter.EventPublisher
- * @see Timer.EventPublisher
  * @since 1.0.0
  */
 public class EventConsumerMethodFilter implements MethodFilter {

@@ -79,7 +79,7 @@ public class ThreadPoolBulkheadTemplate extends Resilience4jTemplate<ThreadPoolB
         try {
             return future.get();
         } catch (Throwable e) {
-            throw e.getCause().getCause();
+            throw getRootCause(e);
         }
     }
 
@@ -117,5 +117,13 @@ public class ThreadPoolBulkheadTemplate extends Resilience4jTemplate<ThreadPoolB
     public ThreadPoolBulkheadTemplate onCallFinishedEvent(String entryName, EventConsumer<BulkheadOnCallFinishedEvent> eventConsumer) {
         registerEntryEventConsumer(entryName, BulkheadOnCallFinishedEvent.class, eventConsumer);
         return this;
+    }
+
+    static Throwable getRootCause(Throwable throwable) {
+        Throwable rootCause = throwable;
+        while (rootCause.getCause() != null) {
+            rootCause = rootCause.getCause();
+        }
+        return rootCause;
     }
 }

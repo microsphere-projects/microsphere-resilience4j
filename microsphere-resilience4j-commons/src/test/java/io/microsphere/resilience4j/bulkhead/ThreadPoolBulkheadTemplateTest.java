@@ -26,12 +26,16 @@ import io.microsphere.resilience4j.common.AbstractResilience4jTemplateTest;
 import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
+import java.util.concurrent.ExecutorService;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import static io.github.resilience4j.bulkhead.ThreadPoolBulkheadConfig.custom;
 import static java.util.Optional.of;
+import static java.util.concurrent.Executors.newFixedThreadPool;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 /**
  * {@link ThreadPoolBulkheadTemplate} Test
@@ -54,24 +58,33 @@ class ThreadPoolBulkheadTemplateTest extends AbstractResilience4jTemplateTest<Th
     }
 
     @Test
-    void testOnEvents() {
+    void testOnEvents() throws InterruptedException {
         String entryName = super.entryName;
         ThreadPoolBulkheadTemplate template = super.template;
 
-        template.onCallPermittedEvent(entryName, event -> {
+        assertSame(template, template.onCallPermittedEvent(entryName, event -> {
             assertEquals(entryName, event.getBulkheadName());
-        });
+        }));
 
-        template.onCallFinishedEvent(entryName, event -> {
+        assertSame(template, template.onCallFinishedEvent(entryName, event -> {
             assertEquals(entryName, event.getBulkheadName());
-        });
+        }));
 
-        template.onCallRejectedEvent(entryName, event -> {
+        assertSame(template, template.onCallRejectedEvent(entryName, event -> {
             assertEquals(entryName, event.getBulkheadName());
-        });
+        }));
 
+        ExecutorService executorService = newFixedThreadPool(1);
         for (int i = 0; i < 100; i++) {
-            assertEquals(entryName, template.execute(entryName, () -> entryName));
+            executorService.execute(() -> {
+                assertEquals(entryName, template.execute(entryName, () -> entryName));
+            });
+        }
+
+        executorService.shutdown();
+
+        while (!executorService.isTerminated()) {
+            executorService.awaitTermination(50, MILLISECONDS);
         }
     }
 

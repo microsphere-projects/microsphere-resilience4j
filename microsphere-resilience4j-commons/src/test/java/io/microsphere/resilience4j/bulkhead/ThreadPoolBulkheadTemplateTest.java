@@ -22,6 +22,7 @@ import io.github.resilience4j.bulkhead.ThreadPoolBulkhead;
 import io.github.resilience4j.bulkhead.ThreadPoolBulkheadConfig;
 import io.github.resilience4j.bulkhead.ThreadPoolBulkheadRegistry;
 import io.github.resilience4j.core.ContextPropagator;
+import io.microsphere.lang.function.ThrowableAction;
 import io.microsphere.resilience4j.common.AbstractResilience4jTemplateTest;
 import org.junit.jupiter.api.Test;
 
@@ -31,11 +32,14 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import static io.github.resilience4j.bulkhead.ThreadPoolBulkheadConfig.custom;
+import static io.microsphere.lang.function.ThrowableAction.execute;
+import static io.microsphere.resilience4j.bulkhead.ThreadPoolBulkheadTemplate.getRootCause;
 import static java.util.Optional.of;
 import static java.util.concurrent.Executors.newFixedThreadPool;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * {@link ThreadPoolBulkheadTemplate} Test
@@ -104,5 +108,32 @@ class ThreadPoolBulkheadTemplateTest extends AbstractResilience4jTemplateTest<Th
         return e -> {
 
         };
+    }
+    
+    @Test
+    void testGetRootCause() {
+        Throwable rootCause = new Throwable("Root Cause");
+        Throwable throwable = new Throwable("Throwable", rootCause);
+        assertSame(rootCause, getRootCause(throwable));
+
+        ThrowableAction action = () -> {
+            throw throwable;
+        };
+
+        execute(action, e -> {
+            assertSame(rootCause, getRootCause(e));
+        });
+
+        assertThrows(NullPointerException.class, () -> {
+            try {
+                ThrowableAction a = () -> {
+                    String s = null;
+                    s.toString();
+                };
+                a.execute();
+            } catch (Throwable e) {
+                throw getRootCause(e);
+            }
+        });
     }
 }

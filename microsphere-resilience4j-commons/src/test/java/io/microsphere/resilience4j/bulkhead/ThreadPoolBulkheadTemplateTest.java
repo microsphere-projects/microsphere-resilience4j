@@ -21,20 +21,14 @@ package io.microsphere.resilience4j.bulkhead;
 import io.github.resilience4j.bulkhead.ThreadPoolBulkhead;
 import io.github.resilience4j.bulkhead.ThreadPoolBulkheadConfig;
 import io.github.resilience4j.bulkhead.ThreadPoolBulkheadRegistry;
-import io.github.resilience4j.core.ContextPropagator;
 import io.microsphere.lang.function.ThrowableAction;
 import io.microsphere.resilience4j.common.AbstractResilience4jTemplateTest;
 import org.junit.jupiter.api.Test;
 
-import java.util.Optional;
 import java.util.concurrent.ExecutorService;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
 
-import static io.github.resilience4j.bulkhead.ThreadPoolBulkheadConfig.custom;
 import static io.microsphere.lang.function.ThrowableAction.execute;
 import static io.microsphere.resilience4j.bulkhead.ThreadPoolBulkheadTemplate.getRootCause;
-import static java.util.Optional.of;
 import static java.util.concurrent.Executors.newFixedThreadPool;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -49,17 +43,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  * @since 1.0.0
  */
 class ThreadPoolBulkheadTemplateTest extends AbstractResilience4jTemplateTest<ThreadPoolBulkhead, ThreadPoolBulkheadConfig,
-        ThreadPoolBulkheadRegistry, ThreadPoolBulkheadTemplate> implements ContextPropagator {
-
-    @Override
-    protected ThreadPoolBulkheadConfig createEntryConfig() {
-        return custom()
-                .coreThreadPoolSize(1)
-                .maxThreadPoolSize(1)
-                .queueCapacity(0)
-                .contextPropagator(this)
-                .build();
-    }
+        ThreadPoolBulkheadRegistry, ThreadPoolBulkheadTemplate> {
 
     @Test
     void testOnEvents() throws InterruptedException {
@@ -92,24 +76,6 @@ class ThreadPoolBulkheadTemplateTest extends AbstractResilience4jTemplateTest<Th
         }
     }
 
-    @Override
-    public Supplier<Optional> retrieve() {
-        return () -> of(entryName);
-    }
-
-    @Override
-    public Consumer<Optional> copy() {
-        return e -> {
-        };
-    }
-
-    @Override
-    public Consumer<Optional> clear() {
-        return e -> {
-
-        };
-    }
-    
     @Test
     void testGetRootCause() {
         Throwable rootCause = new Throwable("Root Cause");

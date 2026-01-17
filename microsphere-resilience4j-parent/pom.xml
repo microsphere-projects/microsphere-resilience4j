@@ -20,7 +20,8 @@
 
     <properties>
         <microsphere-spring-cloud.version>0.1.5</microsphere-spring-cloud.version>
-        <microsphere-redis-spring.version>0.0.1</microsphere-redis-spring.version>
+        <microsphere-redis.version>0.1.0</microsphere-redis.version>
+        <microsphere-alibaba-druid.version>0.1.0</microsphere-alibaba-druid.version>
         <!-- Third-party versions -->
         <mybatis-starter.version>3.0.1</mybatis-starter.version>
         <mybatis.version>3.5.11</mybatis.version>
@@ -215,13 +216,23 @@
                 <scope>import</scope>
             </dependency>
 
-            <!-- Microsphere Spring Redis -->
+            <!-- Microsphere Redis -->
             <dependency>
                 <groupId>io.github.microsphere-projects</groupId>
-                <artifactId>microsphere-redis-spring</artifactId>
-                <version>${microsphere-redis-spring.version}</version>
+                <artifactId>microsphere-redis-dependencies</artifactId>
+                <version>${microsphere-redis.version}</version>
                 <optional>true</optional>
             </dependency>
+
+            <!-- Microsphere Alibaba Druid -->
+            <dependency>
+                <groupId>io.github.microsphere-projects</groupId>
+                <artifactId>microsphere-alibaba-druid-dependencies</artifactId>
+                <version>${microsphere-alibaba-druid.version}</version>
+                <optional>true</optional>
+            </dependency>
+
+
 
             <!-- Mybatis -->
             <dependency>

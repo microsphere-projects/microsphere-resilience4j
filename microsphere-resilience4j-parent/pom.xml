@@ -232,8 +232,6 @@
                 <optional>true</optional>
             </dependency>
 
-
-
             <!-- Mybatis -->
             <dependency>
                 <groupId>org.mybatis.spring.boot</groupId>

@@ -25,8 +25,7 @@
         <!-- Third-party versions -->
         <mybatis-starter.version>3.0.1</mybatis-starter.version>
         <mybatis.version>3.5.11</mybatis.version>
-        <p6spy.version>3.9.1</p6spy.version>
-        <druid.version>1.2.20</druid.version>
+        <druid.version>1.2.27</druid.version>
     </properties>
 
     <dependencyManagement>
@@ -243,13 +242,6 @@
                 <groupId>org.mybatis</groupId>
                 <artifactId>mybatis</artifactId>
                 <version>${mybatis.version}</version>
-            </dependency>
-
-            <!-- JDBC -->
-            <dependency>
-                <groupId>p6spy</groupId>
-                <artifactId>p6spy</artifactId>
-                <version>${p6spy.version}</version>
             </dependency>
 
             <!-- Alibaba Druid -->

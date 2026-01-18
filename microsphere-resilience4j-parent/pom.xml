@@ -20,11 +20,12 @@
 
     <properties>
         <microsphere-spring-cloud.version>0.2.5</microsphere-spring-cloud.version>
+        <microsphere-redis.version>0.2.0</microsphere-redis.version>
+        <microsphere-alibaba-druid.version>0.2.0</microsphere-alibaba-druid.version>
         <!-- Third-party versions -->
         <mybatis.version>3.5.19</mybatis.version>
         <mybatis-starter.version>3.0.4</mybatis-starter.version>
-        <p6spy.version>3.9.1</p6spy.version>
-        <druid.version>1.2.20</druid.version>
+        <druid.version>1.2.27</druid.version>
         <junit.version>6.0.1</junit.version>
     </properties>
 
@@ -233,6 +234,22 @@
                 <scope>import</scope>
             </dependency>
 
+            <!-- Microsphere Redis -->
+            <dependency>
+                <groupId>io.github.microsphere-projects</groupId>
+                <artifactId>microsphere-redis-dependencies</artifactId>
+                <version>${microsphere-redis.version}</version>
+                <optional>true</optional>
+            </dependency>
+
+            <!-- Microsphere Alibaba Druid -->
+            <dependency>
+                <groupId>io.github.microsphere-projects</groupId>
+                <artifactId>microsphere-alibaba-druid-dependencies</artifactId>
+                <version>${microsphere-alibaba-druid.version}</version>
+                <optional>true</optional>
+            </dependency>
+
             <!-- Mybatis -->
             <dependency>
                 <groupId>org.mybatis</groupId>
@@ -244,13 +261,6 @@
                 <groupId>org.mybatis.spring.boot</groupId>
                 <artifactId>mybatis-spring-boot-starter</artifactId>
                 <version>${mybatis-starter.version}</version>
-            </dependency>
-
-            <!-- JDBC -->
-            <dependency>
-                <groupId>p6spy</groupId>
-                <artifactId>p6spy</artifactId>
-                <version>${p6spy.version}</version>
             </dependency>
 
             <!-- Alibaba Druid -->

@@ -22,9 +22,11 @@
         <microsphere-spring-cloud.version>0.2.5</microsphere-spring-cloud.version>
         <microsphere-redis.version>0.2.0</microsphere-redis.version>
         <microsphere-alibaba-druid.version>0.2.0</microsphere-alibaba-druid.version>
+        <microsphere-mybatis.version>0.2.0</microsphere-mybatis.version>
         <!-- Third-party versions -->
         <mybatis.version>3.5.19</mybatis.version>
-        <mybatis-starter.version>3.0.4</mybatis-starter.version>
+        <mybatis-spring.version>3.0.5</mybatis-spring.version>
+        <mybatis-spring-boot.version>3.0.5</mybatis-spring-boot.version>
         <druid.version>1.2.27</druid.version>
         <junit.version>6.0.1</junit.version>
     </properties>
@@ -250,7 +252,15 @@
                 <optional>true</optional>
             </dependency>
 
-            <!-- Mybatis -->
+            <!-- Microsphere MyBatis -->
+            <dependency>
+                <groupId>io.github.microsphere-projects</groupId>
+                <artifactId>microsphere-mybatis-dependencies</artifactId>
+                <version>${microsphere-mybatis.version}</version>
+                <optional>true</optional>
+            </dependency>
+
+            <!-- MyBatis -->
             <dependency>
                 <groupId>org.mybatis</groupId>
                 <artifactId>mybatis</artifactId>
@@ -258,9 +268,15 @@
             </dependency>
 
             <dependency>
+                <groupId>org.mybatis</groupId>
+                <artifactId>mybatis-spring</artifactId>
+                <version>${mybatis-spring.version}</version>
+            </dependency>
+
+            <dependency>
                 <groupId>org.mybatis.spring.boot</groupId>
                 <artifactId>mybatis-spring-boot-starter</artifactId>
-                <version>${mybatis-starter.version}</version>
+                <version>${mybatis-spring-boot.version}</version>
             </dependency>
 
             <!-- Alibaba Druid -->

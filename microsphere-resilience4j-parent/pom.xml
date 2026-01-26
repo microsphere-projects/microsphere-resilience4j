@@ -22,9 +22,11 @@
         <microsphere-spring-cloud.version>0.1.5</microsphere-spring-cloud.version>
         <microsphere-redis.version>0.1.0</microsphere-redis.version>
         <microsphere-alibaba-druid.version>0.1.0</microsphere-alibaba-druid.version>
+        <microsphere-mybatis.version>0.1.0</microsphere-mybatis.version>
         <!-- Third-party versions -->
-        <mybatis-starter.version>3.0.1</mybatis-starter.version>
-        <mybatis.version>3.5.11</mybatis.version>
+        <mybatis.version>3.5.14</mybatis.version>
+        <mybatis-spring.version>2.1.2</mybatis-spring.version>
+        <mybatis-spring-boot.version>2.1.2</mybatis-spring-boot.version>
         <druid.version>1.2.27</druid.version>
     </properties>
 
@@ -231,17 +233,31 @@
                 <optional>true</optional>
             </dependency>
 
-            <!-- Mybatis -->
+            <!-- Microsphere MyBatis -->
             <dependency>
-                <groupId>org.mybatis.spring.boot</groupId>
-                <artifactId>mybatis-spring-boot-starter</artifactId>
-                <version>${mybatis-starter.version}</version>
+                <groupId>io.github.microsphere-projects</groupId>
+                <artifactId>microsphere-mybatis-dependencies</artifactId>
+                <version>${microsphere-mybatis.version}</version>
+                <optional>true</optional>
             </dependency>
 
+            <!-- MyBatis -->
             <dependency>
                 <groupId>org.mybatis</groupId>
                 <artifactId>mybatis</artifactId>
                 <version>${mybatis.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.mybatis</groupId>
+                <artifactId>mybatis-spring</artifactId>
+                <version>${mybatis-spring.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.mybatis.spring.boot</groupId>
+                <artifactId>mybatis-spring-boot-starter</artifactId>
+                <version>${mybatis-spring-boot.version}</version>
             </dependency>
 
             <!-- Alibaba Druid -->

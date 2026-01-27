@@ -6,7 +6,7 @@
     <parent>
         <groupId>io.github.microsphere-projects</groupId>
         <artifactId>microsphere-build</artifactId>
-        <version>0.1.0</version>
+        <version>0.2.3</version>
     </parent>
 
     <groupId>io.github.microsphere-projects</groupId>
@@ -60,34 +60,9 @@
         <module>microsphere-resilience4j-dependencies</module>
         <module>microsphere-resilience4j-compatible</module>
         <module>microsphere-resilience4j-commons</module>
-        <module>microsphere-resilience4j-integration</module>
+        <module>microsphere-resilience4j-plugins</module>
         <module>microsphere-resilience4j-spring</module>
         <module>microsphere-resilience4j-spring-boot</module>
         <module>microsphere-resilience4j-spring-cloud</module>
     </modules>
-
-    <distributionManagement>
-        <snapshotRepository>
-            <id>ossrh</id>
-            <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
-        </snapshotRepository>
-        <repository>
-            <id>ossrh</id>
-            <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-        </repository>
-    </distributionManagement>
-
-    <repositories>
-        <repository>
-            <id>snapshot</id>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
-        </repository>
-    </repositories>
-
 </project>

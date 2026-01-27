@@ -271,6 +271,7 @@
     </dependencyManagement>
 
     <profiles>
+
         <profile>
             <id>spring-cloud-hoxton</id>
             <properties>

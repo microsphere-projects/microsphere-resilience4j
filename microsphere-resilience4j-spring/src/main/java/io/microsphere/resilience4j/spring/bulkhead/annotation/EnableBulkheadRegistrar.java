@@ -25,6 +25,9 @@ import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
  * The {@link EnableBulkhead} {@link ImportBeanDefinitionRegistrar} class
  *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
+ * @see EnableBulkhead
+ * @see Bulkhead
+ * @see BulkheadConfiguration
  * @since 1.0.0
  */
 class EnableBulkheadRegistrar extends EnableResilience4jRegistrar<EnableBulkhead, Bulkhead, BulkheadConfiguration> {

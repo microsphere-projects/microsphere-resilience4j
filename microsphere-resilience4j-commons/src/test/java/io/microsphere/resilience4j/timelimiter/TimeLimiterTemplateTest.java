@@ -54,7 +54,12 @@ public class TimeLimiterTemplateTest extends AbstractResilience4jTemplateTest<Ti
     @Override
     protected TimeLimiterTemplate createTemplate(TimeLimiterRegistry registry) throws Throwable {
         executorService = newFixedThreadPool(1);
-        return new TimeLimiterTemplate(registry, executorService);
+        boolean localEntriesCached = random.nextBoolean();
+        if (localEntriesCached) {
+            return new TimeLimiterTemplate(registry, executorService);
+        } else {
+            return new TimeLimiterTemplate(registry, executorService, false);
+        }
     }
 
     /**

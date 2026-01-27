@@ -19,16 +19,20 @@ package io.microsphere.resilience4j.util;
 
 import io.github.resilience4j.bulkhead.Bulkhead;
 import io.github.resilience4j.bulkhead.BulkheadRegistry;
+import io.github.resilience4j.bulkhead.ThreadPoolBulkheadRegistry;
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 import io.github.resilience4j.core.EventPublisher;
+import io.github.resilience4j.core.Registry;
 import io.github.resilience4j.ratelimiter.RateLimiter;
+import io.github.resilience4j.ratelimiter.RateLimiterConfig;
 import io.github.resilience4j.ratelimiter.RateLimiterRegistry;
 import io.github.resilience4j.retry.Retry;
 import io.github.resilience4j.retry.RetryRegistry;
 import io.github.resilience4j.timelimiter.TimeLimiter;
 import io.github.resilience4j.timelimiter.TimeLimiterRegistry;
 import io.microsphere.resilience4j.bulkhead.BulkheadTemplate;
+import io.microsphere.resilience4j.bulkhead.ThreadPoolBulkheadTemplate;
 import io.microsphere.resilience4j.circuitbreaker.CircuitBreakerTemplate;
 import io.microsphere.resilience4j.common.Resilience4jModule;
 import io.microsphere.resilience4j.common.Resilience4jTemplate;
@@ -40,17 +44,25 @@ import org.junit.jupiter.api.Test;
 import java.util.Map;
 
 import static io.github.resilience4j.bulkhead.BulkheadRegistry.ofDefaults;
+import static io.microsphere.collection.Lists.ofList;
 import static io.microsphere.resilience4j.common.Resilience4jModule.BULKHEAD;
 import static io.microsphere.resilience4j.common.Resilience4jModule.CIRCUIT_BREAKER;
 import static io.microsphere.resilience4j.common.Resilience4jModule.RATE_LIMITER;
 import static io.microsphere.resilience4j.common.Resilience4jModule.RETRY;
 import static io.microsphere.resilience4j.common.Resilience4jModule.TIME_LIMITER;
+import static io.microsphere.resilience4j.util.Resilience4jUtils.asEventProcessor;
+import static io.microsphere.resilience4j.util.Resilience4jUtils.createTemplate;
+import static io.microsphere.resilience4j.util.Resilience4jUtils.createTemplates;
 import static io.microsphere.resilience4j.util.Resilience4jUtils.getEntry;
 import static io.microsphere.resilience4j.util.Resilience4jUtils.getEventProcessor;
 import static io.microsphere.resilience4j.util.Resilience4jUtils.loadDefaultTemplates;
+import static io.microsphere.resilience4j.util.Resilience4jUtils.loadProperties;
+import static java.lang.ClassLoader.getSystemClassLoader;
+import static java.util.Collections.emptyList;
 import static java.util.EnumSet.allOf;
 import static java.util.EnumSet.copyOf;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -79,6 +91,12 @@ public class Resilience4jUtilsTest {
         BulkheadRegistry bulkheadRegistry = ofDefaults();
         Bulkhead bulkhead = getEntry(bulkheadRegistry, "test");
         assertNotNull(bulkhead);
+    }
+
+    @Test
+    void testGetEntryOnInvalidRegistry() {
+        Registry registry = RetryRegistry.ofDefaults();
+        assertThrows(IllegalArgumentException.class, () -> getEntry(registry, "", RateLimiterConfig.ofDefaults()));
     }
 
     @Test
@@ -129,5 +147,46 @@ public class Resilience4jUtilsTest {
         entry = circuitBreaker;
         assertEquals(circuitBreaker.getEventPublisher(), getEventProcessor(circuitBreaker));
         assertEquals(circuitBreaker.getEventPublisher(), getEventProcessor(entry));
+    }
+
+    @Test
+    void testCreateTemplate() {
+        assertInstanceOf(RetryTemplate.class, createTemplate(RetryRegistry.ofDefaults()));
+        assertInstanceOf(TimeLimiterTemplate.class, createTemplate(TimeLimiterRegistry.ofDefaults()));
+        assertInstanceOf(RateLimiterTemplate.class, createTemplate(RateLimiterRegistry.ofDefaults()));
+        assertInstanceOf(BulkheadTemplate.class, createTemplate(BulkheadRegistry.ofDefaults()));
+        assertInstanceOf(CircuitBreakerTemplate.class, createTemplate(CircuitBreakerRegistry.ofDefaults()));
+        assertInstanceOf(ThreadPoolBulkheadTemplate.class, createTemplate(ThreadPoolBulkheadRegistry.ofDefaults()));
+    }
+
+    @Test
+    void testCreateTemplatess() {
+        assertEquals(emptyList(), createTemplates(emptyList()));
+        assertEquals(1, createTemplates(ofList(RetryRegistry.ofDefaults())).size());
+
+        assertEquals(2, createTemplates(ofList(RetryRegistry.ofDefaults(), TimeLimiterRegistry.ofDefaults())).size());
+
+        assertEquals(3, createTemplates(ofList(RetryRegistry.ofDefaults(), TimeLimiterRegistry.ofDefaults(),
+                RateLimiterRegistry.ofDefaults())).size());
+
+        assertEquals(4, createTemplates(ofList(RetryRegistry.ofDefaults(), TimeLimiterRegistry.ofDefaults(),
+                RateLimiterRegistry.ofDefaults(), BulkheadRegistry.ofDefaults())).size());
+
+        assertEquals(5, createTemplates(ofList(RetryRegistry.ofDefaults(), TimeLimiterRegistry.ofDefaults(),
+                RateLimiterRegistry.ofDefaults(), BulkheadRegistry.ofDefaults(), CircuitBreakerRegistry.ofDefaults())).size());
+
+        assertEquals(6, createTemplates(ofList(RetryRegistry.ofDefaults(), TimeLimiterRegistry.ofDefaults(),
+                RateLimiterRegistry.ofDefaults(), BulkheadRegistry.ofDefaults(), CircuitBreakerRegistry.ofDefaults(),
+                ThreadPoolBulkheadRegistry.ofDefaults())).size());
+    }
+
+    @Test
+    void testLoadPropertiesOnResourceNotFound() {
+        assertThrows(RuntimeException.class, () -> loadProperties(getSystemClassLoader(), "resilience4j.properties"));
+    }
+
+    @Test
+    void testAsEventProcessorOnNotEventProcessor() {
+        assertThrows(IllegalArgumentException.class, () -> asEventProcessor(null));
     }
 }

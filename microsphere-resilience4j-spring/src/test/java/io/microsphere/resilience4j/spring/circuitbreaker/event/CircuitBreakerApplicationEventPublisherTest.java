@@ -58,7 +58,7 @@ public class CircuitBreakerApplicationEventPublisherTest {
     }
 
     @EventListener(CircuitBreakerOnSuccessEvent.class)
-    public void onCircuitBreakerOnSuccessEvent(CircuitBreakerOnSuccessEvent event) {
+    void onCircuitBreakerOnSuccessEvent(CircuitBreakerOnSuccessEvent event) {
         assertEquals("test", event.getCircuitBreakerName());
         assertEquals(Duration.ofMillis(100), event.getElapsedDuration());
     }

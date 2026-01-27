@@ -71,6 +71,7 @@ public class CircuitBreakerTemplateTest extends AbstractResilience4jTemplateTest
 
     @Test
     void testExecute() throws Throwable {
+
         String entryName = super.entryName;
         CircuitBreakerTemplate template = super.template;
 

@@ -32,6 +32,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.time.Duration;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
@@ -44,6 +45,7 @@ import static java.lang.System.nanoTime;
 import static java.util.Arrays.asList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -62,6 +64,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * @since 1.0.0
  */
 public abstract class AbstractResilience4jTemplateTest<E, C, R extends Registry<E, C>, RT extends Resilience4jTemplate<E, C, R>> {
+
+    protected static final Random random = new Random();
 
     protected final static String TEST_DATA = "test-data";
 
@@ -142,8 +146,14 @@ public abstract class AbstractResilience4jTemplateTest<E, C, R extends Registry<
     }
 
     protected RT createTemplate(R registry) throws Throwable {
-        Constructor constructor = templateClass.getConstructor(registryClass);
-        return (RT) constructor.newInstance(registry);
+        boolean localEntriesCached = random.nextBoolean();
+        if (localEntriesCached) {
+            Constructor constructor = templateClass.getConstructor(registryClass);
+            return (RT) constructor.newInstance(registry);
+        } else {
+            Constructor constructor = templateClass.getConstructor(registryClass, boolean.class);
+            return (RT) constructor.newInstance(registry, false);
+        }
     }
 
     /**
@@ -193,6 +203,7 @@ public abstract class AbstractResilience4jTemplateTest<E, C, R extends Registry<
         switch (module) {
             case RETRY:
             case TIME_LIMITER:
+            case THREAD_POOL_BULKHEAD:
                 assertFalse(this.template.isBeginSupported());
                 break;
             default:
@@ -215,22 +226,44 @@ public abstract class AbstractResilience4jTemplateTest<E, C, R extends Registry<
 
         switch (module) {
             case RETRY:
-                ;
             case TIME_LIMITER:
+            case THREAD_POOL_BULKHEAD:
                 assertTrue(resultHolder.getValue() instanceof Throwable);
                 break;
             default:
                 assertTrue(template.getEntryClass().isInstance(resultHolder.getValue()));
+                if (template.isBeginSupported()) {
+                    Resilience4jContext<E> context = template.begin(entryName);
+                    assertNotNull(context);
+                    assertSame(entryName, context.getEntryName());
+                    assertSame(template.getEntry(entryName), context.getEntry());
+                    assertNotEquals(nanoTime(), context.getStartTime());
+                    assertNull(context.getFailure());
+                    assertNull(context.getResult());
+                } else {
+                    assertThrows(UnsupportedOperationException.class, () -> template.begin(entryName));
+                }
         }
     }
 
     @Test
     void testIsEndSupported() {
         assertEquals(this.template.isBeginSupported(), this.template.isEndSupported());
+        Resilience4jModule module = template.getModule();
+        switch (module) {
+            case RETRY:
+            case TIME_LIMITER:
+            case THREAD_POOL_BULKHEAD:
+                assertFalse(this.template.isEndSupported());
+                break;
+            default:
+                assertTrue(this.template.isEndSupported());
+        }
     }
 
     @Test
     void testEnd() {
+
         String entryName = this.entryName;
         RT template = this.template;
         Resilience4jModule module = template.getModule();
@@ -247,12 +280,29 @@ public abstract class AbstractResilience4jTemplateTest<E, C, R extends Registry<
 
         switch (module) {
             case RETRY:
-                ;
             case TIME_LIMITER:
+            case THREAD_POOL_BULKHEAD:
                 assertTrue(resultHolder.getValue() instanceof Throwable);
                 break;
             default:
                 assertTrue(template.getEntryClass().isInstance(resultHolder.getValue()));
+                Resilience4jContext<E> context = new Resilience4jContext<>(entryName, template.getEntry(entryName));
+                context.setStartTime(nanoTime());
+                if (template.isEndSupported()) {
+                    // Success
+                    template.end(context);
+
+                    // Result
+                    context.setResult("For testing");
+                    template.end(context);
+
+                    // Failure
+                    Throwable failure = new Throwable("For testing");
+                    context.setFailure(failure);
+                    template.end(context);
+                } else {
+                    assertThrows(UnsupportedOperationException.class, () -> template.end(context));
+                }
         }
     }
 
@@ -280,7 +330,7 @@ public abstract class AbstractResilience4jTemplateTest<E, C, R extends Registry<
     @Test
     void testLocalEntriesCache() {
         String entryName = "test-1";
-        if (this.template.isLocalEntriesCachePresent()) {
+        if (this.template.isLocalEntriesCached()) {
             this.template.initLocalEntriesCache(asList(entryName));
             E entry = this.template.getEntryFromCache(entryName);
             assertNotNull(entry);
@@ -391,7 +441,6 @@ public abstract class AbstractResilience4jTemplateTest<E, C, R extends Registry<
         int priority = 1;
         assertEquals(priority, template.setPriority(priority).getPriority());
     }
-
 
     @AfterEach
     void tearDown() {

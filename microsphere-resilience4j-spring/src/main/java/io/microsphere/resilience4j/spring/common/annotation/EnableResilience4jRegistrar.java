@@ -18,6 +18,8 @@ package io.microsphere.resilience4j.spring.common.annotation;
 
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.configure.CircuitBreakerConfiguration;
+import io.github.resilience4j.fallback.configure.FallbackConfiguration;
+import io.github.resilience4j.spelresolver.configure.SpelResolverConfiguration;
 import io.microsphere.resilience4j.common.Resilience4jModule;
 import io.microsphere.resilience4j.spring.LazyResilience4jFacade;
 import io.microsphere.resilience4j.spring.circuitbreaker.annotation.EnableCircuitBreaker;
@@ -115,6 +117,10 @@ public abstract class EnableResilience4jRegistrar<A extends Annotation, E, EC> e
 
     private void registerEntryConfiguration(BeanDefinitionRegistry registry) {
         registerBeanDefinition(registry, getEntryConfigurationType());
+        // Resilience4j Spring 2.0+ Entry Configuration class imports FallbackConfiguration and
+        // SpelResolverConfiguration default
+        registerBeanDefinition(registry, FallbackConfiguration.class);
+        registerBeanDefinition(registry, SpelResolverConfiguration.class);
     }
 
     private void registerEventComponentBeans(ResolvablePlaceholderAnnotationAttributes attributes, BeanDefinitionRegistry registry) {

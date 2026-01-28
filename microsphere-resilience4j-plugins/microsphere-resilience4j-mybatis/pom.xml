@@ -15,7 +15,7 @@
     <version>${revision}</version>
     <packaging>jar</packaging>
 
-    <name>Microsphere :: Resilience4j :: MyBatis</name>
+    <name>Microsphere :: Resilience4j :: Plugins :: MyBatis</name>
     <description>Microsphere Resilience4j MyBatis</description>
 
     <dependencies>

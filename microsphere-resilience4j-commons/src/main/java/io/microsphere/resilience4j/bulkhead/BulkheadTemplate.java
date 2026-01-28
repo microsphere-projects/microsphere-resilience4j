@@ -42,6 +42,10 @@ public class BulkheadTemplate extends Resilience4jTemplate<Bulkhead, BulkheadCon
         super(registry);
     }
 
+    public BulkheadTemplate(BulkheadRegistry registry, boolean localEntriesCached) {
+        super(registry, localEntriesCached);
+    }
+
     /**
      * Create the {@link Bulkhead}
      *

@@ -19,13 +19,15 @@
     <description>Microsphere Resilience4j Parent</description>
 
     <properties>
-        <microsphere-spring-cloud.version>0.1.0</microsphere-spring-cloud.version>
-        <microsphere-redis-spring.version>0.0.1</microsphere-redis-spring.version>
+        <microsphere-spring-cloud.version>0.1.5</microsphere-spring-cloud.version>
+        <microsphere-redis.version>0.1.0</microsphere-redis.version>
+        <microsphere-alibaba-druid.version>0.1.0</microsphere-alibaba-druid.version>
+        <microsphere-mybatis.version>0.1.0</microsphere-mybatis.version>
         <!-- Third-party versions -->
-        <mybatis-starter.version>3.0.1</mybatis-starter.version>
-        <mybatis.version>3.5.11</mybatis.version>
-        <p6spy.version>3.9.1</p6spy.version>
-        <druid.version>1.2.20</druid.version>
+        <mybatis.version>3.5.14</mybatis.version>
+        <mybatis-spring.version>2.1.2</mybatis-spring.version>
+        <mybatis-spring-boot.version>2.1.2</mybatis-spring-boot.version>
+        <druid.version>1.2.27</druid.version>
     </properties>
 
     <dependencyManagement>
@@ -215,32 +217,47 @@
                 <scope>import</scope>
             </dependency>
 
-            <!-- Microsphere Spring Redis -->
+            <!-- Microsphere Redis -->
             <dependency>
                 <groupId>io.github.microsphere-projects</groupId>
-                <artifactId>microsphere-redis-spring</artifactId>
-                <version>${microsphere-redis-spring.version}</version>
+                <artifactId>microsphere-redis-dependencies</artifactId>
+                <version>${microsphere-redis.version}</version>
                 <optional>true</optional>
             </dependency>
 
-            <!-- Mybatis -->
+            <!-- Microsphere Alibaba Druid -->
             <dependency>
-                <groupId>org.mybatis.spring.boot</groupId>
-                <artifactId>mybatis-spring-boot-starter</artifactId>
-                <version>${mybatis-starter.version}</version>
+                <groupId>io.github.microsphere-projects</groupId>
+                <artifactId>microsphere-alibaba-druid-dependencies</artifactId>
+                <version>${microsphere-alibaba-druid.version}</version>
+                <optional>true</optional>
             </dependency>
 
+            <!-- Microsphere MyBatis -->
+            <dependency>
+                <groupId>io.github.microsphere-projects</groupId>
+                <artifactId>microsphere-mybatis-dependencies</artifactId>
+                <version>${microsphere-mybatis.version}</version>
+                <optional>true</optional>
+            </dependency>
+
+            <!-- MyBatis -->
             <dependency>
                 <groupId>org.mybatis</groupId>
                 <artifactId>mybatis</artifactId>
                 <version>${mybatis.version}</version>
             </dependency>
 
-            <!-- JDBC -->
             <dependency>
-                <groupId>p6spy</groupId>
-                <artifactId>p6spy</artifactId>
-                <version>${p6spy.version}</version>
+                <groupId>org.mybatis</groupId>
+                <artifactId>mybatis-spring</artifactId>
+                <version>${mybatis-spring.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.mybatis.spring.boot</groupId>
+                <artifactId>mybatis-spring-boot-starter</artifactId>
+                <version>${mybatis-spring-boot.version}</version>
             </dependency>
 
             <!-- Alibaba Druid -->
@@ -254,12 +271,12 @@
     </dependencyManagement>
 
     <profiles>
+
         <profile>
             <id>spring-cloud-hoxton</id>
             <properties>
                 <spring-boot.version>2.3.12.RELEASE</spring-boot.version>
                 <spring-cloud.version>Hoxton.SR12</spring-cloud.version>
-                <spring-cloud-alibaba.version>2.2.10</spring-cloud-alibaba.version>
             </properties>
         </profile>
 
@@ -268,7 +285,6 @@
             <properties>
                 <spring-boot.version>2.4.13</spring-boot.version>
                 <spring-cloud.version>2020.0.5</spring-cloud.version>
-                <spring-cloud-alibaba.version>2021.1</spring-cloud-alibaba.version>
             </properties>
         </profile>
 
@@ -280,7 +296,6 @@
             <properties>
                 <spring-boot.version>2.6.15</spring-boot.version>
                 <spring-cloud.version>2021.0.9</spring-cloud.version>
-                <spring-cloud-alibaba.version>2021.0.6.1</spring-cloud-alibaba.version>
             </properties>
         </profile>
 

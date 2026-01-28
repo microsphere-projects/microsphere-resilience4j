@@ -19,12 +19,16 @@ package io.microsphere.resilience4j.common;
 import io.github.resilience4j.bulkhead.Bulkhead;
 import io.github.resilience4j.bulkhead.BulkheadConfig;
 import io.github.resilience4j.bulkhead.BulkheadRegistry;
+import io.github.resilience4j.bulkhead.ThreadPoolBulkhead;
+import io.github.resilience4j.bulkhead.ThreadPoolBulkheadConfig;
+import io.github.resilience4j.bulkhead.ThreadPoolBulkheadRegistry;
 import io.github.resilience4j.bulkhead.event.BulkheadEvent;
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 import io.github.resilience4j.circuitbreaker.event.CircuitBreakerEvent;
 import io.github.resilience4j.common.bulkhead.configuration.BulkheadConfigurationProperties;
+import io.github.resilience4j.common.bulkhead.configuration.ThreadPoolBulkheadConfigurationProperties;
 import io.github.resilience4j.common.circuitbreaker.configuration.CircuitBreakerConfigurationProperties;
 import io.github.resilience4j.common.ratelimiter.configuration.RateLimiterConfigurationProperties;
 import io.github.resilience4j.common.retry.configuration.RetryConfigurationProperties;
@@ -48,13 +52,20 @@ import static io.microsphere.resilience4j.common.Resilience4jConstants.BULKHEAD_
 import static io.microsphere.resilience4j.common.Resilience4jConstants.CIRCUIT_BREAKER_MODULE_NAME;
 import static io.microsphere.resilience4j.common.Resilience4jConstants.RATE_LIMITER_MODULE_NAME;
 import static io.microsphere.resilience4j.common.Resilience4jConstants.RETRY_MODULE_NAME;
+import static io.microsphere.resilience4j.common.Resilience4jConstants.THREAD_POOL_BULKHEAD_MODULE_NAME;
 import static io.microsphere.resilience4j.common.Resilience4jConstants.TIME_LIMITER_MODULE_NAME;
 import static io.microsphere.resilience4j.common.Resilience4jModule.BULKHEAD;
 import static io.microsphere.resilience4j.common.Resilience4jModule.CIRCUIT_BREAKER;
 import static io.microsphere.resilience4j.common.Resilience4jModule.RATE_LIMITER;
 import static io.microsphere.resilience4j.common.Resilience4jModule.RETRY;
+import static io.microsphere.resilience4j.common.Resilience4jModule.THREAD_POOL_BULKHEAD;
 import static io.microsphere.resilience4j.common.Resilience4jModule.TIME_LIMITER;
+import static io.microsphere.resilience4j.common.Resilience4jModule.valueOf;
+import static io.microsphere.resilience4j.common.Resilience4jModule.values;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * {@link Resilience4jModule} Test
@@ -66,12 +77,25 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class Resilience4jModuleTest {
 
     @Test
-    public void test() {
+    void test() {
         assertModule(RETRY, RETRY_MODULE_NAME, Retry.class, RetryConfig.class, RetryConfigurationProperties.class, RetryEvent.class, RetryRegistry.class, 0);
         assertModule(CIRCUIT_BREAKER, CIRCUIT_BREAKER_MODULE_NAME, CircuitBreaker.class, CircuitBreakerConfig.class, CircuitBreakerConfigurationProperties.class, CircuitBreakerEvent.class, CircuitBreakerRegistry.class, 1);
         assertModule(RATE_LIMITER, RATE_LIMITER_MODULE_NAME, RateLimiter.class, RateLimiterConfig.class, RateLimiterConfigurationProperties.class, RateLimiterEvent.class, RateLimiterRegistry.class, 2);
         assertModule(TIME_LIMITER, TIME_LIMITER_MODULE_NAME, TimeLimiter.class, TimeLimiterConfig.class, TimeLimiterConfigurationProperties.class, TimeLimiterEvent.class, TimeLimiterRegistry.class, 3);
         assertModule(BULKHEAD, BULKHEAD_MODULE_NAME, Bulkhead.class, BulkheadConfig.class, BulkheadConfigurationProperties.class, BulkheadEvent.class, BulkheadRegistry.class, 4);
+        assertModule(THREAD_POOL_BULKHEAD, THREAD_POOL_BULKHEAD_MODULE_NAME, ThreadPoolBulkhead.class, ThreadPoolBulkheadConfig.class, ThreadPoolBulkheadConfigurationProperties.class, BulkheadEvent.class, ThreadPoolBulkheadRegistry.class, 4);
+    }
+
+    @Test
+    void testValueOfOnIllegalArgumentException() {
+        assertThrows(IllegalArgumentException.class, () -> valueOf(Resilience4jModule.class));
+    }
+
+    @Test
+    void testToString() {
+        for (Resilience4jModule module : values()) {
+            assertNotNull(module.toString());
+        }
     }
 
     private void assertModule(Resilience4jModule module, String moduleName, Class<?> entryClass, Class<?> configClass,
@@ -84,5 +108,11 @@ public class Resilience4jModuleTest {
         assertEquals(eventClass, module.getEventClass());
         assertEquals(registryClass, module.getRegistryClass());
         assertEquals(defaultAspectOrder, module.getDefaultAspectOrder());
+
+        assertSame(module, valueOf(entryClass));
+        assertSame(module, valueOf(configClass));
+        assertSame(module, valueOf(configurationPropertiesClass));
+        assertSame(module.getEventClass(), eventClass);
+        assertSame(module, valueOf(registryClass));
     }
 }

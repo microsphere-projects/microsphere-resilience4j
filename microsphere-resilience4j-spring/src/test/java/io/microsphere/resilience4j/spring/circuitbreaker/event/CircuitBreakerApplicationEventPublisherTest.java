@@ -21,6 +21,8 @@ import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 import io.github.resilience4j.circuitbreaker.configure.CircuitBreakerConfiguration;
 import io.github.resilience4j.circuitbreaker.configure.CircuitBreakerConfigurationProperties;
 import io.github.resilience4j.circuitbreaker.event.CircuitBreakerOnSuccessEvent;
+import io.github.resilience4j.fallback.configure.FallbackConfiguration;
+import io.github.resilience4j.spelresolver.configure.SpelResolverConfiguration;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +43,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  */
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {
+        FallbackConfiguration.class,
+        SpelResolverConfiguration.class,
         CircuitBreakerConfigurationProperties.class,
         CircuitBreakerConfiguration.class,
         CircuitBreakerApplicationEventPublisher.class,
@@ -51,14 +55,14 @@ public class CircuitBreakerApplicationEventPublisherTest {
     private CircuitBreakerRegistry registry;
 
     @Test
-    public void test() {
+    void test() {
         CircuitBreaker circuitBreaker = registry.circuitBreaker("test");
         circuitBreaker.acquirePermission();
         circuitBreaker.onSuccess(100, TimeUnit.MILLISECONDS);
     }
 
     @EventListener(CircuitBreakerOnSuccessEvent.class)
-    public void onCircuitBreakerOnSuccessEvent(CircuitBreakerOnSuccessEvent event) {
+    void onCircuitBreakerOnSuccessEvent(CircuitBreakerOnSuccessEvent event) {
         assertEquals("test", event.getCircuitBreakerName());
         assertEquals(Duration.ofMillis(100), event.getElapsedDuration());
     }

@@ -13,10 +13,3 @@ io.microsphere.resilience4j.spring.circuitbreaker.event.CircuitBreakerEventConsu
 io.microsphere.resilience4j.spring.ratelimiter.event.RateLimiterEventConsumerBeanRegistrar,\
 io.microsphere.resilience4j.spring.retry.event.RetryEventConsumerBeanRegistrar,\
 io.microsphere.resilience4j.spring.timelimiter.event.TimeLimiterEventConsumerBeanRegistrar
-
-# Resilience4jHandlerMethodInterceptor
-io.microsphere.resilience4j.spring.common.web.Resilience4jHandlerMethodInterceptor=\
-io.microsphere.resilience4j.spring.bulkhead.web.BulkheadHandlerMethodInterceptor,\
-io.microsphere.resilience4j.spring.circuitbreaker.web.CircuitBreakerHandlerMethodInterceptor,\
-io.microsphere.resilience4j.spring.ratelimiter.web.RateLimiterHandlerMethodInterceptor
-

@@ -18,25 +18,40 @@ package io.microsphere.resilience4j.spring.common.annotation;
 
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.configure.CircuitBreakerConfiguration;
+import io.github.resilience4j.fallback.configure.FallbackConfiguration;
+import io.github.resilience4j.spelresolver.configure.SpelResolverConfiguration;
+import io.microsphere.resilience4j.common.Resilience4jModule;
+import io.microsphere.resilience4j.spring.LazyResilience4jFacade;
 import io.microsphere.resilience4j.spring.circuitbreaker.annotation.EnableCircuitBreaker;
+import io.microsphere.resilience4j.spring.common.Resilience4jPlugin;
 import io.microsphere.resilience4j.spring.common.event.Resilience4jEventApplicationEventPublisher;
 import io.microsphere.resilience4j.spring.common.event.Resilience4jEventConsumerBeanRegistrar;
 import io.microsphere.spring.context.annotation.BeanCapableImportCandidate;
 import io.microsphere.spring.core.annotation.ResolvablePlaceholderAnnotationAttributes;
+import org.springframework.beans.MutablePropertyValues;
+import org.springframework.beans.PropertyValue;
+import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
 import org.springframework.core.ResolvableType;
 import org.springframework.core.type.AnnotationMetadata;
 
 import java.lang.annotation.Annotation;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
+import static io.microsphere.collection.Maps.ofMap;
+import static io.microsphere.collection.SetUtils.newHashSet;
+import static io.microsphere.resilience4j.common.Resilience4jModule.valueOf;
+import static io.microsphere.resilience4j.spring.LazyResilience4jFacade.BEAN_NAME;
+import static io.microsphere.spring.beans.factory.config.BeanDefinitionUtils.genericBeanDefinition;
 import static io.microsphere.spring.beans.factory.support.BeanRegistrar.registerBeanDefinition;
 import static io.microsphere.spring.core.annotation.ResolvablePlaceholderAnnotationAttributes.of;
-import static java.util.Collections.unmodifiableMap;
+import static io.microsphere.spring.core.io.support.SpringFactoriesLoaderUtils.loadFactories;
+import static io.microsphere.util.ArrayUtils.contains;
+import static org.springframework.core.ResolvableType.forType;
 import static org.springframework.core.io.support.SpringFactoriesLoader.loadFactoryNames;
 import static org.springframework.util.ClassUtils.resolveClassName;
 
@@ -55,14 +70,10 @@ import static org.springframework.util.ClassUtils.resolveClassName;
 public abstract class EnableResilience4jRegistrar<A extends Annotation, E, EC> extends BeanCapableImportCandidate
         implements ImportBeanDefinitionRegistrar {
 
-    private static final Map<String, Class<?>> attributedEventComponentClassesMap;
-
-    static {
-        Map<String, Class<?>> classesMap = new HashMap<>(2);
-        classesMap.put("publishEvents", Resilience4jEventApplicationEventPublisher.class);
-        classesMap.put("consumeEvents", Resilience4jEventConsumerBeanRegistrar.class);
-        attributedEventComponentClassesMap = unmodifiableMap(classesMap);
-    }
+    private static final Map<String, Class<?>> attributedEventComponentClassesMap = ofMap(
+            "publishEvents", Resilience4jEventApplicationEventPublisher.class,
+            "consumeEvents", Resilience4jEventConsumerBeanRegistrar.class
+    );
 
     private final ResolvableType superType;
 
@@ -93,8 +104,11 @@ public abstract class EnableResilience4jRegistrar<A extends Annotation, E, EC> e
         // Register Event Component Beans
         registerEventComponentBeans(attributes, registry);
 
-        // Register Web Environment Component Beans
-        registerWebEnvironmentComponentBeans(attributes, registry);
+        // Register plugins
+        registerPlugins(attributes, registry);
+
+        // Register Resilience4jFacade as the primary bean
+        registerResilience4jFacade(registry);
     }
 
     protected final Class<EC> getEntryConfigurationType() {
@@ -103,6 +117,10 @@ public abstract class EnableResilience4jRegistrar<A extends Annotation, E, EC> e
 
     private void registerEntryConfiguration(BeanDefinitionRegistry registry) {
         registerBeanDefinition(registry, getEntryConfigurationType());
+        // Resilience4j Spring 2.0+ Entry Configuration class imports FallbackConfiguration and
+        // SpelResolverConfiguration default
+        registerBeanDefinition(registry, FallbackConfiguration.class);
+        registerBeanDefinition(registry, SpelResolverConfiguration.class);
     }
 
     private void registerEventComponentBeans(ResolvablePlaceholderAnnotationAttributes attributes, BeanDefinitionRegistry registry) {
@@ -112,28 +130,6 @@ public abstract class EnableResilience4jRegistrar<A extends Annotation, E, EC> e
             if (supported) {
                 Class<?> eventComponentClass = entry.getValue();
                 registerComponentBean(eventComponentClass, registry);
-            }
-        }
-    }
-
-    private void registerBean(ResolvablePlaceholderAnnotationAttributes attributes,
-                              String attributeName,
-                              Class<?> beanType,
-                              BeanDefinitionRegistry registry) {
-        boolean supported = attributes.getBoolean(attributeName);
-        if (supported) {
-            registerBeanDefinition(registry, beanType);
-        }
-    }
-
-    private void registerWebEnvironmentComponentBeans(ResolvablePlaceholderAnnotationAttributes attributes,
-                                                      BeanDefinitionRegistry registry) {
-        ClassLoader classLoader = this.getClassLoader();
-        EnableResilience4jExtension.WebEnvironment[] webEnvironmentArray = (EnableResilience4jExtension.WebEnvironment[]) attributes.get("webEnvironment");
-        for (EnableResilience4jExtension.WebEnvironment webEnvironment : webEnvironmentArray) {
-            if (webEnvironment.supports()) {
-                Class<?> webComponentClass = webEnvironment.getComponentClass();
-                registerComponentBean(webComponentClass, registry);
             }
         }
     }
@@ -150,6 +146,40 @@ public abstract class EnableResilience4jRegistrar<A extends Annotation, E, EC> e
         }
     }
 
+    private void registerPlugins(ResolvablePlaceholderAnnotationAttributes attributes,
+                                 BeanDefinitionRegistry registry) {
+        String[] plugins = attributes.getStringArray("plugins");
+        List<Resilience4jPlugin> resilience4jPlugins = loadFactories(this.getBeanFactory(), Resilience4jPlugin.class);
+        for (Resilience4jPlugin resilience4jPlugin : resilience4jPlugins) {
+            String pluginName = resilience4jPlugin.getName();
+            if (contains(plugins, pluginName)) {
+                resilience4jPlugin.plugin(this.beanFactory, registry, this.environment);
+            }
+        }
+    }
+
+    private void registerResilience4jFacade(BeanDefinitionRegistry registry) {
+        Resilience4jModule module = valueOf(this.entryType);
+        String beanName = BEAN_NAME;
+        String propertyName = "modules";
+
+        Set<Resilience4jModule> modules;
+        AbstractBeanDefinition beanDefinition;
+        PropertyValue modulesPropertyValue;
+        if (registry.containsBeanDefinition(beanName)) {
+            beanDefinition = (AbstractBeanDefinition) registry.getBeanDefinition(beanName);
+            modulesPropertyValue = beanDefinition.getPropertyValues().getPropertyValue(propertyName);
+            modules = (Set<Resilience4jModule>) modulesPropertyValue.getValue();
+        } else {
+            modules = newHashSet(Resilience4jModule.values().length);
+            beanDefinition = genericBeanDefinition(LazyResilience4jFacade.class);
+            beanDefinition.setPrimary(true);
+            MutablePropertyValues propertyValues = beanDefinition.getPropertyValues();
+            propertyValues.add(propertyName, modules);
+            registerBeanDefinition(registry, beanName, beanDefinition);
+        }
+        modules.add(module);
+    }
 
     private ResolvableType resolveSuperType() {
         return resolveSuperType(this.getClass(), EnableResilience4jRegistrar.class);
@@ -160,7 +190,7 @@ public abstract class EnableResilience4jRegistrar<A extends Annotation, E, EC> e
     }
 
     private static ResolvableType resolveSuperType(Class<?> targetClass, Class<?> superClass) {
-        ResolvableType type = ResolvableType.forType(targetClass);
+        ResolvableType type = forType(targetClass);
         return type.as(superClass);
     }
 
@@ -168,5 +198,4 @@ public abstract class EnableResilience4jRegistrar<A extends Annotation, E, EC> e
         ResolvableType superType = resolveSuperType(targetClass, superClass);
         return (Class<E>) superType.resolveGeneric(0);
     }
-
 }

@@ -70,7 +70,8 @@ public class CircuitBreakerTemplateTest extends AbstractResilience4jTemplateTest
     }
 
     @Test
-    public void testExecute() throws Throwable {
+    void testExecute() throws Throwable {
+
         String entryName = super.entryName;
         CircuitBreakerTemplate template = super.template;
 
@@ -84,7 +85,7 @@ public class CircuitBreakerTemplateTest extends AbstractResilience4jTemplateTest
     }
 
     @Test
-    public void testExecuteOnCallFailure() {
+    void testExecuteOnCallFailure() {
         String entryName = super.entryName;
         CircuitBreakerTemplate template = super.template;
 
@@ -138,7 +139,7 @@ public class CircuitBreakerTemplateTest extends AbstractResilience4jTemplateTest
     }
 
     @Test
-    public void testExecuteOnSlowCall() {
+    void testExecuteOnSlowCall() {
         String entryName = this.entryName;
         CircuitBreakerTemplate template = super.template;
 

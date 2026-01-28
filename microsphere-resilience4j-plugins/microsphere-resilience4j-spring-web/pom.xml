@@ -15,7 +15,7 @@
     <version>${revision}</version>
     <packaging>jar</packaging>
 
-    <name>Microsphere :: Resilience4j :: Spring Web</name>
+    <name>Microsphere :: Resilience4j :: Plugins :: Spring Web</name>
     <description>Microsphere Resilience4j Spring Web</description>
 
     <dependencies>

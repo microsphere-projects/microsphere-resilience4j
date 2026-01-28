@@ -24,13 +24,13 @@ import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.TimeUnit;
 
 import static io.github.resilience4j.bulkhead.event.BulkheadEvent.Type.CALL_FINISHED;
 import static io.github.resilience4j.bulkhead.event.BulkheadEvent.Type.CALL_PERMITTED;
 import static io.github.resilience4j.bulkhead.event.BulkheadEvent.Type.CALL_REJECTED;
 import static java.time.Duration.ofMillis;
 import static java.util.concurrent.Executors.newFixedThreadPool;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
@@ -99,7 +99,7 @@ public class BulkheadTemplateTest extends AbstractResilience4jTemplateTest<Bulkh
 
         executorService.shutdown();
 
-        while (!executorService.awaitTermination(100, TimeUnit.MILLISECONDS)) {
+        while (!executorService.awaitTermination(100, MILLISECONDS)) {
 
         }
     }

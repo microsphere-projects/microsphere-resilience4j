@@ -32,7 +32,6 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.time.Duration;
 import java.util.Random;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
 import static io.github.resilience4j.core.registry.RegistryEvent.Type.ADDED;
@@ -42,6 +41,7 @@ import static io.microsphere.logging.LoggerFactory.getLogger;
 import static io.microsphere.reflect.MethodUtils.invokeStaticMethod;
 import static java.lang.System.nanoTime;
 import static java.util.Arrays.asList;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -420,7 +420,7 @@ public abstract class AbstractResilience4jTemplateTest<E, C, R extends Registry<
 
     protected void await(long waitTimeInMillis) {
         try {
-            TimeUnit.MILLISECONDS.sleep(waitTimeInMillis);
+            MILLISECONDS.sleep(waitTimeInMillis);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }

@@ -19,12 +19,16 @@ package io.microsphere.resilience4j.common;
 import io.github.resilience4j.bulkhead.Bulkhead;
 import io.github.resilience4j.bulkhead.BulkheadConfig;
 import io.github.resilience4j.bulkhead.BulkheadRegistry;
+import io.github.resilience4j.bulkhead.ThreadPoolBulkhead;
+import io.github.resilience4j.bulkhead.ThreadPoolBulkheadConfig;
+import io.github.resilience4j.bulkhead.ThreadPoolBulkheadRegistry;
 import io.github.resilience4j.bulkhead.event.BulkheadEvent;
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 import io.github.resilience4j.circuitbreaker.event.CircuitBreakerEvent;
 import io.github.resilience4j.common.bulkhead.configuration.CommonBulkheadConfigurationProperties;
+import io.github.resilience4j.common.bulkhead.configuration.CommonThreadPoolBulkheadConfigurationProperties;
 import io.github.resilience4j.common.circuitbreaker.configuration.CommonCircuitBreakerConfigurationProperties;
 import io.github.resilience4j.common.ratelimiter.configuration.CommonRateLimiterConfigurationProperties;
 import io.github.resilience4j.common.retry.configuration.CommonRetryConfigurationProperties;
@@ -48,11 +52,13 @@ import static io.microsphere.resilience4j.common.Resilience4jConstants.BULKHEAD_
 import static io.microsphere.resilience4j.common.Resilience4jConstants.CIRCUIT_BREAKER_MODULE_NAME;
 import static io.microsphere.resilience4j.common.Resilience4jConstants.RATE_LIMITER_MODULE_NAME;
 import static io.microsphere.resilience4j.common.Resilience4jConstants.RETRY_MODULE_NAME;
+import static io.microsphere.resilience4j.common.Resilience4jConstants.THREAD_POOL_BULKHEAD_MODULE_NAME;
 import static io.microsphere.resilience4j.common.Resilience4jConstants.TIME_LIMITER_MODULE_NAME;
 import static io.microsphere.resilience4j.common.Resilience4jModule.BULKHEAD;
 import static io.microsphere.resilience4j.common.Resilience4jModule.CIRCUIT_BREAKER;
 import static io.microsphere.resilience4j.common.Resilience4jModule.RATE_LIMITER;
 import static io.microsphere.resilience4j.common.Resilience4jModule.RETRY;
+import static io.microsphere.resilience4j.common.Resilience4jModule.THREAD_POOL_BULKHEAD;
 import static io.microsphere.resilience4j.common.Resilience4jModule.TIME_LIMITER;
 import static io.microsphere.resilience4j.common.Resilience4jModule.valueOf;
 import static io.microsphere.resilience4j.common.Resilience4jModule.values;
@@ -77,6 +83,7 @@ public class Resilience4jModuleTest {
         assertModule(RATE_LIMITER, RATE_LIMITER_MODULE_NAME, RateLimiter.class, RateLimiterConfig.class, CommonRateLimiterConfigurationProperties.class, RateLimiterEvent.class, RateLimiterRegistry.class, 2);
         assertModule(TIME_LIMITER, TIME_LIMITER_MODULE_NAME, TimeLimiter.class, TimeLimiterConfig.class, CommonTimeLimiterConfigurationProperties.class, TimeLimiterEvent.class, TimeLimiterRegistry.class, 3);
         assertModule(BULKHEAD, BULKHEAD_MODULE_NAME, Bulkhead.class, BulkheadConfig.class, CommonBulkheadConfigurationProperties.class, BulkheadEvent.class, BulkheadRegistry.class, 4);
+        assertModule(THREAD_POOL_BULKHEAD, THREAD_POOL_BULKHEAD_MODULE_NAME, ThreadPoolBulkhead.class, ThreadPoolBulkheadConfig.class, CommonThreadPoolBulkheadConfigurationProperties.class, BulkheadEvent.class, ThreadPoolBulkheadRegistry.class, 4);
     }
 
     @Test
@@ -105,7 +112,7 @@ public class Resilience4jModuleTest {
         assertSame(module, valueOf(entryClass));
         assertSame(module, valueOf(configClass));
         assertSame(module, valueOf(configurationPropertiesClass));
-        assertSame(module, valueOf(eventClass));
+        assertSame(module.getEventClass(), eventClass);
         assertSame(module, valueOf(registryClass));
     }
 }

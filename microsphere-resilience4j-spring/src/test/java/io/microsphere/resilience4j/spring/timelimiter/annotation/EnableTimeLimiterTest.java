@@ -28,8 +28,9 @@ import org.springframework.context.event.EventListener;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
-import java.time.Duration;
-
+import static java.lang.Boolean.TRUE;
+import static java.lang.Integer.valueOf;
+import static java.time.Duration.ofSeconds;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
@@ -62,9 +63,9 @@ public class EnableTimeLimiterTest {
         TimeLimiter timeLimiter = registry.timeLimiter("test");
 
         TimeLimiterConfigurationProperties.InstanceProperties instanceProperties = properties.getInstances().get("test");
-        assertEquals(Duration.ofSeconds(10), instanceProperties.getTimeoutDuration());
-        assertEquals(Boolean.TRUE, instanceProperties.getCancelRunningFuture());
-        assertEquals(Integer.valueOf(200), instanceProperties.getEventConsumerBufferSize());
+        assertEquals(ofSeconds(10), instanceProperties.getTimeoutDuration());
+        assertEquals(TRUE, instanceProperties.getCancelRunningFuture());
+        assertEquals(valueOf(200), instanceProperties.getEventConsumerBufferSize());
 
         timeLimiter.onSuccess();
     }

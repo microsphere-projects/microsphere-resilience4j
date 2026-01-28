@@ -27,9 +27,10 @@ import org.springframework.context.event.EventListener;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
-import java.time.Duration;
-
 import static io.github.resilience4j.ratelimiter.event.RateLimiterEvent.Type.SUCCESSFUL_ACQUIRE;
+import static java.lang.Integer.valueOf;
+import static java.time.Duration.ofNanos;
+import static java.time.Duration.ofSeconds;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
@@ -60,9 +61,9 @@ public class EnableRateLimiterTest {
         rateLimiter.acquirePermission();
 
         RateLimiterConfigurationProperties.InstanceProperties instanceProperties = properties.getInstances().get("test");
-        assertEquals(Duration.ofSeconds(10), instanceProperties.getTimeoutDuration());
-        assertEquals(Integer.valueOf(20), instanceProperties.getLimitForPeriod());
-        assertEquals(Duration.ofNanos(1000), instanceProperties.getLimitRefreshPeriod());
+        assertEquals(ofSeconds(10), instanceProperties.getTimeoutDuration());
+        assertEquals(valueOf(20), instanceProperties.getLimitForPeriod());
+        assertEquals(ofNanos(1000), instanceProperties.getLimitRefreshPeriod());
 
     }
 

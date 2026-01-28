@@ -15,7 +15,7 @@
     <version>${revision}</version>
     <packaging>jar</packaging>
 
-    <name>Microsphere :: Resilience4j :: Alibaba Druid</name>
+    <name>Microsphere :: Resilience4j :: Plugins :: Alibaba Druid</name>
     <description>Microsphere Resilience4j Alibaba Druid</description>
 
     <dependencies>

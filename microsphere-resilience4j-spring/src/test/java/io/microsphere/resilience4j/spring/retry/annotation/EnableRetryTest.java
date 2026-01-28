@@ -25,8 +25,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
-import java.time.Duration;
-
+import static java.lang.Integer.valueOf;
+import static java.time.Duration.ofSeconds;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
@@ -56,8 +56,8 @@ public class EnableRetryTest {
         Retry retry = registry.retry("test");
 
         RetryConfigurationProperties.InstanceProperties instanceProperties = properties.getInstances().get("test");
-        assertEquals(Duration.ofSeconds(1), instanceProperties.getWaitDuration());
-        assertEquals(Integer.valueOf(99), instanceProperties.getEventConsumerBufferSize());
+        assertEquals(ofSeconds(1), instanceProperties.getWaitDuration());
+        assertEquals(valueOf(99), instanceProperties.getEventConsumerBufferSize());
 
         retry.executeSupplier(() -> "Hello,World");
     }

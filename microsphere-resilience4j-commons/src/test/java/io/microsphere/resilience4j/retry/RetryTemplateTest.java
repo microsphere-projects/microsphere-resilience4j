@@ -105,7 +105,5 @@ public class RetryTemplateTest extends AbstractResilience4jTemplateTest<Retry, R
         assertThrows(IllegalStateException.class, () -> template.call(entryName, () -> {
             throw new IllegalStateException("For testing");
         }));
-
     }
-
 }

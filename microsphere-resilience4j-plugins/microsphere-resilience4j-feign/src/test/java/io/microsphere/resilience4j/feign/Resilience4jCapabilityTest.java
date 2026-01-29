@@ -31,7 +31,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * @see Resilience4jCapability
  * @since 1.0.0
  */
-public class Resilience4jCapabilityTest extends AbstractResilience4jFeignTest {
+class Resilience4jCapabilityTest extends AbstractResilience4jFeignTest {
 
     @Override
     protected Resilience4jCapability createResilience4jCapability(Resilience4jFacade facade) {

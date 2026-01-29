@@ -39,7 +39,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * @see ChainableResilience4jFacade
  * @since 1.0.0
  */
-class ChainableResilience4jFacadeTest {
+class ChainableResilience4jFacadeTest2 {
 
     private final String entryName = "test-entry";
 

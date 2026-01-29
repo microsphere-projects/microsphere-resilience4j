@@ -53,7 +53,7 @@ import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppC
 @EnableWebMvc
 @EnableWebMvcExtension
 @EnableBulkhead(plugins = PLUGIN_NAME)
-public class SpringWebResilience4jPluginTest {
+class SpringWebResilience4jPluginTest {
 
     @Autowired
     private WebApplicationContext context;

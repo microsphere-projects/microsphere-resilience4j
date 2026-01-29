@@ -28,7 +28,7 @@ import static io.microsphere.resilience4j.feign.Resilience4jCapability.Decorated
  * @see AbstractResilience4jFeignTest
  * @since 1.0.0
  */
-public class Resilience4jInvocationHandlerFactoryTest extends AbstractResilience4jFeignTest {
+class Resilience4jInvocationHandlerFactoryTest extends AbstractResilience4jFeignTest {
 
     @Override
     protected Resilience4jCapability createResilience4jCapability(Resilience4jFacade facade) {

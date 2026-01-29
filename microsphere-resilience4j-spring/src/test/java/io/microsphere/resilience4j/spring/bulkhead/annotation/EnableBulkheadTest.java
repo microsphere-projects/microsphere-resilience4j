@@ -47,7 +47,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 })
 @EnableBulkhead(publishEvents = true, consumeEvents = true, plugins = NAME)
 @EnableSpringConverterAdapter
-public class EnableBulkheadTest {
+class EnableBulkheadTest {
 
     @Autowired
     private BulkheadRegistry registry;

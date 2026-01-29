@@ -21,8 +21,7 @@ import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 import io.github.resilience4j.circuitbreaker.configure.CircuitBreakerConfiguration;
 import io.github.resilience4j.circuitbreaker.configure.CircuitBreakerConfigurationProperties;
 import io.github.resilience4j.circuitbreaker.event.CircuitBreakerOnSuccessEvent;
-import io.github.resilience4j.fallback.configure.FallbackConfiguration;
-import io.github.resilience4j.spelresolver.configure.SpelResolverConfiguration;
+import io.microsphere.resilience4j.spring.context.CommonConfigurationsApplicationContextInitializer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,13 +42,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  */
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {
-        FallbackConfiguration.class,
-        SpelResolverConfiguration.class,
-        CircuitBreakerConfigurationProperties.class,
         CircuitBreakerConfiguration.class,
+        CircuitBreakerConfigurationProperties.class,
         CircuitBreakerApplicationEventPublisher.class,
-        CircuitBreakerApplicationEventPublisherTest.class})
-public class CircuitBreakerApplicationEventPublisherTest {
+        CircuitBreakerApplicationEventPublisherTest.class
+}, initializers = {
+        CommonConfigurationsApplicationContextInitializer.class
+})
+class CircuitBreakerApplicationEventPublisherTest {
 
     @Autowired
     private CircuitBreakerRegistry registry;

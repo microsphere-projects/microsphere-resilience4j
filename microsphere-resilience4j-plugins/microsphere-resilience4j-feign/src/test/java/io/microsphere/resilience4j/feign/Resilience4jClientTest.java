@@ -26,7 +26,7 @@ import io.microsphere.resilience4j.common.Resilience4jFacade;
  * @see AbstractResilience4jFeignTest
  * @since 1.0.0
  */
-public class Resilience4jClientTest extends AbstractResilience4jFeignTest {
+class Resilience4jClientTest extends AbstractResilience4jFeignTest {
 
     @Override
     protected Resilience4jCapability createResilience4jCapability(Resilience4jFacade facade) {

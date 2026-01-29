@@ -43,7 +43,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 })
 @EnableRetry(publishEvents = true, consumeEvents = true)
 @EnableSpringConverterAdapter
-public class EnableRetryTest {
+class EnableRetryTest {
 
     @Autowired
     private RetryRegistry registry;

@@ -62,7 +62,7 @@ import static org.junit.jupiter.api.Assertions.assertSame;
  * @see Resilience4jExecutorInterceptor
  * @since 1.0.0
  */
-public class Resilience4jExecutorInterceptorTest {
+class Resilience4jExecutorInterceptorTest {
 
     private Resilience4jFacade facade;
 

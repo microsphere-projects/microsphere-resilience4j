@@ -46,7 +46,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
         "microsphere.resilience4j.circuit-breaker.instances[test].slowCallRateThreshold=0.7"})
 @EnableCircuitBreaker(publishEvents = true, consumeEvents = true)
 @EnableSpringConverterAdapter
-public class EnableCircuitBreakerTest {
+class EnableCircuitBreakerTest {
 
     @Autowired
     private CircuitBreakerRegistry registry;

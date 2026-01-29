@@ -43,7 +43,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * @see TimeLimiterTemplate
  * @since 1.0.0
  */
-public class TimeLimiterTemplateTest extends AbstractResilience4jTemplateTest<TimeLimiter, TimeLimiterConfig, TimeLimiterRegistry, TimeLimiterTemplate> {
+class TimeLimiterTemplateTest extends AbstractResilience4jTemplateTest<TimeLimiter, TimeLimiterConfig, TimeLimiterRegistry, TimeLimiterTemplate> {
 
     private final long timeoutDurationInMills = 50;
 

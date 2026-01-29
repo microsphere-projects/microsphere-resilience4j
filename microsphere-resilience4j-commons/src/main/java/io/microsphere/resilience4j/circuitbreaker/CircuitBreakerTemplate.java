@@ -32,8 +32,7 @@ import io.microsphere.lang.function.ThrowableSupplier;
 import io.microsphere.resilience4j.common.Resilience4jContext;
 import io.microsphere.resilience4j.common.Resilience4jTemplate;
 
-import java.util.concurrent.TimeUnit;
-
+import static java.lang.System.nanoTime;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
 /**
@@ -77,21 +76,20 @@ public class CircuitBreakerTemplate extends Resilience4jTemplate<CircuitBreaker,
     @Override
     protected void doBegin(Resilience4jContext<CircuitBreaker> context) {
         CircuitBreaker circuitBreaker = context.getEntry();
+        long startTime = nanoTime();
         circuitBreaker.acquirePermission();
-        long startTime = circuitBreaker.getCurrentTimestamp();
         context.setStartTime(startTime);
     }
 
     @Override
     protected void doEnd(Resilience4jContext<CircuitBreaker> context) {
         CircuitBreaker circuitBreaker = context.getEntry();
-        long durationTime = circuitBreaker.getCurrentTimestamp() - context.getStartTime();
-        TimeUnit timestampUnit = circuitBreaker.getTimestampUnit();
+        long durationTime = nanoTime() - context.getStartTime();
         Throwable failure = context.getFailure();
         if (failure == null) {
-            circuitBreaker.onSuccess(durationTime, timestampUnit);
+            circuitBreaker.onSuccess(durationTime, NANOSECONDS);
         } else {
-            circuitBreaker.onError(durationTime, timestampUnit, failure);
+            circuitBreaker.onError(durationTime, NANOSECONDS, failure);
         }
     }
 

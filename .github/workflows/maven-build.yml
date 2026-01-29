@@ -25,13 +25,15 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: ${{ matrix.java }}
+          cache: maven
 
       - name: Build with Maven
-        run: ./mvnw
+        run: mvn
           --batch-mode
           --update-snapshots
           --file pom.xml
           -Drevision=0.0.1-SNAPSHOT
+          clean
           test
           --activate-profiles test,coverage,${{ matrix.maven-profile-spring-cloud }},${{ matrix.maven-profile-resilience4j }}
 

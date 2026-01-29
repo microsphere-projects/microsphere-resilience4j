@@ -52,7 +52,7 @@ import static org.junit.jupiter.api.Assertions.assertSame;
  * @see Resilience4jDruidFilter
  * @since 1.0.0
  */
-public class Resilience4jDruidFilterTest {
+class Resilience4jDruidFilterTest {
 
     private Resilience4jFacade facade;
 

@@ -42,8 +42,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  */
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {
-        CircuitBreakerConfigurationProperties.class,
         CircuitBreakerConfiguration.class,
+        CircuitBreakerConfigurationProperties.class,
         CircuitBreakerApplicationEventPublisher.class,
         CircuitBreakerApplicationEventPublisherTest.class
 }, initializers = {

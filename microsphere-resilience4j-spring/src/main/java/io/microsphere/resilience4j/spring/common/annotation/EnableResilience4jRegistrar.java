@@ -18,8 +18,6 @@ package io.microsphere.resilience4j.spring.common.annotation;
 
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.configure.CircuitBreakerConfiguration;
-import io.github.resilience4j.fallback.configure.FallbackConfiguration;
-import io.github.resilience4j.spelresolver.configure.SpelResolverConfiguration;
 import io.microsphere.resilience4j.common.Resilience4jModule;
 import io.microsphere.resilience4j.spring.LazyResilience4jFacade;
 import io.microsphere.resilience4j.spring.circuitbreaker.annotation.EnableCircuitBreaker;
@@ -46,6 +44,7 @@ import static io.microsphere.collection.Maps.ofMap;
 import static io.microsphere.collection.SetUtils.newHashSet;
 import static io.microsphere.resilience4j.common.Resilience4jModule.valueOf;
 import static io.microsphere.resilience4j.spring.LazyResilience4jFacade.BEAN_NAME;
+import static io.microsphere.resilience4j.spring.common.Resilience4jUtils.registerCommonConfigurations;
 import static io.microsphere.spring.beans.factory.config.BeanDefinitionUtils.genericBeanDefinition;
 import static io.microsphere.spring.beans.factory.support.BeanRegistrar.registerBeanDefinition;
 import static io.microsphere.spring.core.annotation.ResolvablePlaceholderAnnotationAttributes.of;
@@ -101,6 +100,9 @@ public abstract class EnableResilience4jRegistrar<A extends Annotation, E, EC> e
         // Register Entry Configuration Bean
         registerEntryConfiguration(registry);
 
+        // Register commons Configurations
+        registerCommonConfigurations(registry);
+
         // Register Event Component Beans
         registerEventComponentBeans(attributes, registry);
 
@@ -117,10 +119,6 @@ public abstract class EnableResilience4jRegistrar<A extends Annotation, E, EC> e
 
     private void registerEntryConfiguration(BeanDefinitionRegistry registry) {
         registerBeanDefinition(registry, getEntryConfigurationType());
-        // Resilience4j Spring 2.0+ Entry Configuration class imports FallbackConfiguration and
-        // SpelResolverConfiguration default
-        registerBeanDefinition(registry, FallbackConfiguration.class);
-        registerBeanDefinition(registry, SpelResolverConfiguration.class);
     }
 
     private void registerEventComponentBeans(ResolvablePlaceholderAnnotationAttributes attributes, BeanDefinitionRegistry registry) {

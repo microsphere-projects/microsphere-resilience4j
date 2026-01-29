@@ -73,7 +73,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  * @see Resilience4jUtils
  * @since 1.0.0
  */
-public class Resilience4jUtilsTest {
+class Resilience4jUtilsTest {
 
     @Test
     void testLoadDefaultTemplates() {

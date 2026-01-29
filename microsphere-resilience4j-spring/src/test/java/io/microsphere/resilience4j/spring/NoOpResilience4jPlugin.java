@@ -32,7 +32,7 @@ import static io.microsphere.logging.LoggerFactory.getLogger;
  * @see Resilience4jPlugin
  * @since 1.0.0
  */
-public class NoOpResilience4jPlugin implements Resilience4jPlugin {
+class NoOpResilience4jPlugin implements Resilience4jPlugin {
 
     public static final String NAME = "no-operation";
 

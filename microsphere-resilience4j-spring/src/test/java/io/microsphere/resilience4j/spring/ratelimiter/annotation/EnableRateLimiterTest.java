@@ -47,7 +47,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 })
 @EnableRateLimiter(publishEvents = true, consumeEvents = true)
 @EnableSpringConverterAdapter
-public class EnableRateLimiterTest {
+class EnableRateLimiterTest {
 
     @Autowired
     private RateLimiterRegistry registry;

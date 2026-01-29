@@ -47,7 +47,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 })
 @EnableTimeLimiter(publishEvents = true, consumeEvents = true)
 @EnableSpringConverterAdapter
-public class EnableTimeLimiterTest {
+class EnableTimeLimiterTest {
 
     @Autowired
     private TimeLimiterRegistry registry;

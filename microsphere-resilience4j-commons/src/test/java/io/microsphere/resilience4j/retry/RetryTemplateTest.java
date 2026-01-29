@@ -40,7 +40,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  * @see RetryTemplate
  * @since 1.0.0
  */
-public class RetryTemplateTest extends AbstractResilience4jTemplateTest<Retry, RetryConfig, RetryRegistry, RetryTemplate> {
+class RetryTemplateTest extends AbstractResilience4jTemplateTest<Retry, RetryConfig, RetryRegistry, RetryTemplate> {
 
     private final int maxAttempts = 3;
 

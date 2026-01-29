@@ -49,7 +49,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 }, initializers = {
         CommonConfigurationsApplicationContextInitializer.class
 })
-public class CircuitBreakerApplicationEventPublisherTest {
+class CircuitBreakerApplicationEventPublisherTest {
 
     @Autowired
     private CircuitBreakerRegistry registry;

@@ -41,7 +41,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
  * @see BulkheadTemplate
  * @since 1.0.0
  */
-public class BulkheadTemplateTest extends AbstractResilience4jTemplateTest<Bulkhead, BulkheadConfig, BulkheadRegistry, BulkheadTemplate> {
+class BulkheadTemplateTest extends AbstractResilience4jTemplateTest<Bulkhead, BulkheadConfig, BulkheadRegistry, BulkheadTemplate> {
 
     private int maxConcurrentCalls = 1;
 

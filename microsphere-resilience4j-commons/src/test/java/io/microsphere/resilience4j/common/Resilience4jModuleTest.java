@@ -74,7 +74,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  * @see Resilience4jModule
  * @since 1.0.0
  */
-public class Resilience4jModuleTest {
+class Resilience4jModuleTest {
 
     @Test
     void test() {

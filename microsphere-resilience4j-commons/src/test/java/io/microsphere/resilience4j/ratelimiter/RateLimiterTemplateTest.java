@@ -39,7 +39,7 @@ import static org.junit.jupiter.api.Assertions.assertSame;
  * @see RateLimiterTemplate
  * @since 1.0.0
  */
-public class RateLimiterTemplateTest extends AbstractResilience4jTemplateTest<RateLimiter, RateLimiterConfig, RateLimiterRegistry, RateLimiterTemplate> {
+class RateLimiterTemplateTest extends AbstractResilience4jTemplateTest<RateLimiter, RateLimiterConfig, RateLimiterRegistry, RateLimiterTemplate> {
 
     private final long durationInMills = 50;
 

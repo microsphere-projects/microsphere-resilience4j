@@ -52,7 +52,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @EnableBulkhead
 @EnableThreadPoolBulkhead(publishEvents = true, consumeEvents = true)
 @EnableSpringConverterAdapter
-public class EnableThreadPoolBulkheadTest {
+class EnableThreadPoolBulkheadTest {
 
     @Autowired
     private ThreadPoolBulkheadRegistry registry;

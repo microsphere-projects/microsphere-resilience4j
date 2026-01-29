@@ -45,7 +45,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
         CircuitBreakerConfiguration.class,
         CircuitBreakerApplicationEventPublisher.class,
         CircuitBreakerApplicationEventPublisherTest.class})
-public class CircuitBreakerApplicationEventPublisherTest {
+class CircuitBreakerApplicationEventPublisherTest {
 
     @Autowired
     private CircuitBreakerRegistry registry;

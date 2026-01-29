@@ -35,7 +35,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * @see Resilience4jContext
  * @since 1.0.0
  */
-public class Resilience4jContextTest {
+class Resilience4jContextTest {
 
     private String entryName = "test-entry";
 

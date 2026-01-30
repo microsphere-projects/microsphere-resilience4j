@@ -27,8 +27,8 @@
         <mybatis.version>3.5.19</mybatis.version>
         <mybatis-spring.version>3.0.5</mybatis-spring.version>
         <mybatis-spring-boot.version>3.0.5</mybatis-spring-boot.version>
-        <h2.version>2.4.240</h2.version>
         <druid.version>1.2.27</druid.version>
+        <h2.version>2.4.240</h2.version>
         <junit.version>6.0.2</junit.version>
     </properties>
 

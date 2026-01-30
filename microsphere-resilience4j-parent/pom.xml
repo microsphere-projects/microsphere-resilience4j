@@ -288,6 +288,7 @@
         </dependencies>
     </dependencyManagement>
 
+
     <profiles>
 
         <profile>
@@ -354,6 +355,6 @@
                 <resilience4j.version>1.7.0</resilience4j.version>
             </properties>
         </profile>
-    </profiles>
 
+    </profiles>
 </project>

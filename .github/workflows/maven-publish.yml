@@ -10,13 +10,13 @@ name: Maven Publish
 
 on:
   push:
-    branches: [ 'release' ]
+    branches: [ 'release-1.x' ]
   workflow_dispatch:
     inputs:
       revision:
         description: 'The version to publish for Spring Cloud Hoxton to 2021'
         required: true
-        default: '2.0.0-SNAPSHOT'
+        default: '${major}.${minor}.${patch}'
 
 jobs:
   build:

@@ -329,7 +329,7 @@
         <profile>
             <id>spring-cloud-2025.1</id>
             <properties>
-                <spring-boot.version>4.0.0</spring-boot.version>
+                <spring-boot.version>4.0.5</spring-boot.version>
                 <spring-cloud.version>2025.1.0</spring-cloud.version>
             </properties>
         </profile>

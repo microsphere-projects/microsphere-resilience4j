@@ -49,13 +49,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
                 CircuitBreakerEventConsumerBeanRegistrarTest.class
         }
 )
-public class CircuitBreakerEventConsumerBeanRegistrarTest {
+class CircuitBreakerEventConsumerBeanRegistrarTest {
 
     @Autowired
     private CircuitBreakerRegistry registry;
 
     @Test
-    public void test() {
+    void test() {
         CircuitBreaker circuitBreaker = registry.circuitBreaker("test");
         circuitBreaker.acquirePermission();
         circuitBreaker.onSuccess(100, TimeUnit.MILLISECONDS);

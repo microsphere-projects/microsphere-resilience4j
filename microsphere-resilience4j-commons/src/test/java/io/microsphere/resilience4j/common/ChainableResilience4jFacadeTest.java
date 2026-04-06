@@ -21,10 +21,14 @@ import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 import io.github.resilience4j.ratelimiter.RateLimiterRegistry;
 import io.github.resilience4j.retry.RetryRegistry;
 import io.github.resilience4j.timelimiter.TimeLimiterRegistry;
+import io.microsphere.resilience4j.bulkhead.BulkheadTemplate;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
+import static java.util.Arrays.asList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
@@ -35,7 +39,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * @see ChainableResilience4jFacade
  * @since 1.0.0
  */
-public class ChainableResilience4jFacadeTest {
+class ChainableResilience4jFacadeTest {
 
     private final String entryName = "test-entry";
 
@@ -44,7 +48,7 @@ public class ChainableResilience4jFacadeTest {
     private ChainableResilience4jFacade facade;
 
     @BeforeEach
-    public void init() {
+    void setUp() {
         BulkheadRegistry bulkheadRegistry = BulkheadRegistry.ofDefaults();
         RateLimiterRegistry rateLimiterRegistry = RateLimiterRegistry.ofDefaults();
         RetryRegistry retryRegistry = RetryRegistry.ofDefaults();
@@ -63,20 +67,33 @@ public class ChainableResilience4jFacadeTest {
         );
     }
 
+    @AfterEach
+    void tearDown() {
+        this.facade.destroy();
+    }
+
     @Test
-    public void testExecute() {
+    void testConstructor() {
+        BulkheadRegistry bulkheadRegistry = BulkheadRegistry.ofDefaults();
+        BulkheadTemplate bulkheadTemplate = new BulkheadTemplate(bulkheadRegistry);
+        this.facade = new ChainableResilience4jFacade(asList(bulkheadTemplate, bulkheadTemplate, bulkheadTemplate));
+        assertEquals(1, this.facade.getSize());
+    }
+
+    @Test
+    void testExecute() {
         this.facade.execute(entryName, () -> {
         });
     }
 
     @Test
-    public void testCall() throws Throwable {
+    void testCall() throws Throwable {
         this.facade.call(entryName, () -> {
         });
     }
 
     @Test
-    public void testBeginAndEnd() {
+    void testBeginAndEnd() {
         Resilience4jContext<Resilience4jContext[]> context = this.facade.begin(entryName);
         Resilience4jContext[] subContexts = context.getEntry();
         assertEquals(this.size, subContexts.length);
@@ -84,13 +101,14 @@ public class ChainableResilience4jFacadeTest {
     }
 
     @Test
-    public void testGetSize() {
+    void testGetSize() {
         int size = this.facade.getSize();
         assertEquals(this.size, size);
     }
 
-    @AfterEach
-    public void destroy() {
-        this.facade.destroy();
+    @Test
+    void testGetTemplates() {
+        List<Resilience4jTemplate> templates = this.facade.getTemplates();
+        assertEquals(this.size, templates.size());
     }
 }

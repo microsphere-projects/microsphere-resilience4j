@@ -23,17 +23,14 @@ import io.github.resilience4j.circuitbreaker.event.CircuitBreakerOnSuccessEvent;
 import io.github.resilience4j.common.circuitbreaker.configuration.CommonCircuitBreakerConfigurationProperties;
 import io.microsphere.spring.core.convert.annotation.EnableSpringConverterAdapter;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
-import static io.microsphere.resilience4j.spring.common.annotation.EnableResilience4jExtension.WebEnvironment.SPRING_WEBMVC;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
@@ -43,18 +40,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
  * @since 1.0.0
  */
-@ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {EnableCircuitBreakerTest.class})
+@SpringJUnitConfig(classes = EnableCircuitBreakerTest.class)
 @TestPropertySource(properties = {
-        "microsphere.resilience4j.circuitbreaker.instances[test].waitDurationInOpenState=PT30S",
-        "microsphere.resilience4j.circuitbreaker.instances[test].slidingWindowSize=100",
-        "microsphere.resilience4j.circuitbreaker.instances[test].slowCallRateThreshold=0.7"})
-@EnableCircuitBreaker(
-        publishEvents = true,
-        consumeEvents = true,
-        webEnvironment = {SPRING_WEBMVC})
+        "microsphere.resilience4j.circuit-breaker.instances[test].waitDurationInOpenState=PT30S",
+        "microsphere.resilience4j.circuit-breaker.instances[test].slidingWindowSize=100",
+        "microsphere.resilience4j.circuit-breaker.instances[test].slowCallRateThreshold=0.7"})
+@EnableCircuitBreaker(publishEvents = true, consumeEvents = true)
 @EnableSpringConverterAdapter
-public class EnableCircuitBreakerTest {
+class EnableCircuitBreakerTest {
 
     @Autowired
     private CircuitBreakerRegistry registry;
@@ -63,7 +56,7 @@ public class EnableCircuitBreakerTest {
     private CircuitBreakerConfigurationProperties properties;
 
     @Test
-    public void test() {
+    void test() {
         CircuitBreaker circuitBreaker = registry.circuitBreaker("test");
         circuitBreaker.acquirePermission();
         circuitBreaker.onSuccess(100, TimeUnit.MILLISECONDS);
@@ -75,7 +68,7 @@ public class EnableCircuitBreakerTest {
     }
 
     @EventListener(CircuitBreakerOnSuccessEvent.class)
-    public void onCircuitBreakerOnSuccessEvent(CircuitBreakerOnSuccessEvent event) {
+    void onCircuitBreakerOnSuccessEvent(CircuitBreakerOnSuccessEvent event) {
         assertEquals("test", event.getCircuitBreakerName());
         assertEquals(Duration.ofMillis(100), event.getElapsedDuration());
     }

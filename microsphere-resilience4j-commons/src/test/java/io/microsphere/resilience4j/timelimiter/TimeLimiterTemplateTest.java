@@ -43,7 +43,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * @see TimeLimiterTemplate
  * @since 1.0.0
  */
-public class TimeLimiterTemplateTest extends AbstractResilience4jTemplateTest<TimeLimiter, TimeLimiterConfig, TimeLimiterRegistry, TimeLimiterTemplate> {
+class TimeLimiterTemplateTest extends AbstractResilience4jTemplateTest<TimeLimiter, TimeLimiterConfig, TimeLimiterRegistry, TimeLimiterTemplate> {
 
     private final long timeoutDurationInMills = 50;
 
@@ -54,7 +54,12 @@ public class TimeLimiterTemplateTest extends AbstractResilience4jTemplateTest<Ti
     @Override
     protected TimeLimiterTemplate createTemplate(TimeLimiterRegistry registry) throws Throwable {
         executorService = newFixedThreadPool(1);
-        return new TimeLimiterTemplate(registry, executorService);
+        boolean localEntriesCached = random.nextBoolean();
+        if (localEntriesCached) {
+            return new TimeLimiterTemplate(registry, executorService);
+        } else {
+            return new TimeLimiterTemplate(registry, executorService, false);
+        }
     }
 
     /**
@@ -76,7 +81,7 @@ public class TimeLimiterTemplateTest extends AbstractResilience4jTemplateTest<Ti
     }
 
     @Test
-    public void testExecute() {
+    void testExecute() {
         String entryName = super.entryName;
         TimeLimiterTemplate template = super.template;
 
@@ -91,7 +96,7 @@ public class TimeLimiterTemplateTest extends AbstractResilience4jTemplateTest<Ti
     }
 
     @Test
-    public void testExecuteOnFailed() {
+    void testExecuteOnFailed() {
         String entryName = super.entryName;
         TimeLimiterTemplate template = super.template;
 
@@ -110,7 +115,7 @@ public class TimeLimiterTemplateTest extends AbstractResilience4jTemplateTest<Ti
     }
 
     @Test
-    public void testExecuteOnTimeout() {
+    void testExecuteOnTimeout() {
         String entryName = super.entryName;
         TimeLimiterTemplate template = super.template;
 

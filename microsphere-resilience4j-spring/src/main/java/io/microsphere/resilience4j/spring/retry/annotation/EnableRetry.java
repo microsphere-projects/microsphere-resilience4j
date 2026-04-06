@@ -18,17 +18,20 @@ package io.microsphere.resilience4j.spring.retry.annotation;
 
 import io.github.resilience4j.retry.Retry;
 import io.github.resilience4j.retry.configure.RetryConfigurationProperties;
+import io.microsphere.resilience4j.spring.common.Resilience4jPlugin;
 import io.microsphere.resilience4j.spring.common.annotation.EnableResilience4jExtension;
 import io.microsphere.spring.beans.factory.annotation.EnableConfigurationBeanBinding;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.annotation.AliasFor;
 
 import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+
+import static io.microsphere.resilience4j.common.Resilience4jConstants.RETRY_PREFIX;
+import static java.lang.annotation.ElementType.TYPE;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
  * Enable Resilience4j {@link Retry}
@@ -36,13 +39,13 @@ import java.lang.annotation.Target;
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
  * @since 1.0.0
  */
-@Target(ElementType.TYPE)
-@Retention(RetentionPolicy.RUNTIME)
+@Target(TYPE)
+@Retention(RUNTIME)
 @Documented
 @Inherited
 @Import(EnableRetryRegistrar.class)
 @EnableResilience4jExtension
-@EnableConfigurationBeanBinding(prefix = "microsphere.resilience4j.retry", type = RetryConfigurationProperties.class)
+@EnableConfigurationBeanBinding(prefix = RETRY_PREFIX, type = RetryConfigurationProperties.class)
 public @interface EnableRetry {
 
     /**
@@ -62,26 +65,11 @@ public @interface EnableRetry {
     boolean consumeEvents() default false;
 
     /**
-     * Which Web Environment to be supported
+     * The Spring Bean names of the {@link Resilience4jPlugin Resilience4j plugins}
      *
-     * @return empty as default
+     * @return the Spring Bean names of the Resilience4j plugins
+     * @see Resilience4jPlugin
      */
-    @AliasFor(annotation = EnableResilience4jExtension.class, attribute = "webEnvironment")
-    EnableResilience4jExtension.WebEnvironment[] webEnvironment() default {};
-
-    /**
-     * The Data Access Environment
-     *
-     * @return empty as default
-     */
-    @AliasFor(annotation = EnableResilience4jExtension.class, attribute = "dataAccessEnvironment")
-    EnableResilience4jExtension.DataAccessEnvironment[] dataAccessEnvironment() default {};
-
-    /**
-     * The RPC Environment
-     *
-     * @return empty as default
-     */
-    @AliasFor(annotation = EnableResilience4jExtension.class, attribute = "rpcEnvironment")
-    EnableResilience4jExtension.RPCEnvironment[] rpcEnvironment() default {};
+    @AliasFor(annotation = EnableResilience4jExtension.class, attribute = "plugins")
+    String[] plugins() default {};
 }

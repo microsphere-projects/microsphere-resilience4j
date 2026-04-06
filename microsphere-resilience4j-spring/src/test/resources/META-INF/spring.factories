@@ -1,0 +1,3 @@
+io.microsphere.resilience4j.spring.common.Resilience4jPlugin=\
+io.microsphere.resilience4j.spring.LoggingResilience4jPlugin,\
+io.microsphere.resilience4j.spring.NoOpResilience4jPlugin

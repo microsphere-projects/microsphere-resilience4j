@@ -24,6 +24,7 @@ import io.github.resilience4j.core.registry.EntryAddedEvent;
 import io.github.resilience4j.core.registry.EntryRemovedEvent;
 import io.github.resilience4j.core.registry.EntryReplacedEvent;
 import io.github.resilience4j.core.registry.RegistryEventConsumer;
+import io.microsphere.logging.Logger;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
@@ -31,6 +32,7 @@ import org.springframework.context.ApplicationEventPublisherAware;
 import java.lang.reflect.Method;
 import java.util.function.Supplier;
 
+import static io.microsphere.logging.LoggerFactory.getLogger;
 import static org.springframework.util.ReflectionUtils.findMethod;
 import static org.springframework.util.ReflectionUtils.invokeMethod;
 
@@ -42,13 +44,17 @@ import static org.springframework.util.ReflectionUtils.invokeMethod;
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
  * @since 1.0.0
  */
-public abstract class Resilience4jEventApplicationEventPublisher<E, ET> implements EventConsumer<ET>, RegistryEventConsumer<E>, ApplicationEventPublisherAware {
+public abstract class Resilience4jEventApplicationEventPublisher<E, ET> implements EventConsumer<ET>,
+        RegistryEventConsumer<E>, ApplicationEventPublisherAware {
+
+    protected final Logger logger = getLogger(getClass());
 
     private ApplicationEventPublisher applicationEventPublisher;
 
     @Override
     public void consumeEvent(ET event) {
         applicationEventPublisher.publishEvent(event);
+        logger.trace("The Resilience4j Event : {} was published on the Spring ApplicationListener(s)", event);
     }
 
     @Override

@@ -34,8 +34,6 @@ import io.microsphere.resilience4j.common.Resilience4jTemplate;
 
 import java.util.concurrent.TimeUnit;
 
-import static java.lang.System.nanoTime;
-
 /**
  * {@link Resilience4jTemplate} for {@link CircuitBreaker}
  *
@@ -50,6 +48,10 @@ public class CircuitBreakerTemplate extends Resilience4jTemplate<CircuitBreaker,
 
     public CircuitBreakerTemplate(CircuitBreakerRegistry registry) {
         super(registry);
+    }
+
+    public CircuitBreakerTemplate(CircuitBreakerRegistry registry, boolean localEntriesCached) {
+        super(registry, localEntriesCached);
     }
 
     /**
@@ -74,12 +76,12 @@ public class CircuitBreakerTemplate extends Resilience4jTemplate<CircuitBreaker,
     protected void doBegin(Resilience4jContext<CircuitBreaker> context) {
         CircuitBreaker circuitBreaker = context.getEntry();
         circuitBreaker.acquirePermission();
-        context.setStartTime(nanoTime());
+        long startTime = circuitBreaker.getCurrentTimestamp();
+        context.setStartTime(startTime);
     }
 
     @Override
     protected void doEnd(Resilience4jContext<CircuitBreaker> context) {
-        long durationTime = nanoTime() - context.getStartTime();
         CircuitBreaker circuitBreaker = context.getEntry();
         Throwable failure = context.getFailure();
         long startTime = context.getStartTime();

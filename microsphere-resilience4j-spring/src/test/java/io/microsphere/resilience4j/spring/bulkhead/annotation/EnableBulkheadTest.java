@@ -23,16 +23,15 @@ import io.github.resilience4j.bulkhead.event.BulkheadOnCallPermittedEvent;
 import io.github.resilience4j.common.bulkhead.configuration.CommonBulkheadConfigurationProperties;
 import io.microsphere.spring.core.convert.annotation.EnableSpringConverterAdapter;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import java.time.Duration;
 
 import static io.github.resilience4j.bulkhead.event.BulkheadEvent.Type.CALL_PERMITTED;
+import static io.microsphere.resilience4j.spring.LoggingResilience4jPlugin.NAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
@@ -41,15 +40,15 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
  * @since 1.0.0
  */
-@ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {EnableBulkheadTest.class})
+@SpringJUnitConfig(classes = EnableBulkheadTest.class)
 @TestPropertySource(properties = {
         "microsphere.resilience4j.bulkhead.instances[test].maxConcurrentCalls=10",
         "microsphere.resilience4j.bulkhead.instances[test].eventConsumerBufferSize=100",
-        "microsphere.resilience4j.bulkhead.instances[test].maxWaitDuration=PT30S"})
-@EnableBulkhead(publishEvents = true)
+        "microsphere.resilience4j.bulkhead.instances[test].maxWaitDuration=PT30S"
+})
+@EnableBulkhead(publishEvents = true, consumeEvents = true, plugins = NAME)
 @EnableSpringConverterAdapter
-public class EnableBulkheadTest {
+class EnableBulkheadTest {
 
     @Autowired
     private BulkheadRegistry registry;
@@ -58,18 +57,25 @@ public class EnableBulkheadTest {
     private BulkheadConfigurationProperties properties;
 
     @Test
-    public void test() {
-        Bulkhead circuitBreaker = registry.bulkhead("test");
+    void test() {
+        String entryName = "test";
+        Bulkhead circuitBreaker = registry.bulkhead(entryName);
         circuitBreaker.acquirePermission();
 
         CommonBulkheadConfigurationProperties.InstanceProperties instanceProperties = properties.getInstances().get("test");
         assertEquals(Integer.valueOf(10), instanceProperties.getMaxConcurrentCalls());
         assertEquals(Integer.valueOf(100), instanceProperties.getEventConsumerBufferSize());
         assertEquals(Duration.ofSeconds(30), instanceProperties.getMaxWaitDuration());
+
+        // replace entry
+        registry.replace(entryName, circuitBreaker);
+
+        // remove entry
+        registry.remove(entryName);
     }
 
     @EventListener(BulkheadOnCallPermittedEvent.class)
-    public void onBulkheadOnCallPermittedEvent(BulkheadOnCallPermittedEvent event) {
+    void onBulkheadOnCallPermittedEvent(BulkheadOnCallPermittedEvent event) {
         assertEquals("test", event.getBulkheadName());
         assertEquals(CALL_PERMITTED, event.getEventType());
     }

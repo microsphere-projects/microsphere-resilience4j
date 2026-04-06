@@ -45,7 +45,7 @@ import static org.junit.jupiter.api.Assertions.assertSame;
  * @see CircuitBreakerTemplate
  * @since 1.0.0
  */
-public class CircuitBreakerTemplateTest extends AbstractResilience4jTemplateTest<CircuitBreaker, CircuitBreakerConfig, CircuitBreakerRegistry, CircuitBreakerTemplate> {
+class CircuitBreakerTemplateTest extends AbstractResilience4jTemplateTest<CircuitBreaker, CircuitBreakerConfig, CircuitBreakerRegistry, CircuitBreakerTemplate> {
 
     private final int rateThreshold = 10;
 
@@ -74,7 +74,7 @@ public class CircuitBreakerTemplateTest extends AbstractResilience4jTemplateTest
     }
 
     @Test
-    public void testExecute() throws Throwable {
+    void testExecute() {
         String entryName = super.entryName;
         CircuitBreakerTemplate template = super.template;
 
@@ -88,7 +88,7 @@ public class CircuitBreakerTemplateTest extends AbstractResilience4jTemplateTest
     }
 
     @Test
-    public void testExecuteOnCallFailure() {
+    void testExecuteOnCallFailure() {
         String entryName = super.entryName;
         CircuitBreakerTemplate template = super.template;
 
@@ -143,7 +143,7 @@ public class CircuitBreakerTemplateTest extends AbstractResilience4jTemplateTest
     }
 
     @Test
-    public void testExecuteOnSlowCall() {
+    void testExecuteOnSlowCall() {
         String entryName = this.entryName;
         CircuitBreakerTemplate template = super.template;
 

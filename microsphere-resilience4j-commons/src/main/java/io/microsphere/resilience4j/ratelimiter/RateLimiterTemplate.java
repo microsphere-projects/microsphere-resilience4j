@@ -46,6 +46,10 @@ public class RateLimiterTemplate extends Resilience4jTemplate<RateLimiter, RateL
         super(registry);
     }
 
+    public RateLimiterTemplate(RateLimiterRegistry registry, boolean localEntriesCached) {
+        super(registry, localEntriesCached);
+    }
+
     @Override
     public RateLimiter createEntry(String name) {
         RateLimiterRegistry registry = super.getRegistry();

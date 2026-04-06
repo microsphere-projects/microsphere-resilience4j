@@ -41,7 +41,7 @@
             <artifactId>microsphere-spring-context</artifactId>
         </dependency>
 
-        <!--  Resilience4j -->
+        <!--  Resilience4j Spring -->
         <dependency>
             <groupId>io.github.resilience4j</groupId>
             <artifactId>resilience4j-spring</artifactId>
@@ -77,5 +77,17 @@
         </dependency>
 
     </dependencies>
+
+    <profiles>
+        <profile>
+            <id>resilience4j-2.4</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <resilience4j.version>2.3.0</resilience4j.version>
+            </properties>
+        </profile>
+    </profiles>
 
 </project>

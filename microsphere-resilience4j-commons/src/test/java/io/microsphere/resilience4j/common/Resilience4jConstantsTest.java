@@ -38,10 +38,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * @see Resilience4jConstants
  * @since 1.0.0
  */
-public class Resilience4jConstantsTest {
+class Resilience4jConstantsTest {
 
     @Test
-    public void testConstants() {
+    void testConstants() {
 
         assertEquals("microsphere.resilience4j.", PREFIX);
 

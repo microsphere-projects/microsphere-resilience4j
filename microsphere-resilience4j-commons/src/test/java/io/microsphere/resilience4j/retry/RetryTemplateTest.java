@@ -40,7 +40,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  * @see RetryTemplate
  * @since 1.0.0
  */
-public class RetryTemplateTest extends AbstractResilience4jTemplateTest<Retry, RetryConfig, RetryRegistry, RetryTemplate> {
+class RetryTemplateTest extends AbstractResilience4jTemplateTest<Retry, RetryConfig, RetryRegistry, RetryTemplate> {
 
     private final int maxAttempts = 3;
 
@@ -54,7 +54,7 @@ public class RetryTemplateTest extends AbstractResilience4jTemplateTest<Retry, R
     }
 
     @Test
-    public void testExecute() throws Throwable {
+    void testExecute() throws Throwable {
         String entryName = super.entryName;
         RetryTemplate template = super.template;
         String result = "OK";
@@ -92,7 +92,7 @@ public class RetryTemplateTest extends AbstractResilience4jTemplateTest<Retry, R
     }
 
     @Test
-    public void testExecuteOnIgnoredException() throws Throwable {
+    void testExecuteOnIgnoredException() throws Throwable {
         String entryName = super.entryName;
         RetryTemplate template = super.template;
 
@@ -105,7 +105,5 @@ public class RetryTemplateTest extends AbstractResilience4jTemplateTest<Retry, R
         assertThrows(IllegalStateException.class, () -> template.call(entryName, () -> {
             throw new IllegalStateException("For testing");
         }));
-
     }
-
 }

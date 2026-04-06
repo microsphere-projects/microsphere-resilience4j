@@ -28,24 +28,10 @@
             <version>${revision}</version>
         </dependency>
 
-        <!-- Servlet API -->
-        <dependency>
-            <groupId>jakarta.servlet</groupId>
-            <artifactId>jakarta.servlet-api</artifactId>
-            <scope>provided</scope>
-        </dependency>
-
         <!-- Spring WebMVC -->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-webmvc</artifactId>
-            <optional>true</optional>
-        </dependency>
-
-        <!-- Redis -->
-        <dependency>
-            <groupId>org.springframework.data</groupId>
-            <artifactId>spring-data-redis</artifactId>
             <optional>true</optional>
         </dependency>
 
@@ -55,37 +41,11 @@
             <artifactId>microsphere-spring-context</artifactId>
         </dependency>
 
-        <!-- Microsphere Spring JDBC -->
-        <dependency>
-            <groupId>io.github.microsphere-projects</groupId>
-            <artifactId>microsphere-spring-jdbc</artifactId>
-            <optional>true</optional>
-        </dependency>
-
-        <!-- P6Spy -->
-        <dependency>
-            <groupId>p6spy</groupId>
-            <artifactId>p6spy</artifactId>
-            <optional>true</optional>
-        </dependency>
-
-        <!-- Alibaba Druid -->
-        <dependency>
-            <groupId>com.alibaba</groupId>
-            <artifactId>druid</artifactId>
-        </dependency>
-
-        <!-- Microsphere Spring WebMVC -->
-        <dependency>
-            <groupId>io.github.microsphere-projects</groupId>
-            <artifactId>microsphere-spring-webmvc</artifactId>
-            <optional>true</optional>
-        </dependency>
-
         <!--  Resilience4j -->
         <dependency>
             <groupId>io.github.resilience4j</groupId>
             <artifactId>resilience4j-spring</artifactId>
+            <optional>true</optional>
         </dependency>
 
         <!-- Testing -->
@@ -99,12 +59,6 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-aop</artifactId>
             <scope>test</scope>
         </dependency>
 

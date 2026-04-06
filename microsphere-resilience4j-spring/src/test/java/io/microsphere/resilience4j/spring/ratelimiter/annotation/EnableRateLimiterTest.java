@@ -22,12 +22,10 @@ import io.github.resilience4j.ratelimiter.configure.RateLimiterConfigurationProp
 import io.github.resilience4j.ratelimiter.event.RateLimiterOnSuccessEvent;
 import io.microsphere.spring.core.convert.annotation.EnableSpringConverterAdapter;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import java.time.Duration;
 
@@ -40,15 +38,15 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
  * @since 1.0.0
  */
-@ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {EnableRateLimiterTest.class})
+@SpringJUnitConfig(classes = EnableRateLimiterTest.class)
 @TestPropertySource(properties = {
-        "microsphere.resilience4j.ratelimiter.instances[test].timeoutDuration=PT10S",
-        "microsphere.resilience4j.ratelimiter.instances[test].limitRefreshPeriod=PT0.000001S",
-        "microsphere.resilience4j.ratelimiter.instances[test].limitForPeriod=20"})
-@EnableRateLimiter
+        "microsphere.resilience4j.rate-limiter.instances[test].timeoutDuration=PT10S",
+        "microsphere.resilience4j.rate-limiter.instances[test].limitRefreshPeriod=PT0.000001S",
+        "microsphere.resilience4j.rate-limiter.instances[test].limitForPeriod=20"
+})
+@EnableRateLimiter(publishEvents = true, consumeEvents = true)
 @EnableSpringConverterAdapter
-public class EnableRateLimiterTest {
+class EnableRateLimiterTest {
 
     @Autowired
     private RateLimiterRegistry registry;
@@ -57,7 +55,7 @@ public class EnableRateLimiterTest {
     private RateLimiterConfigurationProperties properties;
 
     @Test
-    public void test() {
+    void test() {
         RateLimiter rateLimiter = registry.rateLimiter("test");
         rateLimiter.acquirePermission();
 
@@ -70,7 +68,7 @@ public class EnableRateLimiterTest {
     }
 
     @EventListener(RateLimiterOnSuccessEvent.class)
-    public void onRateLimiterOnSuccessEvent(RateLimiterOnSuccessEvent event) {
+    void onRateLimiterOnSuccessEvent(RateLimiterOnSuccessEvent event) {
         assertEquals("test", event.getRateLimiterName());
         assertEquals(SUCCESSFUL_ACQUIRE, event.getEventType());
     }

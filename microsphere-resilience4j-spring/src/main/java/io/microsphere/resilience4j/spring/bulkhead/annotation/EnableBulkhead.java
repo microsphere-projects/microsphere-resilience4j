@@ -19,6 +19,7 @@ package io.microsphere.resilience4j.spring.bulkhead.annotation;
 import io.github.resilience4j.bulkhead.Bulkhead;
 import io.github.resilience4j.bulkhead.configure.BulkheadConfigurationProperties;
 import io.github.resilience4j.common.bulkhead.configuration.CommonThreadPoolBulkheadConfigurationProperties;
+import io.microsphere.resilience4j.spring.common.Resilience4jPlugin;
 import io.microsphere.resilience4j.spring.common.annotation.EnableResilience4jExtension;
 import io.microsphere.spring.beans.factory.annotation.EnableConfigurationBeanBinding;
 import io.microsphere.spring.beans.factory.annotation.EnableConfigurationBeanBindings;
@@ -26,11 +27,14 @@ import org.springframework.context.annotation.Import;
 import org.springframework.core.annotation.AliasFor;
 
 import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+
+import static io.microsphere.resilience4j.common.Resilience4jConstants.BULKHEAD_PREFIX;
+import static io.microsphere.resilience4j.common.Resilience4jConstants.THREAD_POOL_BULKHEAD_PREFIX;
+import static java.lang.annotation.ElementType.TYPE;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
  * Enable Resilience4j {@link Bulkhead}
@@ -38,15 +42,15 @@ import java.lang.annotation.Target;
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
  * @since 1.0.0
  */
-@Target(ElementType.TYPE)
-@Retention(RetentionPolicy.RUNTIME)
+@Target(TYPE)
+@Retention(RUNTIME)
 @Documented
 @Inherited
 @Import(EnableBulkheadRegistrar.class)
 @EnableResilience4jExtension
 @EnableConfigurationBeanBindings({
-        @EnableConfigurationBeanBinding(prefix = "microsphere.resilience4j.bulkhead", type = BulkheadConfigurationProperties.class),
-        @EnableConfigurationBeanBinding(prefix = "microsphere.resilience4j.thread-pool-bulkhead", type = CommonThreadPoolBulkheadConfigurationProperties.class)
+        @EnableConfigurationBeanBinding(prefix = BULKHEAD_PREFIX, type = BulkheadConfigurationProperties.class),
+        @EnableConfigurationBeanBinding(prefix = THREAD_POOL_BULKHEAD_PREFIX, type = CommonThreadPoolBulkheadConfigurationProperties.class)
 })
 public @interface EnableBulkhead {
 
@@ -67,26 +71,11 @@ public @interface EnableBulkhead {
     boolean consumeEvents() default false;
 
     /**
-     * Which Web Environment to be supported
+     * The Spring Bean names of the {@link Resilience4jPlugin Resilience4j plugins}
      *
-     * @return empty as default
+     * @return the Spring Bean names of the Resilience4j plugins
+     * @see Resilience4jPlugin
      */
-    @AliasFor(annotation = EnableResilience4jExtension.class, attribute = "webEnvironment")
-    EnableResilience4jExtension.WebEnvironment[] webEnvironment() default {};
-
-    /**
-     * The Data Access Environment
-     *
-     * @return empty as default
-     */
-    @AliasFor(annotation = EnableResilience4jExtension.class, attribute = "dataAccessEnvironment")
-    EnableResilience4jExtension.DataAccessEnvironment[] dataAccessEnvironment() default {};
-
-    /**
-     * The RPC Environment
-     *
-     * @return empty as default
-     */
-    @AliasFor(annotation = EnableResilience4jExtension.class, attribute = "rpcEnvironment")
-    EnableResilience4jExtension.RPCEnvironment[] rpcEnvironment() default {};
+    @AliasFor(annotation = EnableResilience4jExtension.class, attribute = "plugins")
+    String[] plugins() default {};
 }

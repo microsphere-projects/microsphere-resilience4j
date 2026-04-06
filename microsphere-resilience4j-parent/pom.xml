@@ -19,44 +19,16 @@
     <description>Microsphere Resilience4j Parent</description>
 
     <properties>
-        <microsphere-spring-cloud.version>0.2.5</microsphere-spring-cloud.version>
-        <microsphere-redis.version>0.2.0</microsphere-redis.version>
-        <microsphere-alibaba-druid.version>0.2.0</microsphere-alibaba-druid.version>
-        <microsphere-mybatis.version>0.2.0</microsphere-mybatis.version>
-        <!-- Third-party versions -->
-        <mybatis.version>3.5.19</mybatis.version>
-        <mybatis-spring.version>3.0.5</mybatis-spring.version>
-        <mybatis-spring-boot.version>3.0.5</mybatis-spring-boot.version>
-        <druid.version>1.2.27</druid.version>
-        <h2.version>2.4.240</h2.version>
-        <junit.version>6.0.2</junit.version>
+        <microsphere-spring-cloud.version>0.2.8</microsphere-spring-cloud.version>
+        <microsphere-redis.version>0.2.1</microsphere-redis.version>
+        <microsphere-alibaba-druid.version>0.2.3</microsphere-alibaba-druid.version>
+        <microsphere-mybatis.version>0.2.1</microsphere-mybatis.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
 
-            <!-- JUnit BOM -->
-            <dependency>
-                <groupId>org.junit</groupId>
-                <artifactId>junit-bom</artifactId>
-                <version>${junit.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-
             <!-- Resilience4j Dependencies -->
-            <dependency>
-                <groupId>io.github.resilience4j</groupId>
-                <artifactId>resilience4j-core</artifactId>
-                <version>${resilience4j.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>io.github.resilience4j</groupId>
-                <artifactId>resilience4j-annotations</artifactId>
-                <version>${resilience4j.version}</version>
-            </dependency>
-
             <dependency>
                 <groupId>io.github.resilience4j</groupId>
                 <artifactId>resilience4j-framework-common</artifactId>
@@ -65,156 +37,8 @@
 
             <dependency>
                 <groupId>io.github.resilience4j</groupId>
-                <artifactId>resilience4j-consumer</artifactId>
+                <artifactId>resilience4j-bom</artifactId>
                 <version>${resilience4j.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>io.github.resilience4j</groupId>
-                <artifactId>resilience4j-circularbuffer</artifactId>
-                <version>${resilience4j.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>io.github.resilience4j</groupId>
-                <artifactId>resilience4j-metrics</artifactId>
-                <version>${resilience4j.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>io.github.resilience4j</groupId>
-                <artifactId>resilience4j-circuitbreaker</artifactId>
-                <version>${resilience4j.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>io.github.resilience4j</groupId>
-                <artifactId>resilience4j-bulkhead</artifactId>
-                <version>${resilience4j.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>io.github.resilience4j</groupId>
-                <artifactId>resilience4j-ratelimiter</artifactId>
-                <version>${resilience4j.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>io.github.resilience4j</groupId>
-                <artifactId>resilience4j-retry</artifactId>
-                <version>${resilience4j.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>io.github.resilience4j</groupId>
-                <artifactId>resilience4j-timelimiter</artifactId>
-                <version>${resilience4j.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>io.github.resilience4j</groupId>
-                <artifactId>resilience4j-cache</artifactId>
-                <version>${resilience4j.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>io.github.resilience4j</groupId>
-                <artifactId>resilience4j-spring</artifactId>
-                <version>${resilience4j.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>io.github.resilience4j</groupId>
-                <artifactId>resilience4j-spring-boot2</artifactId>
-                <version>${resilience4j.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>io.github.resilience4j</groupId>
-                <artifactId>resilience4j-spring-cloud2</artifactId>
-                <version>${resilience4j.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>io.github.resilience4j</groupId>
-                <artifactId>resilience4j-feign</artifactId>
-                <version>${resilience4j.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>io.github.resilience4j</groupId>
-                <artifactId>resilience4j-prometheus</artifactId>
-                <version>${resilience4j.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>io.github.resilience4j</groupId>
-                <artifactId>resilience4j-micrometer</artifactId>
-                <version>${resilience4j.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>io.github.resilience4j</groupId>
-                <artifactId>resilience4j-vertx</artifactId>
-                <version>${resilience4j.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>io.github.resilience4j</groupId>
-                <artifactId>resilience4j-retrofit</artifactId>
-                <version>${resilience4j.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>io.github.resilience4j</groupId>
-                <artifactId>resilience4j-ratpack</artifactId>
-                <version>${resilience4j.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>io.github.resilience4j</groupId>
-                <artifactId>resilience4j-rxjava2</artifactId>
-                <version>${resilience4j.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>io.github.resilience4j</groupId>
-                <artifactId>resilience4j-rxjava3</artifactId>
-                <version>${resilience4j.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>io.github.resilience4j</groupId>
-                <artifactId>resilience4j-reactor</artifactId>
-                <version>${resilience4j.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>io.github.resilience4j</groupId>
-                <artifactId>resilience4j-kotlin</artifactId>
-                <version>${resilience4j.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>io.github.resilience4j</groupId>
-                <artifactId>resilience4j-all</artifactId>
-                <version>${resilience4j.version}</version>
-            </dependency>
-
-            <!-- Spring Boot Dependencies -->
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-dependencies</artifactId>
-                <version>${spring-boot.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-
-            <!-- Spring Cloud Dependencies -->
-            <dependency>
-                <groupId>org.springframework.cloud</groupId>
-                <artifactId>spring-cloud-dependencies</artifactId>
-                <version>${spring-cloud.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -233,7 +57,8 @@
                 <groupId>io.github.microsphere-projects</groupId>
                 <artifactId>microsphere-redis-dependencies</artifactId>
                 <version>${microsphere-redis.version}</version>
-                <optional>true</optional>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
 
             <!-- Microsphere Alibaba Druid -->
@@ -241,7 +66,8 @@
                 <groupId>io.github.microsphere-projects</groupId>
                 <artifactId>microsphere-alibaba-druid-dependencies</artifactId>
                 <version>${microsphere-alibaba-druid.version}</version>
-                <optional>true</optional>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
 
             <!-- Microsphere MyBatis -->
@@ -249,90 +75,14 @@
                 <groupId>io.github.microsphere-projects</groupId>
                 <artifactId>microsphere-mybatis-dependencies</artifactId>
                 <version>${microsphere-mybatis.version}</version>
-                <optional>true</optional>
-            </dependency>
-
-            <!-- MyBatis -->
-            <dependency>
-                <groupId>org.mybatis</groupId>
-                <artifactId>mybatis</artifactId>
-                <version>${mybatis.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.mybatis</groupId>
-                <artifactId>mybatis-spring</artifactId>
-                <version>${mybatis-spring.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.mybatis.spring.boot</groupId>
-                <artifactId>mybatis-spring-boot-starter</artifactId>
-                <version>${mybatis-spring-boot.version}</version>
-            </dependency>
-
-            <!-- Alibaba Druid -->
-            <dependency>
-                <groupId>com.alibaba</groupId>
-                <artifactId>druid</artifactId>
-                <version>${druid.version}</version>
-            </dependency>
-
-            <!-- H2 -->
-            <dependency>
-                <groupId>com.h2database</groupId>
-                <artifactId>h2</artifactId>
-                <version>${h2.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
 
         </dependencies>
     </dependencyManagement>
 
     <profiles>
-
-        <!-- Spring Cloud Profiles -->
-        <profile>
-            <id>spring-cloud-2022</id>
-            <properties>
-                <spring-boot.version>3.0.13</spring-boot.version>
-                <spring-cloud.version>2022.0.5</spring-cloud.version>
-            </properties>
-        </profile>
-
-        <profile>
-            <id>spring-cloud-2023</id>
-            <properties>
-                <spring-boot.version>3.3.13</spring-boot.version>
-                <spring-cloud.version>2023.0.6</spring-cloud.version>
-            </properties>
-        </profile>
-
-        <profile>
-            <id>spring-cloud-2024</id>
-            <properties>
-                <spring-boot.version>3.4.12</spring-boot.version>
-                <spring-cloud.version>2024.0.3</spring-cloud.version>
-            </properties>
-        </profile>
-
-        <profile>
-            <id>spring-cloud-2025</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <properties>
-                <spring-boot.version>3.5.8</spring-boot.version>
-                <spring-cloud.version>2025.0.1</spring-cloud.version>
-            </properties>
-        </profile>
-
-        <profile>
-            <id>spring-cloud-2025.1</id>
-            <properties>
-                <spring-boot.version>4.0.0</spring-boot.version>
-                <spring-cloud.version>2025.1.0</spring-cloud.version>
-            </properties>
-        </profile>
 
         <profile>
             <id>resilience4j-2.0</id>
@@ -357,11 +107,18 @@
 
         <profile>
             <id>resilience4j-2.3</id>
+            <properties>
+                <resilience4j.version>2.3.0</resilience4j.version>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>resilience4j-2.4</id>
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
             <properties>
-                <resilience4j.version>2.3.0</resilience4j.version>
+                <resilience4j.version>2.4.0</resilience4j.version>
             </properties>
         </profile>
 

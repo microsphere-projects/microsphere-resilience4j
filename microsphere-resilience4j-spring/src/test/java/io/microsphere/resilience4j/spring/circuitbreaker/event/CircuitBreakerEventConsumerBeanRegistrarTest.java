@@ -22,6 +22,7 @@ import io.github.resilience4j.circuitbreaker.configure.CircuitBreakerConfigurati
 import io.github.resilience4j.circuitbreaker.configure.CircuitBreakerConfigurationProperties;
 import io.github.resilience4j.circuitbreaker.event.CircuitBreakerOnSuccessEvent;
 import io.github.resilience4j.core.EventConsumer;
+import io.microsphere.resilience4j.spring.context.CommonConfigurationsApplicationContextInitializer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,9 +30,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
+import static java.time.Duration.ofMillis;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
@@ -41,21 +42,21 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * @since 1.0.0
  */
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(
-        classes = {
-                CircuitBreakerConfigurationProperties.class,
-                CircuitBreakerConfiguration.class,
-                CircuitBreakerEventConsumerBeanRegistrar.class,
-                CircuitBreakerEventConsumerBeanRegistrarTest.class
-        }
-)
-public class CircuitBreakerEventConsumerBeanRegistrarTest {
+@ContextConfiguration(classes = {
+        CircuitBreakerConfigurationProperties.class,
+        CircuitBreakerConfiguration.class,
+        CircuitBreakerEventConsumerBeanRegistrar.class,
+        CircuitBreakerEventConsumerBeanRegistrarTest.class
+}, initializers = {
+        CommonConfigurationsApplicationContextInitializer.class
+})
+class CircuitBreakerEventConsumerBeanRegistrarTest {
 
     @Autowired
     private CircuitBreakerRegistry registry;
 
     @Test
-    public void test() {
+    void test() {
         CircuitBreaker circuitBreaker = registry.circuitBreaker("test");
         circuitBreaker.acquirePermission();
         circuitBreaker.onSuccess(100, TimeUnit.MILLISECONDS);
@@ -65,7 +66,7 @@ public class CircuitBreakerEventConsumerBeanRegistrarTest {
     public EventConsumer<CircuitBreakerOnSuccessEvent> circuitBreakerOnSuccessEventEventConsumer() {
         return event -> {
             assertEquals("test", event.getCircuitBreakerName());
-            assertEquals(Duration.ofMillis(100), event.getElapsedDuration());
+            assertEquals(ofMillis(100), event.getElapsedDuration());
         };
     }
 }

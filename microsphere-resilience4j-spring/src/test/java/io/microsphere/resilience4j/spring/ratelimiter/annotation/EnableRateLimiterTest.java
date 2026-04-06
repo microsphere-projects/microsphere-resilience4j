@@ -22,16 +22,15 @@ import io.github.resilience4j.ratelimiter.configure.RateLimiterConfigurationProp
 import io.github.resilience4j.ratelimiter.event.RateLimiterOnSuccessEvent;
 import io.microsphere.spring.core.convert.annotation.EnableSpringConverterAdapter;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-
-import java.time.Duration;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import static io.github.resilience4j.ratelimiter.event.RateLimiterEvent.Type.SUCCESSFUL_ACQUIRE;
+import static java.lang.Integer.valueOf;
+import static java.time.Duration.ofNanos;
+import static java.time.Duration.ofSeconds;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
@@ -40,15 +39,15 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
  * @since 1.0.0
  */
-@ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {EnableRateLimiterTest.class})
+@SpringJUnitConfig(classes = EnableRateLimiterTest.class)
 @TestPropertySource(properties = {
-        "microsphere.resilience4j.ratelimiter.instances[test].timeoutDuration=PT10S",
-        "microsphere.resilience4j.ratelimiter.instances[test].limitRefreshPeriod=PT0.000001S",
-        "microsphere.resilience4j.ratelimiter.instances[test].limitForPeriod=20"})
-@EnableRateLimiter
+        "microsphere.resilience4j.rate-limiter.instances[test].timeoutDuration=PT10S",
+        "microsphere.resilience4j.rate-limiter.instances[test].limitRefreshPeriod=PT0.000001S",
+        "microsphere.resilience4j.rate-limiter.instances[test].limitForPeriod=20"
+})
+@EnableRateLimiter(publishEvents = true, consumeEvents = true)
 @EnableSpringConverterAdapter
-public class EnableRateLimiterTest {
+class EnableRateLimiterTest {
 
     @Autowired
     private RateLimiterRegistry registry;
@@ -57,19 +56,19 @@ public class EnableRateLimiterTest {
     private RateLimiterConfigurationProperties properties;
 
     @Test
-    public void test() {
+    void test() {
         RateLimiter rateLimiter = registry.rateLimiter("test");
         rateLimiter.acquirePermission();
 
         RateLimiterConfigurationProperties.InstanceProperties instanceProperties = properties.getInstances().get("test");
-        assertEquals(Duration.ofSeconds(10), instanceProperties.getTimeoutDuration());
-        assertEquals(Integer.valueOf(20), instanceProperties.getLimitForPeriod());
-        assertEquals(Duration.ofNanos(1000), instanceProperties.getLimitRefreshPeriod());
+        assertEquals(ofSeconds(10), instanceProperties.getTimeoutDuration());
+        assertEquals(valueOf(20), instanceProperties.getLimitForPeriod());
+        assertEquals(ofNanos(1000), instanceProperties.getLimitRefreshPeriod());
 
     }
 
     @EventListener(RateLimiterOnSuccessEvent.class)
-    public void onRateLimiterOnSuccessEvent(RateLimiterOnSuccessEvent event) {
+    void onRateLimiterOnSuccessEvent(RateLimiterOnSuccessEvent event) {
         assertEquals("test", event.getRateLimiterName());
         assertEquals(SUCCESSFUL_ACQUIRE, event.getEventType());
     }

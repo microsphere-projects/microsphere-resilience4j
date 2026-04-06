@@ -24,11 +24,11 @@ import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.TimeUnit;
 
 import static io.github.resilience4j.ratelimiter.event.RateLimiterEvent.Type.SUCCESSFUL_ACQUIRE;
 import static java.time.Duration.ofMillis;
 import static java.util.concurrent.Executors.newFixedThreadPool;
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
@@ -39,7 +39,7 @@ import static org.junit.jupiter.api.Assertions.assertSame;
  * @see RateLimiterTemplate
  * @since 1.0.0
  */
-public class RateLimiterTemplateTest extends AbstractResilience4jTemplateTest<RateLimiter, RateLimiterConfig, RateLimiterRegistry, RateLimiterTemplate> {
+class RateLimiterTemplateTest extends AbstractResilience4jTemplateTest<RateLimiter, RateLimiterConfig, RateLimiterRegistry, RateLimiterTemplate> {
 
     private final long durationInMills = 50;
 
@@ -55,7 +55,7 @@ public class RateLimiterTemplateTest extends AbstractResilience4jTemplateTest<Ra
     }
 
     @Test
-    public void execute() {
+    void execute() {
         String entryName = super.entryName;
         RateLimiterTemplate template = super.template;
 
@@ -78,7 +78,7 @@ public class RateLimiterTemplateTest extends AbstractResilience4jTemplateTest<Ra
     }
 
     @Test
-    public void executeOnFailed() throws InterruptedException {
+    void executeOnFailed() throws InterruptedException {
 
         String entryName = super.entryName;
         RateLimiterTemplate template = super.template;
@@ -106,8 +106,6 @@ public class RateLimiterTemplateTest extends AbstractResilience4jTemplateTest<Ra
 
         executorService.shutdown();
 
-        executorService.awaitTermination(3, TimeUnit.SECONDS);
-
+        executorService.awaitTermination(3, SECONDS);
     }
-
 }

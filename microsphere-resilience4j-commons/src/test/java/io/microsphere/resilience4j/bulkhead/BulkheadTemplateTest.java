@@ -24,13 +24,13 @@ import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.TimeUnit;
 
 import static io.github.resilience4j.bulkhead.event.BulkheadEvent.Type.CALL_FINISHED;
 import static io.github.resilience4j.bulkhead.event.BulkheadEvent.Type.CALL_PERMITTED;
 import static io.github.resilience4j.bulkhead.event.BulkheadEvent.Type.CALL_REJECTED;
 import static java.time.Duration.ofMillis;
 import static java.util.concurrent.Executors.newFixedThreadPool;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
@@ -41,9 +41,9 @@ import static org.junit.jupiter.api.Assertions.assertNull;
  * @see BulkheadTemplate
  * @since 1.0.0
  */
-public class BulkheadTemplateTest extends AbstractResilience4jTemplateTest<Bulkhead, BulkheadConfig, BulkheadRegistry, BulkheadTemplate> {
+class BulkheadTemplateTest extends AbstractResilience4jTemplateTest<Bulkhead, BulkheadConfig, BulkheadRegistry, BulkheadTemplate> {
 
-    private int maxConcurrentCalls = 1;
+    private int maxConcurrentCalls = 2;
 
     private Duration maxWaitDuration = ofMillis(100);
 
@@ -56,7 +56,7 @@ public class BulkheadTemplateTest extends AbstractResilience4jTemplateTest<Bulkh
     }
 
     @Test
-    public void testExecute() throws Throwable {
+    void testExecute() throws Throwable {
         String entryName = super.entryName;
         BulkheadTemplate template = super.template;
 
@@ -77,7 +77,7 @@ public class BulkheadTemplateTest extends AbstractResilience4jTemplateTest<Bulkh
     }
 
     @Test
-    public void testExecuteOnCallRejected() throws InterruptedException {
+    void testExecuteOnCallRejected() throws InterruptedException {
         String entryName = super.entryName;
         BulkheadTemplate template = super.template;
 
@@ -99,7 +99,7 @@ public class BulkheadTemplateTest extends AbstractResilience4jTemplateTest<Bulkh
 
         executorService.shutdown();
 
-        while (!executorService.awaitTermination(100, TimeUnit.MILLISECONDS)) {
+        while (!executorService.awaitTermination(100, MILLISECONDS)) {
 
         }
     }

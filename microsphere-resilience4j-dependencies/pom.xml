@@ -29,7 +29,19 @@
 
             <dependency>
                 <groupId>io.github.microsphere-projects</groupId>
+                <artifactId>microsphere-resilience4j-alibaba-druid</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.github.microsphere-projects</groupId>
                 <artifactId>microsphere-resilience4j-feign</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.github.microsphere-projects</groupId>
+                <artifactId>microsphere-resilience4j-mybatis</artifactId>
                 <version>${revision}</version>
             </dependency>
 

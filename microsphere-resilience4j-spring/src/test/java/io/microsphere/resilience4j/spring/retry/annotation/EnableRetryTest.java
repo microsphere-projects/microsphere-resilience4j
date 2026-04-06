@@ -21,14 +21,12 @@ import io.github.resilience4j.retry.RetryRegistry;
 import io.github.resilience4j.retry.configure.RetryConfigurationProperties;
 import io.microsphere.spring.core.convert.annotation.EnableSpringConverterAdapter;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
-import java.time.Duration;
-
+import static java.lang.Integer.valueOf;
+import static java.time.Duration.ofSeconds;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
@@ -37,15 +35,15 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
  * @since 1.0.0
  */
-@ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {EnableRetryTest.class})
+@SpringJUnitConfig(classes = EnableRetryTest.class)
 @TestPropertySource(properties = {
         "microsphere.resilience4j.retry.instances[test].waitDuration=PT1S",
         "microsphere.resilience4j.retry.instances[test].maxAttempts=1",
-        "microsphere.resilience4j.retry.instances[test].eventConsumerBufferSize=99"})
-@EnableRetry
+        "microsphere.resilience4j.retry.instances[test].eventConsumerBufferSize=99"
+})
+@EnableRetry(publishEvents = true, consumeEvents = true)
 @EnableSpringConverterAdapter
-public class EnableRetryTest {
+class EnableRetryTest {
 
     @Autowired
     private RetryRegistry registry;
@@ -54,12 +52,12 @@ public class EnableRetryTest {
     private RetryConfigurationProperties properties;
 
     @Test
-    public void test() {
+    void test() {
         Retry retry = registry.retry("test");
 
         RetryConfigurationProperties.InstanceProperties instanceProperties = properties.getInstances().get("test");
-        assertEquals(Duration.ofSeconds(1), instanceProperties.getWaitDuration());
-        assertEquals(Integer.valueOf(99), instanceProperties.getEventConsumerBufferSize());
+        assertEquals(ofSeconds(1), instanceProperties.getWaitDuration());
+        assertEquals(valueOf(99), instanceProperties.getEventConsumerBufferSize());
 
         retry.executeSupplier(() -> "Hello,World");
     }

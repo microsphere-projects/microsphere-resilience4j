@@ -51,6 +51,10 @@ public class CircuitBreakerTemplate extends Resilience4jTemplate<CircuitBreaker,
         super(registry);
     }
 
+    public CircuitBreakerTemplate(CircuitBreakerRegistry registry, boolean localEntriesCached) {
+        super(registry, localEntriesCached);
+    }
+
     /**
      * Create the {@link CircuitBreaker}
      *
@@ -72,14 +76,15 @@ public class CircuitBreakerTemplate extends Resilience4jTemplate<CircuitBreaker,
     @Override
     protected void doBegin(Resilience4jContext<CircuitBreaker> context) {
         CircuitBreaker circuitBreaker = context.getEntry();
+        long startTime = nanoTime();
         circuitBreaker.acquirePermission();
-        context.setStartTime(nanoTime());
+        context.setStartTime(startTime);
     }
 
     @Override
     protected void doEnd(Resilience4jContext<CircuitBreaker> context) {
-        long durationTime = nanoTime() - context.getStartTime();
         CircuitBreaker circuitBreaker = context.getEntry();
+        long durationTime = nanoTime() - context.getStartTime();
         Throwable failure = context.getFailure();
         if (failure == null) {
             circuitBreaker.onSuccess(durationTime, NANOSECONDS);

@@ -74,15 +74,17 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> imple
     private int priority;
 
     public Resilience4jTemplate(R registry) {
+        this(registry, true);
+    }
+
+    public Resilience4jTemplate(R registry, boolean localEntriesCached) {
         assertNotNull(registry, "The registry must not be null");
         this.registry = registry;
-        this.registryEventProcessor = getEventProcessor(registry);
         this.module = valueOf(registry.getClass());
-        this.localEntriesCache = createLocalEntriesCache();
+        this.registryEventProcessor = getEventProcessor(registry);
+        this.localEntriesCache = localEntriesCached ? createLocalEntriesCache() : null;
         this.priority = this.module.getDefaultAspectOrder();
-        if (logger.isTraceEnabled()) {
-            logger.trace("Resilience4jTemplate was created : {}", toString());
-        }
+        logger.trace("Resilience4jTemplate was created : {}", this);
     }
 
     /**
@@ -163,12 +165,10 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> imple
      * @param name the name of entry
      */
     public final Resilience4jTemplate<E, C, R> initLocalEntriesCache(String name) {
-        if (isLocalEntriesCachePresent()) {
+        if (isLocalEntriesCached()) {
             E entry = getEntry(name);
             localEntriesCache.put(name, entry);
-            if (logger.isTraceEnabled()) {
-                logger.info("The local entries cache for entry[name : '{}'] was initialized : {}", name, entry);
-            }
+            logger.trace("The local entries cache for entry[name : '{}'] was initialized : {}", name, entry);
         } else {
             logger.warn("The local entries cache is not required, please review the #createLocalEntriesCache() method implementation.");
             return this;
@@ -205,21 +205,20 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> imple
     }
 
     /**
-     * Is local entries caches present or not?
+     * Is local entries cached or not?
      *
-     * @return <code>true</code> if present, otherwise <code>false</code>
+     * @return <code>true</code> if cached, otherwise <code>false</code>
      */
-    protected final boolean isLocalEntriesCachePresent() {
+    protected final boolean isLocalEntriesCached() {
         return this.localEntriesCache != null;
     }
-
 
     /**
      * Clear the local entries cache
      */
     protected final void clearLocalEntriesCache() {
-        localEntriesCache.clear();
-        if (logger.isTraceEnabled()) {
+        if (isLocalEntriesCached()) {
+            localEntriesCache.clear();
             logger.trace("The local entries cache was cleared!");
         }
     }
@@ -232,16 +231,12 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> imple
      */
     protected final E getEntryFromCache(String name) {
         E entry = null;
-        if (isLocalEntriesCachePresent()) {
+        if (isLocalEntriesCached()) {
             entry = localEntriesCache.get(name);
             if (entry == null) {
-                if (logger.isTraceEnabled()) {
-                    logger.trace("The local entries cache for entry[name : '{}'] was not found.", name);
-                }
+                logger.trace("The local entries cache for entry[name : '{}'] was not found.", name);
             } else {
-                if (logger.isTraceEnabled()) {
-                    logger.trace("The local entries cache for entry[name : '{}'] was found : {}", name, entry);
-                }
+                logger.trace("The local entries cache for entry[name : '{}'] was found : {}", name, entry);
             }
         }
         return entry;
@@ -255,7 +250,8 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> imple
      * @return {@link Resilience4jTemplate}
      */
     @Override
-    public final AdvancedResilience4jOperations<E, C, R> addConfiguration(String configName, C configuration) {
+    public final AdvancedResilience4jOperations<E, C, R> addConfiguration(String configName, C
+            configuration) {
         return AdvancedResilience4jOperations.super.addConfiguration(configName, configuration);
     }
 
@@ -277,9 +273,7 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> imple
         E entry = getEntry(name);
         Resilience4jContext<E> context = new Resilience4jContext(name, entry);
         doBegin(context);
-        if (logger.isTraceEnabled()) {
-            logger.trace("begin() operation was executed -> ", context);
-        }
+        logger.trace("begin() operation was executed -> ", context);
         return context;
     }
 
@@ -290,9 +284,7 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> imple
     @Override
     public final void end(Resilience4jContext<E> context) {
         doEnd(context);
-        if (logger.isTraceEnabled()) {
-            logger.trace("end() operation was executed -> {}", context);
-        }
+        logger.trace("end() operation was executed -> {}", context);
     }
 
     protected void doEnd(Resilience4jContext<E> context) {
@@ -305,7 +297,8 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> imple
      * @param entryAddedEventEventConsumer the {@link EventConsumer} of {@link EntryAddedEvent}
      * @return {@link Resilience4jTemplate}
      */
-    public final Resilience4jTemplate<E, C, R> onEntryAddedEvent(EventConsumer<EntryAddedEvent<E>> entryAddedEventEventConsumer) {
+    public final Resilience4jTemplate<E, C, R> onEntryAddedEvent
+    (EventConsumer<EntryAddedEvent<E>> entryAddedEventEventConsumer) {
         return registerRegistryEventConsumer(EntryAddedEvent.class, entryAddedEventEventConsumer);
     }
 
@@ -315,7 +308,8 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> imple
      * @param entryRemovedEventEventConsumer the {@link EventConsumer} of {@link EntryAddedEvent}
      * @return {@link Resilience4jTemplate}
      */
-    public final Resilience4jTemplate<E, C, R> onEntryRemovedEvent(EventConsumer<EntryRemovedEvent<E>> entryRemovedEventEventConsumer) {
+    public final Resilience4jTemplate<E, C, R> onEntryRemovedEvent
+    (EventConsumer<EntryRemovedEvent<E>> entryRemovedEventEventConsumer) {
         return registerRegistryEventConsumer(EntryRemovedEvent.class, entryRemovedEventEventConsumer);
     }
 
@@ -325,7 +319,8 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> imple
      * @param entryReplacedEventEventConsumer the {@link EventConsumer} of {@link EntryAddedEvent}
      * @return {@link Resilience4jTemplate}
      */
-    public final Resilience4jTemplate<E, C, R> onEntryReplacedEvent(EventConsumer<EntryReplacedEvent<E>> entryReplacedEventEventConsumer) {
+    public final Resilience4jTemplate<E, C, R> onEntryReplacedEvent
+    (EventConsumer<EntryReplacedEvent<E>> entryReplacedEventEventConsumer) {
         return registerRegistryEventConsumer(EntryReplacedEvent.class, entryReplacedEventEventConsumer);
     }
 
@@ -337,7 +332,8 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> imple
      * @param <T>           the type of Resilience4j event
      * @return {@link Resilience4jTemplate}
      */
-    protected final <T extends RegistryEvent> Resilience4jTemplate<E, C, R> registerRegistryEventConsumer(
+    protected final <T extends
+            RegistryEvent> Resilience4jTemplate<E, C, R> registerRegistryEventConsumer(
             Class<? super T> eventType, EventConsumer<T> eventConsumer) {
         return registerEventConsumer(registryEventProcessor, eventType, eventConsumer);
     }
@@ -360,11 +356,9 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> imple
 
     private <T> Resilience4jTemplate<E, C, R> registerEventConsumer(EventProcessor eventProcessor,
                                                                     Class<? super T> eventType, EventConsumer<T> eventConsumer) {
-        String name = eventType.getSimpleName();
+        String name = eventType.getName();
         eventProcessor.registerConsumer(name, eventConsumer);
-        if (logger.isTraceEnabled()) {
-            logger.trace("The event[type : '{}'] consumer[name : '{}'] was registered : {}", eventType, name, eventConsumer);
-        }
+        logger.trace("The event[type : '{}'] consumer[name : '{}'] was registered : {}", eventType, name, eventConsumer);
         return this;
     }
 
@@ -391,9 +385,7 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> imple
      * </ul>
      */
     public void destroy() {
-        if (isLocalEntriesCachePresent()) {
-            clearLocalEntriesCache();
-        }
+        clearLocalEntriesCache();
     }
 
     @Override

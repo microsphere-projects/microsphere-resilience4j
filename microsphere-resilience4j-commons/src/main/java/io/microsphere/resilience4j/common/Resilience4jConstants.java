@@ -18,6 +18,7 @@ package io.microsphere.resilience4j.common;
 
 
 import io.github.resilience4j.bulkhead.Bulkhead;
+import io.github.resilience4j.bulkhead.ThreadPoolBulkhead;
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.ratelimiter.RateLimiter;
 import io.github.resilience4j.retry.Retry;
@@ -85,4 +86,14 @@ public interface Resilience4jConstants {
      * The prefix of {@link Bulkhead}
      */
     String BULKHEAD_PREFIX = PREFIX + BULKHEAD_MODULE_NAME + ".";
+
+    /**
+     * The module name of {@link ThreadPoolBulkhead}
+     */
+    String THREAD_POOL_BULKHEAD_MODULE_NAME = "thread-pool-bulkhead";
+
+    /**
+     * The prefix of {@link ThreadPoolBulkhead}
+     */
+    String THREAD_POOL_BULKHEAD_PREFIX = PREFIX + THREAD_POOL_BULKHEAD_MODULE_NAME + ".";
 }

@@ -4,7 +4,7 @@
 
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/microsphere-projects/resilience4j)
 [![Maven Build](https://github.com/microsphere-projects/microsphere-resilience4j/actions/workflows/maven-build.yml/badge.svg)](https://github.com/microsphere-projects/microsphere-resilience4j/actions/workflows/maven-build.yml)
-[![Codecov](https://codecov.io/gh/microsphere-projects/microsphere-resilience4j/branch/dev/graph/badge.svg)](https://app.codecov.io/gh/microsphere-projects/microsphere-resilience4j)
+[![Codecov](https://codecov.io/gh/microsphere-projects/microsphere-resilience4j/branch/main/graph/badge.svg)](https://app.codecov.io/gh/microsphere-projects/microsphere-resilience4j)
 ![Maven](https://img.shields.io/maven-central/v/io.github.microsphere-projects/microsphere-resilience4j.svg)
 ![License](https://img.shields.io/github/license/microsphere-projects/microsphere-resilience4j.svg)
 

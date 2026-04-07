@@ -2,7 +2,7 @@
 
 > Microsphere Projects for [Resilience4j](https://github.com/resilience4j/resilience4j)
 
-[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/microsphere-projects/resilience4j)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/microsphere-projects/microsphere-resilience4j)
 [![Maven Build](https://github.com/microsphere-projects/microsphere-resilience4j/actions/workflows/maven-build.yml/badge.svg)](https://github.com/microsphere-projects/microsphere-resilience4j/actions/workflows/maven-build.yml)
 [![Codecov](https://codecov.io/gh/microsphere-projects/microsphere-resilience4j/branch/dev-1.x/graph/badge.svg)](https://app.codecov.io/gh/microsphere-projects/microsphere-resilience4j)
 ![Maven](https://img.shields.io/maven-central/v/io.github.microsphere-projects/microsphere-resilience4j.svg)

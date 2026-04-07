@@ -35,7 +35,7 @@
 
             <dependency>
                 <groupId>io.github.microsphere-projects</groupId>
-                <artifactId>microsphere-resilience4j-feign</artifactId>
+                <artifactId>microsphere-resilience4j-openfeign</artifactId>
                 <version>${revision}</version>
             </dependency>
 
@@ -47,19 +47,13 @@
 
             <dependency>
                 <groupId>io.github.microsphere-projects</groupId>
+                <artifactId>microsphere-resilience4j-spring-web</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.github.microsphere-projects</groupId>
                 <artifactId>microsphere-resilience4j-spring</artifactId>
-                <version>${revision}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>io.github.microsphere-projects</groupId>
-                <artifactId>microsphere-resilience4j-spring-boot</artifactId>
-                <version>${revision}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>io.github.microsphere-projects</groupId>
-                <artifactId>microsphere-resilience4j-spring-cloud</artifactId>
                 <version>${revision}</version>
             </dependency>
 

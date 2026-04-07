@@ -41,34 +41,7 @@
             <artifactId>microsphere-spring-context</artifactId>
         </dependency>
 
-        <!-- Microsphere Spring JDBC -->
-        <dependency>
-            <groupId>io.github.microsphere-projects</groupId>
-            <artifactId>microsphere-spring-jdbc</artifactId>
-            <optional>true</optional>
-        </dependency>
-
-        <!-- P6Spy -->
-        <dependency>
-            <groupId>p6spy</groupId>
-            <artifactId>p6spy</artifactId>
-            <optional>true</optional>
-        </dependency>
-
-        <!-- Alibaba Druid -->
-        <dependency>
-            <groupId>com.alibaba</groupId>
-            <artifactId>druid</artifactId>
-        </dependency>
-
-        <!-- Microsphere Spring WebMVC -->
-        <dependency>
-            <groupId>io.github.microsphere-projects</groupId>
-            <artifactId>microsphere-spring-webmvc</artifactId>
-            <optional>true</optional>
-        </dependency>
-
-        <!--  Resilience4j -->
+        <!--  Resilience4j Spring -->
         <dependency>
             <groupId>io.github.resilience4j</groupId>
             <artifactId>resilience4j-spring</artifactId>
@@ -86,6 +59,13 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Microsphere Spring Test -->
+        <dependency>
+            <groupId>io.github.microsphere-projects</groupId>
+            <artifactId>microsphere-spring-test</artifactId>
             <scope>test</scope>
         </dependency>
 

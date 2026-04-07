@@ -1,6 +1,6 @@
 # Microsphere Resilience4j
 
-> Microsphere Projects for [Resilience4j](https://github.com/resilience4j/resilience4j)
+> Microsphere Projects for [Resilience4j](https://github.com/resilience4j/microsphere-resilience4j)
 
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/microsphere-projects/resilience4j)
 [![Maven Build](https://github.com/microsphere-projects/microsphere-resilience4j/actions/workflows/maven-build.yml/badge.svg)](https://github.com/microsphere-projects/microsphere-resilience4j/actions/workflows/maven-build.yml)

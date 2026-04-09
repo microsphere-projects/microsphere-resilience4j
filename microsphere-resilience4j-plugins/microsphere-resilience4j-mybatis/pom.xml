@@ -19,10 +19,10 @@
     <description>Microsphere Resilience4j MyBatis</description>
 
     <dependencies>
-        <!-- Microsphere Resilience4j -->
+        <!-- Microsphere Resilience4j Spring -->
         <dependency>
             <groupId>io.github.microsphere-projects</groupId>
-            <artifactId>microsphere-resilience4j-commons</artifactId>
+            <artifactId>microsphere-resilience4j-spring</artifactId>
             <version>${revision}</version>
         </dependency>
 

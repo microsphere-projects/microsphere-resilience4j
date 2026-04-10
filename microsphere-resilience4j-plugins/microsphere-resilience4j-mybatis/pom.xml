@@ -162,6 +162,13 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- Aspectj Weaver -->
+        <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjweaver</artifactId>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
 </project>

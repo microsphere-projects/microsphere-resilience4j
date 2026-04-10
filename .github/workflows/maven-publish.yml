@@ -14,7 +14,7 @@ on:
   workflow_dispatch:
     inputs:
       revision:
-        description: 'The version to publish'
+        description: 'The version to publish for Spring Cloud 2022+ and JDK 17+'
         required: true
         default: '${major}.${minor}.${patch}'
 

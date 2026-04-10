@@ -19,14 +19,26 @@
     <description>Microsphere Resilience4j MyBatis</description>
 
     <dependencies>
-        <!-- Microsphere Resilience4j -->
+        <!-- Microsphere Resilience4j Spring -->
         <dependency>
             <groupId>io.github.microsphere-projects</groupId>
-            <artifactId>microsphere-resilience4j-commons</artifactId>
+            <artifactId>microsphere-resilience4j-spring</artifactId>
             <version>${revision}</version>
         </dependency>
 
+        <!-- Microsphere Spring Context -->
+        <dependency>
+            <groupId>io.github.microsphere-projects</groupId>
+            <artifactId>microsphere-spring-context</artifactId>
+        </dependency>
+
         <!--  Resilience4j -->
+        <dependency>
+            <groupId>io.github.resilience4j</groupId>
+            <artifactId>resilience4j-spring</artifactId>
+            <optional>true</optional>
+        </dependency>
+
         <dependency>
             <groupId>io.github.resilience4j</groupId>
             <artifactId>resilience4j-annotations</artifactId>
@@ -42,7 +54,6 @@
         <dependency>
             <groupId>io.github.resilience4j</groupId>
             <artifactId>resilience4j-framework-common</artifactId>
-            <version>${resilience4j.version}</version>
             <optional>true</optional>
         </dependency>
 
@@ -82,10 +93,31 @@
             <optional>true</optional>
         </dependency>
 
+        <!-- Spring Framework -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-jdbc</artifactId>
+            <optional>true</optional>
+        </dependency>
+
         <!-- MyBatis -->
         <dependency>
             <groupId>org.mybatis</groupId>
             <artifactId>mybatis</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- MyBatis Spring -->
+        <dependency>
+            <groupId>org.mybatis</groupId>
+            <artifactId>mybatis-spring</artifactId>
+            <optional>true</optional>
         </dependency>
 
         <!-- Testing -->
@@ -95,10 +127,24 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- Microsphere Mybatis Spring -->
+        <dependency>
+            <groupId>io.github.microsphere-projects</groupId>
+            <artifactId>microsphere-mybatis-spring</artifactId>
+            <scope>test</scope>
+        </dependency>
+
         <!-- Microsphere Spring Test -->
         <dependency>
             <groupId>io.github.microsphere-projects</groupId>
             <artifactId>microsphere-spring-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Microsphere Mybatis Spring Test -->
+        <dependency>
+            <groupId>io.github.microsphere-projects</groupId>
+            <artifactId>microsphere-mybatis-spring-test</artifactId>
             <scope>test</scope>
         </dependency>
 

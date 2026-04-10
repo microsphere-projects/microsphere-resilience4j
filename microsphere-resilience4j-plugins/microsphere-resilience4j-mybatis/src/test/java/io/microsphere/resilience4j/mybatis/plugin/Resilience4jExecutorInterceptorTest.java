@@ -21,31 +21,22 @@ import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 import io.github.resilience4j.ratelimiter.RateLimiterRegistry;
 import io.github.resilience4j.retry.RetryRegistry;
 import io.github.resilience4j.timelimiter.TimeLimiterRegistry;
-import io.microsphere.lang.function.ThrowableConsumer;
+import io.microsphere.mybatis.test.AbstractMyBatisTest;
+import io.microsphere.mybatis.test.entity.User;
+import io.microsphere.mybatis.test.mapper.UserMapper;
 import io.microsphere.resilience4j.common.ChainableResilience4jFacade;
 import io.microsphere.resilience4j.common.Resilience4jFacade;
-import io.microsphere.resilience4j.mybatis.entity.User;
-import io.microsphere.resilience4j.mybatis.mapper.UserMapper;
 import org.apache.ibatis.cursor.Cursor;
 import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.executor.SimpleExecutor;
-import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.plugin.Invocation;
 import org.apache.ibatis.session.Configuration;
-import org.apache.ibatis.session.SqlSession;
-import org.apache.ibatis.session.SqlSessionFactory;
-import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.apache.ibatis.transaction.Transaction;
 import org.apache.ibatis.transaction.jdbc.JdbcTransaction;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.sql.Connection;
-import java.sql.Statement;
 
 import static io.microsphere.reflect.MethodUtils.findMethod;
 import static io.microsphere.resilience4j.mybatis.plugin.Resilience4jExecutorInterceptor.DEFAULT_ENTRY_NAME_PREFIX;
@@ -62,47 +53,43 @@ import static org.junit.jupiter.api.Assertions.assertSame;
  * @see Resilience4jExecutorInterceptor
  * @since 1.0.0
  */
-class Resilience4jExecutorInterceptorTest {
+class Resilience4jExecutorInterceptorTest extends AbstractMyBatisTest {
 
     private Resilience4jFacade facade;
 
     private Resilience4jExecutorInterceptor interceptor;
 
-    private SqlSessionFactory sqlSessionFactory;
-
-    @BeforeEach
-    void setUp() throws Throwable {
+    @Override
+    protected void customize(Configuration configuration) {
         this.facade = createResilience4jFacade();
         this.interceptor = createResilience4jExecutorInterceptor(this.facade);
-        this.sqlSessionFactory = buildSqlSessionFactory();
-        initData();
+        configuration.addInterceptor(this.interceptor);
     }
 
     @Test
     void testMapper() throws Throwable {
-        SqlSession sqlSession = openSqlSession();
-        UserMapper userMapper = sqlSession.getMapper(UserMapper.class);
-        int id = 1;
-        String name = "Mercy";
-        User user = new User(id, name);
-        userMapper.saveUser(user);
-        User foundUser = userMapper.getUserById(1);
-        assertEquals(foundUser, user);
-        sqlSession.close();
+        doInMapper(UserMapper.class, userMapper -> {
+            int id = 1;
+            String name = "Mercy";
+            User user = new User(id, name);
+            userMapper.saveUser(user);
+            User foundUser = userMapper.getUserById(1);
+            assertEquals(foundUser, user);
+        });
     }
 
     @Test
     void testSqlSession() throws Throwable {
-        SqlSession sqlSession = openSqlSession();
-        Cursor<User> cursor = sqlSession.selectCursor("io.microsphere.resilience4j.mybatis.mapper.UserMapper.getUserById", 1);
-        assertNotNull(cursor);
-        assertNotNull(sqlSession.flushStatements());
-        sqlSession.commit();
-        sqlSession.commit(true);
-        sqlSession.rollback();
-        sqlSession.rollback(true);
-        sqlSession.clearCache();
-        sqlSession.close();
+        doInSqlSession(sqlSession -> {
+            Cursor<User> cursor = sqlSession.selectCursor("io.microsphere.mybatis.test.mapper.UserMapper.getUserById", 1);
+            assertNotNull(cursor);
+            assertNotNull(sqlSession.flushStatements());
+            sqlSession.commit();
+            sqlSession.commit(true);
+            sqlSession.rollback();
+            sqlSession.rollback(true);
+            sqlSession.clearCache();
+        });
     }
 
     @Test
@@ -118,19 +105,19 @@ class Resilience4jExecutorInterceptorTest {
 
     @Test
     void testInvoke() throws Throwable {
-        SqlSession sqlSession = openSqlSession();
-        Configuration configuration = sqlSession.getConfiguration();
-        Connection connection = sqlSession.getConnection();
-        Transaction transaction = new JdbcTransaction(connection);
-        Executor executor = new SimpleExecutor(configuration, transaction);
+        doInSqlSession(sqlSession -> {
+            Configuration configuration = sqlSession.getConfiguration();
+            Connection connection = sqlSession.getConnection();
+            Transaction transaction = new JdbcTransaction(connection);
+            Executor executor = new SimpleExecutor(configuration, transaction);
 
-        Method method = findMethod(Executor.class, "isClosed");
-        Invocation invocation = new Invocation(executor, method, ofArray());
-        assertEquals(FALSE, interceptor.intercept(invocation));
+            Method method = findMethod(Executor.class, "isClosed");
+            Invocation invocation = new Invocation(executor, method, ofArray());
+            assertEquals(FALSE, interceptor.intercept(invocation));
 
-        transaction.close();
-        connection.close();
-        sqlSession.close();
+            transaction.close();
+            connection.close();
+        });
     }
 
     private Resilience4jFacade createResilience4jFacade() {
@@ -148,60 +135,4 @@ class Resilience4jExecutorInterceptorTest {
     private Resilience4jExecutorInterceptor createResilience4jExecutorInterceptor(Resilience4jFacade facade) {
         return new Resilience4jExecutorInterceptor(facade);
     }
-
-    private SqlSessionFactory buildSqlSessionFactory() throws IOException {
-        String resource = "META-INF/mybatis/config.xml";
-        InputStream inputStream = Resources.getResourceAsStream(resource);
-        SqlSessionFactoryBuilder builder = new SqlSessionFactoryBuilder();
-        SqlSessionFactory factory = builder.build(inputStream);
-        factory.getConfiguration().addInterceptor(this.interceptor);
-        return factory;
-    }
-
-    private SqlSession openSqlSession() {
-        return this.sqlSessionFactory.openSession();
-    }
-
-    private UserMapper getUserMapper(SqlSession sqlSession) throws Throwable {
-        return sqlSession.getMapper(UserMapper.class);
-    }
-
-    private void initData() throws Throwable {
-        executeStatement(statement -> {
-            statement.execute("CREATE TABLE users (id INT, name VARCHAR(50))");
-        });
-    }
-
-    private void executeStatement(ThrowableConsumer<Statement> consumer) throws Throwable {
-        executeConnection(connection -> {
-            Statement statement = connection.createStatement();
-            try {
-                consumer.accept(statement);
-            } finally {
-                statement.close();
-            }
-        });
-    }
-
-    private void executeConnection(ThrowableConsumer<Connection> consumer) throws Throwable {
-        Connection connection = openSqlSession().getConnection();
-        try {
-            consumer.accept(connection);
-        } finally {
-            connection.close();
-        }
-    }
-
-
-    @AfterEach
-    void tearDown() throws Throwable {
-        destroyData();
-    }
-
-    private void destroyData() throws Throwable {
-        executeStatement(statement -> {
-            statement.execute("DROP TABLE users");
-        });
-    }
-
 }

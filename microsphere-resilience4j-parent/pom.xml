@@ -20,7 +20,7 @@
 
     <properties>
         <microsphere-spring-cloud.version>0.2.10</microsphere-spring-cloud.version>
-        <microsphere-redis.version>0.2.2</microsphere-redis.version>
+        <microsphere-redis.version>0.2.3</microsphere-redis.version>
         <microsphere-alibaba-druid.version>0.2.4</microsphere-alibaba-druid.version>
         <microsphere-mybatis.version>0.2.2</microsphere-mybatis.version>
     </properties>

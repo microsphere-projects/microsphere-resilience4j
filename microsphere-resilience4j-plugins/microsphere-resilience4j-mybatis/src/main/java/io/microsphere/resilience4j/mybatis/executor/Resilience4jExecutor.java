@@ -16,7 +16,7 @@
  */
 package io.microsphere.resilience4j.mybatis.executor;
 
-import io.github.resilience4j.core.lang.NonNull;
+import io.microsphere.annotation.Nonnull;
 import io.microsphere.lang.function.ThrowableSupplier;
 import io.microsphere.resilience4j.common.Resilience4jFacade;
 import org.apache.ibatis.cache.CacheKey;
@@ -135,7 +135,7 @@ public class Resilience4jExecutor implements Executor {
      *
      * @return non-null
      */
-    @NonNull
+    @Nonnull
     public Resilience4jFacade getFacade() {
         return facade;
     }
@@ -145,7 +145,7 @@ public class Resilience4jExecutor implements Executor {
      *
      * @return n    on-null
      */
-    @NonNull
+    @Nonnull
     public String getEntryNamePrefix() {
         return entryNamePrefix;
     }

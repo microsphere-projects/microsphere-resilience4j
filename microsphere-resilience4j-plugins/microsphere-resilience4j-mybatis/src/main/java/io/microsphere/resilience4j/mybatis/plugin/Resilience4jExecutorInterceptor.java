@@ -16,7 +16,7 @@
  */
 package io.microsphere.resilience4j.mybatis.plugin;
 
-import io.github.resilience4j.core.lang.NonNull;
+import io.microsphere.annotation.Nonnull;
 import io.microsphere.resilience4j.common.Resilience4jFacade;
 import io.microsphere.resilience4j.mybatis.executor.Resilience4jExecutor;
 import org.apache.ibatis.executor.Executor;
@@ -71,7 +71,7 @@ public class Resilience4jExecutorInterceptor implements Interceptor {
      *
      * @return non-null
      */
-    @NonNull
+    @Nonnull
     public Resilience4jFacade getFacade() {
         return facade;
     }
@@ -81,7 +81,7 @@ public class Resilience4jExecutorInterceptor implements Interceptor {
      *
      * @return non-null
      */
-    @NonNull
+    @Nonnull
     public String getEntryNamePrefix() {
         return entryNamePrefix;
     }

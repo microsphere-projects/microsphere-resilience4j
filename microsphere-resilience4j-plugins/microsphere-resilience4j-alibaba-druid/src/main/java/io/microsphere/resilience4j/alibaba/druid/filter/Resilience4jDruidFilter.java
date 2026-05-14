@@ -33,7 +33,7 @@ import com.alibaba.druid.sql.ast.statement.SQLSelectQueryBlock;
 import com.alibaba.druid.sql.ast.statement.SQLSelectStatement;
 import com.alibaba.druid.sql.ast.statement.SQLTableSource;
 import com.alibaba.druid.sql.ast.statement.SQLUpdateStatement;
-import io.github.resilience4j.core.lang.NonNull;
+import io.microsphere.annotation.Nonnull;
 import io.microsphere.logging.Logger;
 import io.microsphere.resilience4j.common.Resilience4jFacade;
 
@@ -163,7 +163,7 @@ public class Resilience4jDruidFilter extends FilterAdapter {
      *
      * @return non-null
      */
-    @NonNull
+    @Nonnull
     public final Resilience4jFacade getFacade() {
         return this.facade;
     }
@@ -173,7 +173,7 @@ public class Resilience4jDruidFilter extends FilterAdapter {
      *
      * @return non-null
      */
-    @NonNull
+    @Nonnull
     public final String getEntryNamePrefix() {
         return entryNamePrefix;
     }

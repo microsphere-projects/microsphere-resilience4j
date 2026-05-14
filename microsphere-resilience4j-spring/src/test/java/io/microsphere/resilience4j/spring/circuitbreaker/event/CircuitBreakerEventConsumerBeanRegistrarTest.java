@@ -41,14 +41,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * @since 1.0.0
  */
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(
-        classes = {
-                CircuitBreakerConfigurationProperties.class,
-                CircuitBreakerConfiguration.class,
-                CircuitBreakerEventConsumerBeanRegistrar.class,
-                CircuitBreakerEventConsumerBeanRegistrarTest.class
-        }
-)
+@ContextConfiguration(classes = {
+        CircuitBreakerConfigurationProperties.class,
+        CircuitBreakerConfiguration.class,
+        CircuitBreakerEventConsumerBeanRegistrar.class,
+        CircuitBreakerEventConsumerBeanRegistrarTest.class
+})
 class CircuitBreakerEventConsumerBeanRegistrarTest {
 
     @Autowired

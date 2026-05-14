@@ -20,11 +20,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static io.microsphere.collection.MapUtils.ofMap;
+import static io.microsphere.resilience4j.common.Resilience4jContext.doInContext;
+import static io.microsphere.resilience4j.common.Resilience4jContext.getContext;
 import static java.lang.System.nanoTime;
 import static java.util.Collections.emptyMap;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -106,4 +109,25 @@ class Resilience4jContextTest {
         assertNotNull(this.context.toString());
     }
 
+    @Test
+    void testContext() {
+        assertNull(getContext());
+
+        assertSame(this.context, this.context.setContext());
+        assertSame(this.context, getContext());
+
+        doInContext(context -> {
+            assertSame(this.context, context);
+        });
+
+        doInContext(context -> {
+            assertSame(this.context, context);
+        }, true);
+
+        assertNull(getContext());
+
+        doInContext(context -> {
+            throw new RuntimeException("Impossible");
+        });
+    }
 }

@@ -19,7 +19,7 @@ package io.microsphere.resilience4j.feign;
 import feign.Capability;
 import feign.Client;
 import feign.InvocationHandlerFactory;
-import io.github.resilience4j.core.lang.NonNull;
+import io.microsphere.annotation.Nonnull;
 import io.microsphere.resilience4j.common.Resilience4jFacade;
 
 import static io.microsphere.resilience4j.feign.Resilience4jCapability.DecoratedPoint.CLIENT;
@@ -85,7 +85,7 @@ public class Resilience4jCapability implements Capability {
      *
      * @return non-null
      */
-    @NonNull
+    @Nonnull
     public DecoratedPoint getDecoratedPoint() {
         return decoratedPoint;
     }

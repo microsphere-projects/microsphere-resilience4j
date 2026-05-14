@@ -38,7 +38,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -210,7 +209,6 @@ public abstract class Resilience4jUtils implements Utils {
 
         ClassLoader classLoader = getClassLoader(Resilience4jTemplate.class);
         Properties properties = loadDefaultTemplatesProperties(classLoader);
-        new EnumMap<>(Resilience4jModule.class);
         for (Resilience4jModule module : values()) {
             String moduleName = module.getName();
             String templateClassName = properties.getProperty(moduleName);

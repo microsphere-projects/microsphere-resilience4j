@@ -173,7 +173,7 @@
                 <artifactId>resilience4j-all</artifactId>
                 <version>${resilience4j.version}</version>
             </dependency>
-            
+
             <!-- Microsphere Spring Cloud Dependencies -->
             <dependency>
                 <groupId>io.github.microsphere-projects</groupId>

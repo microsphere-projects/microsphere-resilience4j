@@ -15,8 +15,8 @@
     <version>${revision}</version>
     <packaging>jar</packaging>
 
-    <name>Microsphere :: Resilience4j :: Plugins :: Feign</name>
-    <description>Microsphere Resilience4j Feign</description>
+    <name>Microsphere :: Resilience4j :: Plugins :: Open Feign</name>
+    <description>Microsphere Resilience4j Open Feign</description>
 
     <dependencies>
 

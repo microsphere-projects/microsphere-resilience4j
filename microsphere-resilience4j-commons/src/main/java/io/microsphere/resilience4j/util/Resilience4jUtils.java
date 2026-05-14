@@ -216,6 +216,7 @@ public abstract class Resilience4jUtils implements Utils {
                     (Class<? extends Resilience4jTemplate>) loadClass(classLoader, templateClassName);
             defaultTemplates.put(module, templateClass);
         }
+
         return defaultTemplates;
     }
 

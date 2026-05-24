@@ -113,7 +113,7 @@ class Resilience4jContextTest {
     void testContext() {
         assertNull(getContext());
 
-        assertSame(this.context, this.context.setContext());
+        assertSame(this.context, this.context.withinContext());
         assertSame(this.context, getContext());
 
         doInContext(context -> {

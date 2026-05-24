@@ -20,11 +20,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static io.microsphere.collection.MapUtils.ofMap;
+import static io.microsphere.resilience4j.common.Resilience4jContext.doInContext;
+import static io.microsphere.resilience4j.common.Resilience4jContext.getContext;
 import static java.lang.System.nanoTime;
 import static java.util.Collections.emptyMap;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -50,24 +53,20 @@ class Resilience4jContextTest {
 
     @Test
     void testProperties() {
-        assertEquals(entryName, context.getEntryName());
-        assertEquals(entry, context.getEntry());
-
-        Long startTime = nanoTime();
-        assertSame(startTime, context.setStartTime(startTime).getStartTime());
-
-        assertSame(entryName, context.setResult(entryName).getResult());
-
-        Exception exception = new Exception();
-        assertSame(exception, context.setFailure(exception).getFailure());
         assertEquals(entryName, this.context.getEntryName());
         assertEquals(entry, this.context.getEntry());
+
+        Long startTime = nanoTime();
+        assertSame(startTime, this.context.setStartTime(startTime).getStartTime());
+
+        assertSame(entryName, this.context.setResult(entryName).getResult());
+
+        Exception exception = new Exception();
+        assertSame(exception, this.context.setFailure(exception).getFailure());
     }
 
     @Test
     void testAttributes() {
-        assertNotNull(context.getAttributes());
-        assertTrue(context.getAttributes().isEmpty());
         assertNotNull(this.context.getAttributes());
         assertNotNull(this.context.getAttributes());
         assertTrue(this.context.getAttributes().isEmpty());
@@ -91,6 +90,7 @@ class Resilience4jContextTest {
         assertFalse(this.context.hasAttribute(name));
     }
 
+    @Test
     void testRemoveAttributes() {
         assertSame(this.context, this.context.removeAttributes());
         assertSame(this.context, this.context.setAttribute("test", "value"));
@@ -107,5 +107,27 @@ class Resilience4jContextTest {
     @Test
     void testToString() {
         assertNotNull(this.context.toString());
+    }
+
+    @Test
+    void testContext() {
+        assertNull(getContext());
+
+        assertSame(this.context, this.context.withinContext());
+        assertSame(this.context, getContext());
+
+        doInContext(context -> {
+            assertSame(this.context, context);
+        });
+
+        doInContext(context -> {
+            assertSame(this.context, context);
+        }, true);
+
+        assertNull(getContext());
+
+        doInContext(context -> {
+            throw new RuntimeException("Impossible");
+        });
     }
 }

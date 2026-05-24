@@ -54,14 +54,14 @@ import static org.springframework.core.io.support.SpringFactoriesLoader.loadFact
 import static org.springframework.util.ClassUtils.resolveClassName;
 
 /**
- * The abstract {@link ImportBeanDefinitionRegistrar} class to {@link EnableResilience4jExtension enable
+ * The abstract {@link ImportBeanDefinitionRegistrar} class to {@link EnableResilience4j enable
  * Resilience4j's features extension}
  *
  * @param <A>  the type of Enable Annotation , e.g : {@link EnableCircuitBreaker}
  * @param <E>  the type of Resilience4j entry, e.g : {@link CircuitBreaker}
  * @param <EC> the type of Resilience4j entry's configuration, e.g : {@link CircuitBreakerConfiguration}
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
- * @see EnableResilience4jExtension
+ * @see EnableResilience4j
  * @see EnableCircuitBreaker
  * @since 1.0.0
  */

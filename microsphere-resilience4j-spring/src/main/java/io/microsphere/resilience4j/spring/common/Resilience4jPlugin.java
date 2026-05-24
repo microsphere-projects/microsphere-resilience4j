@@ -17,7 +17,7 @@
 
 package io.microsphere.resilience4j.spring.common;
 
-import io.microsphere.resilience4j.spring.common.annotation.EnableResilience4jExtension;
+import io.microsphere.resilience4j.spring.common.annotation.EnableResilience4j;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.core.env.ConfigurableEnvironment;
@@ -26,7 +26,7 @@ import org.springframework.core.env.ConfigurableEnvironment;
  * The plug-in SPI of Resilience4j
  *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
- * @see EnableResilience4jExtension
+ * @see EnableResilience4j
  * @since 1.0.0
  */
 public interface Resilience4jPlugin {

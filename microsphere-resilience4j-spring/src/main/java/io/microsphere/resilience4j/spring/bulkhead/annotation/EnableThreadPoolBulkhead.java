@@ -20,7 +20,7 @@ import io.github.resilience4j.bulkhead.ThreadPoolBulkhead;
 import io.github.resilience4j.bulkhead.configure.BulkheadConfigurationProperties;
 import io.github.resilience4j.common.bulkhead.configuration.CommonThreadPoolBulkheadConfigurationProperties;
 import io.microsphere.resilience4j.spring.common.Resilience4jPlugin;
-import io.microsphere.resilience4j.spring.common.annotation.EnableResilience4jExtension;
+import io.microsphere.resilience4j.spring.common.annotation.EnableResilience4j;
 import io.microsphere.spring.beans.factory.annotation.EnableConfigurationBeanBinding;
 import io.microsphere.spring.beans.factory.annotation.EnableConfigurationBeanBindings;
 import org.springframework.context.annotation.Import;
@@ -48,7 +48,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Documented
 @Inherited
 @Import(EnableThreadPoolBulkheadRegistrar.class)
-@EnableResilience4jExtension
+@EnableResilience4j
 @EnableConfigurationBeanBindings({
         @EnableConfigurationBeanBinding(prefix = BULKHEAD_PREFIX, type = BulkheadConfigurationProperties.class),
         @EnableConfigurationBeanBinding(prefix = THREAD_POOL_BULKHEAD_PREFIX, type = CommonThreadPoolBulkheadConfigurationProperties.class)
@@ -60,7 +60,7 @@ public @interface EnableThreadPoolBulkhead {
      *
      * @return <code>true</code> as default
      */
-    @AliasFor(annotation = EnableResilience4jExtension.class, attribute = "publishEvents")
+    @AliasFor(annotation = EnableResilience4j.class, attribute = "publishEvents")
     boolean publishEvents() default false;
 
     /**
@@ -68,7 +68,7 @@ public @interface EnableThreadPoolBulkhead {
      *
      * @return <code>true</code> as default
      */
-    @AliasFor(annotation = EnableResilience4jExtension.class, attribute = "consumeEvents")
+    @AliasFor(annotation = EnableResilience4j.class, attribute = "consumeEvents")
     boolean consumeEvents() default false;
 
     /**
@@ -77,6 +77,6 @@ public @interface EnableThreadPoolBulkhead {
      * @return the Spring Bean names of the Resilience4j plugins
      * @see Resilience4jPlugin
      */
-    @AliasFor(annotation = EnableResilience4jExtension.class, attribute = "plugins")
+    @AliasFor(annotation = EnableResilience4j.class, attribute = "plugins")
     String[] plugins() default {};
 }

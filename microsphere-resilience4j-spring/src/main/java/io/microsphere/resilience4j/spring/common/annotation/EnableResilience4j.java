@@ -30,7 +30,7 @@ import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * {@link EnableResilience4jExtension @Enable Resilience4j Extension} annotation
+ * {@link EnableResilience4j @Enable Resilience4j Extension} annotation
  *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
  * @see EnableResilience4jRegistrar
@@ -40,7 +40,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Retention(RUNTIME)
 @Inherited
 @Documented
-public @interface EnableResilience4jExtension {
+public @interface EnableResilience4j {
 
     /**
      * Whether to publish Resilience4j's events

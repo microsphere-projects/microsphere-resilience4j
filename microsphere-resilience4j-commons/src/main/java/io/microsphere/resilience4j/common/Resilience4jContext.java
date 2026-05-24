@@ -258,7 +258,7 @@ public class Resilience4jContext<E> {
     /**
      * Set the current {@link Resilience4jContext} into {@link ThreadLocal}
      */
-    public Resilience4jContext<E> setContext() {
+    public Resilience4jContext<E> withinContext() {
         setContext(this);
         return this;
     }

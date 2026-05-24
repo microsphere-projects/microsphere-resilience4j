@@ -163,7 +163,7 @@ public class Resilience4jDruidFilter extends FilterAdapter {
      *
      * @return non-null
      */
-    @NonNull
+    @Nonnull
     public final Resilience4jFacade getFacade() {
         return this.facade;
     }

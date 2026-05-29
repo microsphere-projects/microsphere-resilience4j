@@ -183,7 +183,6 @@ class Resilience4jDruidFilterTest {
         }
     }
 
-
     @AfterEach
     void tearDown() throws Throwable {
         destroyData();

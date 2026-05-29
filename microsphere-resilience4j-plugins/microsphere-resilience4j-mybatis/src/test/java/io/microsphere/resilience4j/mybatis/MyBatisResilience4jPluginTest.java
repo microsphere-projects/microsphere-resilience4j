@@ -17,7 +17,6 @@
 
 package io.microsphere.resilience4j.mybatis;
 
-
 import io.microsphere.mybatis.spring.annotation.EnableMyBatis;
 import io.microsphere.mybatis.spring.test.config.MyBatisDataBaseTestConfiguration;
 import io.microsphere.mybatis.spring.test.config.MyBatisDataSourceTestConfiguration;

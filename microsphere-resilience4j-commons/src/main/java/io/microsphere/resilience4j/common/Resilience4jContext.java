@@ -275,7 +275,6 @@ public class Resilience4jContext<E> {
                 '}';
     }
 
-
     /**
      * Get the current {@link Resilience4jContext}
      *

@@ -48,7 +48,6 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @EnableConfigurationBeanBinding(prefix = RATE_LIMITER_PREFIX, type = RateLimiterConfigurationProperties.class)
 public @interface EnableRateLimiter {
 
-
     /**
      * Whether to publish Resilience4j's events
      *

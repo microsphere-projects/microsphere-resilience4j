@@ -17,7 +17,6 @@
 
 package io.microsphere.resilience4j.common;
 
-
 import io.github.resilience4j.bulkhead.internal.InMemoryBulkheadRegistry;
 import io.github.resilience4j.retry.internal.InMemoryRetryRegistry;
 import io.microsphere.lang.function.ThrowableSupplier;

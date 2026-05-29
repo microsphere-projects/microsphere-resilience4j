@@ -157,7 +157,6 @@ public class Resilience4jDruidFilter extends FilterAdapter {
         return doInResilience4j(statement, () -> super.statement_executeUpdate(chain, statement, sql, columnNames));
     }
 
-
     /**
      * Get the {@link Resilience4jFacade}
      *

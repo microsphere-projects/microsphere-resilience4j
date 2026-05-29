@@ -17,7 +17,6 @@
 
 package io.microsphere.resilience4j.spring.common.event;
 
-
 import io.github.resilience4j.bulkhead.Bulkhead;
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.core.EventPublisher;

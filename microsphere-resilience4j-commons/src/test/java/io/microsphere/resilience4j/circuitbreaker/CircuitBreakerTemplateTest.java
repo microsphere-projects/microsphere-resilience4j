@@ -16,7 +16,6 @@
  */
 package io.microsphere.resilience4j.circuitbreaker;
 
-
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;

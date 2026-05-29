@@ -192,7 +192,6 @@ class Resilience4jExecutorInterceptorTest {
         }
     }
 
-
     @AfterEach
     void tearDown() throws Throwable {
         destroyData();

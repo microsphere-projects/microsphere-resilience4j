@@ -124,7 +124,6 @@ public interface AdvancedResilience4jOperations<E, C, R extends Registry<E, C>> 
     @NonNull
     Logger getLogger();
 
-
     // The Operations for Resilience4j's Configuration
 
     /**

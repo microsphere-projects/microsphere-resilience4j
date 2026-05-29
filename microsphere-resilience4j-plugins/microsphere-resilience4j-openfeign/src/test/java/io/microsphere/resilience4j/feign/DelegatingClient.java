@@ -16,7 +16,6 @@
  */
 package io.microsphere.resilience4j.feign;
 
-
 import feign.Client;
 import feign.MethodMetadata;
 import feign.Request;

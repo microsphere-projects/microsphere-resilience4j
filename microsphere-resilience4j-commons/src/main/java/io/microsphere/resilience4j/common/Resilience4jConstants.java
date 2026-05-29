@@ -16,7 +16,6 @@
  */
 package io.microsphere.resilience4j.common;
 
-
 import io.github.resilience4j.bulkhead.Bulkhead;
 import io.github.resilience4j.bulkhead.ThreadPoolBulkhead;
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;

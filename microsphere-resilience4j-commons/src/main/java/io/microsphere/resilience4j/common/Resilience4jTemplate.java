@@ -22,13 +22,13 @@ import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 import io.github.resilience4j.core.EventConsumer;
 import io.github.resilience4j.core.EventProcessor;
 import io.github.resilience4j.core.Registry;
-import io.github.resilience4j.core.lang.NonNull;
-import io.github.resilience4j.core.lang.Nullable;
 import io.github.resilience4j.core.registry.EntryAddedEvent;
 import io.github.resilience4j.core.registry.EntryRemovedEvent;
 import io.github.resilience4j.core.registry.EntryReplacedEvent;
 import io.github.resilience4j.core.registry.RegistryEvent;
 import io.github.resilience4j.core.registry.RegistryEventConsumer;
+import io.microsphere.annotation.Nonnull;
+import io.microsphere.annotation.Nullable;
 import io.microsphere.logging.Logger;
 import io.microsphere.logging.LoggerFactory;
 
@@ -92,7 +92,7 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> imple
      *
      * @return non-null
      */
-    @NonNull
+    @Nonnull
     @Override
     public final R getRegistry() {
         return registry;
@@ -103,7 +103,7 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> imple
      *
      * @return non-null
      */
-    @NonNull
+    @Nonnull
     @Override
     public final Resilience4jModule getModule() {
         return module;
@@ -114,7 +114,7 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> imple
      *
      * @return non-null
      */
-    @NonNull
+    @Nonnull
     @Override
     public final C getDefaultConfig() {
         return AdvancedResilience4jOperations.super.getDefaultConfig();
@@ -125,7 +125,7 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> imple
      *
      * @return non-null
      */
-    @NonNull
+    @Nonnull
     @Override
     public final Class<E> getEntryClass() {
         return AdvancedResilience4jOperations.super.getEntryClass();
@@ -136,7 +136,7 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> imple
      *
      * @return non-null
      */
-    @NonNull
+    @Nonnull
     @Override
     public final Class<C> getConfigClass() {
         return AdvancedResilience4jOperations.super.getConfigClass();
@@ -182,7 +182,7 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> imple
      * @param name the name of the Resilience4j's entry
      * @return non-null
      */
-    @NonNull
+    @Nonnull
     @Override
     public final E getEntry(String name) {
         E entry = getEntryFromCache(name);
@@ -250,8 +250,7 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> imple
      * @return {@link Resilience4jTemplate}
      */
     @Override
-    public final AdvancedResilience4jOperations<E, C, R> addConfiguration(String configName, C
-            configuration) {
+    public final AdvancedResilience4jOperations<E, C, R> addConfiguration(String configName, C configuration) {
         return AdvancedResilience4jOperations.super.addConfiguration(configName, configuration);
     }
 
@@ -262,7 +261,7 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> imple
      * @return if the {@link C configuration} can't be found by the specified configuration name,
      * {@link #getDefaultConfig()} will be used as default
      */
-    @NonNull
+    @Nonnull
     @Override
     public final C getConfiguration(String configName) {
         return AdvancedResilience4jOperations.super.getConfiguration(configName);
@@ -297,8 +296,7 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> imple
      * @param entryAddedEventEventConsumer the {@link EventConsumer} of {@link EntryAddedEvent}
      * @return {@link Resilience4jTemplate}
      */
-    public final Resilience4jTemplate<E, C, R> onEntryAddedEvent
-    (EventConsumer<EntryAddedEvent<E>> entryAddedEventEventConsumer) {
+    public final Resilience4jTemplate<E, C, R> onEntryAddedEvent(EventConsumer<EntryAddedEvent<E>> entryAddedEventEventConsumer) {
         return registerRegistryEventConsumer(EntryAddedEvent.class, entryAddedEventEventConsumer);
     }
 
@@ -308,8 +306,7 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> imple
      * @param entryRemovedEventEventConsumer the {@link EventConsumer} of {@link EntryAddedEvent}
      * @return {@link Resilience4jTemplate}
      */
-    public final Resilience4jTemplate<E, C, R> onEntryRemovedEvent
-    (EventConsumer<EntryRemovedEvent<E>> entryRemovedEventEventConsumer) {
+    public final Resilience4jTemplate<E, C, R> onEntryRemovedEvent(EventConsumer<EntryRemovedEvent<E>> entryRemovedEventEventConsumer) {
         return registerRegistryEventConsumer(EntryRemovedEvent.class, entryRemovedEventEventConsumer);
     }
 
@@ -319,8 +316,7 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> imple
      * @param entryReplacedEventEventConsumer the {@link EventConsumer} of {@link EntryAddedEvent}
      * @return {@link Resilience4jTemplate}
      */
-    public final Resilience4jTemplate<E, C, R> onEntryReplacedEvent
-    (EventConsumer<EntryReplacedEvent<E>> entryReplacedEventEventConsumer) {
+    public final Resilience4jTemplate<E, C, R> onEntryReplacedEvent(EventConsumer<EntryReplacedEvent<E>> entryReplacedEventEventConsumer) {
         return registerRegistryEventConsumer(EntryReplacedEvent.class, entryReplacedEventEventConsumer);
     }
 
@@ -332,8 +328,7 @@ public abstract class Resilience4jTemplate<E, C, R extends Registry<E, C>> imple
      * @param <T>           the type of Resilience4j event
      * @return {@link Resilience4jTemplate}
      */
-    protected final <T extends
-            RegistryEvent> Resilience4jTemplate<E, C, R> registerRegistryEventConsumer(
+    protected final <T extends RegistryEvent> Resilience4jTemplate<E, C, R> registerRegistryEventConsumer(
             Class<? super T> eventType, EventConsumer<T> eventConsumer) {
         return registerEventConsumer(registryEventProcessor, eventType, eventConsumer);
     }

@@ -1,0 +1,2 @@
+io.microsphere.resilience4j.spring.common.Resilience4jPlugin=\
+io.microsphere.resilience4j.mybatis.MyBatisResilience4jPlugin

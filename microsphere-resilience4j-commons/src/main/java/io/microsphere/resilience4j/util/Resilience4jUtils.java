@@ -191,7 +191,6 @@ public abstract class Resilience4jUtils implements Utils {
         if (size < 1) {
             return emptyList();
         }
-
         Map<Registry<?, ?>, Resilience4jTemplate> templatesMap = newFixedHashMap(size);
         for (Registry<?, ?> registry : registries) {
             templatesMap.computeIfAbsent(registry, Resilience4jUtils::createTemplate);
@@ -207,6 +206,7 @@ public abstract class Resilience4jUtils implements Utils {
         Resilience4jModule[] modules = values();
         int size = modules.length;
         Map<Resilience4jModule, Class<? extends Resilience4jTemplate>> defaultTemplates = newFixedHashMap(size);
+
         ClassLoader classLoader = getClassLoader(Resilience4jTemplate.class);
         Properties properties = loadDefaultTemplatesProperties(classLoader);
         for (Resilience4jModule module : modules) {
@@ -216,6 +216,7 @@ public abstract class Resilience4jUtils implements Utils {
                     (Class<? extends Resilience4jTemplate>) loadClass(classLoader, templateClassName);
             defaultTemplates.put(module, templateClass);
         }
+
         return defaultTemplates;
     }
 

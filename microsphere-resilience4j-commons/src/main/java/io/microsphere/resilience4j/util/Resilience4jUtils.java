@@ -209,7 +209,7 @@ public abstract class Resilience4jUtils implements Utils {
 
         ClassLoader classLoader = getClassLoader(Resilience4jTemplate.class);
         Properties properties = loadDefaultTemplatesProperties(classLoader);
-        for (Resilience4jModule module : values()) {
+        for (Resilience4jModule module : modules) {
             String moduleName = module.getName();
             String templateClassName = properties.getProperty(moduleName);
             Class<? extends Resilience4jTemplate> templateClass =

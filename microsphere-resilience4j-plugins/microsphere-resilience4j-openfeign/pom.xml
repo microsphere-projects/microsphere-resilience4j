@@ -20,11 +20,25 @@
 
     <dependencies>
 
+        <!-- Microsphere Annotation Processor -->
+        <dependency>
+            <groupId>io.github.microsphere-projects</groupId>
+            <artifactId>microsphere-annotation-processor</artifactId>
+            <optional>true</optional>
+        </dependency>
+
         <!-- Microsphere Resilience4j -->
         <dependency>
             <groupId>io.github.microsphere-projects</groupId>
             <artifactId>microsphere-resilience4j-commons</artifactId>
             <version>${revision}</version>
+        </dependency>
+
+        <!-- Microsphere Java Core -->
+        <dependency>
+            <groupId>io.github.microsphere-projects</groupId>
+            <artifactId>microsphere-java-core</artifactId>
+            <optional>true</optional>
         </dependency>
 
         <!--  Resilience4j -->
@@ -102,10 +116,10 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- Microsphere Spring Test -->
+        <!-- Microsphere Java Test -->
         <dependency>
             <groupId>io.github.microsphere-projects</groupId>
-            <artifactId>microsphere-spring-test</artifactId>
+            <artifactId>microsphere-java-test</artifactId>
             <scope>test</scope>
         </dependency>
 

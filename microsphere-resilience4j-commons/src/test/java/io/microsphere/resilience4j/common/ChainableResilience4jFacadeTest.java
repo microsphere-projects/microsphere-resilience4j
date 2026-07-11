@@ -17,10 +17,6 @@
 package io.microsphere.resilience4j.common;
 
 import io.github.resilience4j.bulkhead.BulkheadRegistry;
-import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
-import io.github.resilience4j.ratelimiter.RateLimiterRegistry;
-import io.github.resilience4j.retry.RetryRegistry;
-import io.github.resilience4j.timelimiter.TimeLimiterRegistry;
 import io.microsphere.resilience4j.bulkhead.BulkheadTemplate;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,6 +24,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
+import static io.microsphere.resilience4j.test.Resilience4jTestUtils.createChainableResilience4jFacade;
 import static java.util.Arrays.asList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -49,22 +46,7 @@ class ChainableResilience4jFacadeTest {
 
     @BeforeEach
     void setUp() {
-        BulkheadRegistry bulkheadRegistry = BulkheadRegistry.ofDefaults();
-        RateLimiterRegistry rateLimiterRegistry = RateLimiterRegistry.ofDefaults();
-        RetryRegistry retryRegistry = RetryRegistry.ofDefaults();
-        TimeLimiterRegistry timeLimiterRegistry = TimeLimiterRegistry.ofDefaults();
-        CircuitBreakerRegistry circuitBreakerRegistry = CircuitBreakerRegistry.ofDefaults();
-        this.facade = new ChainableResilience4jFacade(
-                bulkheadRegistry,
-                bulkheadRegistry,
-                rateLimiterRegistry,
-                rateLimiterRegistry,
-                timeLimiterRegistry,
-                timeLimiterRegistry,
-                retryRegistry,
-                circuitBreakerRegistry,
-                circuitBreakerRegistry
-        );
+        this.facade = createChainableResilience4jFacade();
     }
 
     @AfterEach

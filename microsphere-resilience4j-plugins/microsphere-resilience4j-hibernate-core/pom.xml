@@ -2,31 +2,41 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-
     <parent>
         <groupId>io.github.microsphere-projects</groupId>
         <artifactId>microsphere-resilience4j-parent</artifactId>
         <version>${revision}</version>
-        <relativePath>../microsphere-resilience4j-parent/pom.xml</relativePath>
+        <relativePath>../../microsphere-resilience4j-parent/pom.xml</relativePath>
     </parent>
-
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>io.github.microsphere-projects</groupId>
-    <artifactId>microsphere-resilience4j-commons</artifactId>
+    <artifactId>microsphere-resilience4j-hibernate-core</artifactId>
     <version>${revision}</version>
     <packaging>jar</packaging>
 
-    <name>Microsphere :: Resilience4j :: Commons</name>
-    <description>Microsphere Resilience4j Commons</description>
+    <name>Microsphere :: Resilience4j :: Plugins :: Hibernate Core</name>
+    <description>Microsphere Resilience4j Hibernate Core</description>
 
     <dependencies>
 
-        <!-- Microsphere -->
+        <!-- Microsphere Resilience4j Spring -->
         <dependency>
             <groupId>io.github.microsphere-projects</groupId>
-            <artifactId>microsphere-java-core</artifactId>
-            <optional>true</optional>
+            <artifactId>microsphere-resilience4j-spring</artifactId>
+            <version>${revision}</version>
+        </dependency>
+
+        <!-- Microsphere Hibernate Core -->
+        <dependency>
+            <groupId>io.github.microsphere-projects</groupId>
+            <artifactId>microsphere-hibernate-core</artifactId>
+        </dependency>
+
+        <!-- Microsphere Spring Context -->
+        <dependency>
+            <groupId>io.github.microsphere-projects</groupId>
+            <artifactId>microsphere-spring-context</artifactId>
         </dependency>
 
         <!--  Resilience4j -->
@@ -45,6 +55,7 @@
         <dependency>
             <groupId>io.github.resilience4j</groupId>
             <artifactId>resilience4j-framework-common</artifactId>
+            <version>${resilience4j.version}</version>
             <optional>true</optional>
         </dependency>
 
@@ -84,6 +95,20 @@
             <optional>true</optional>
         </dependency>
 
+        <!-- Hibernate -->
+        <dependency>
+            <groupId>org.hibernate.orm</groupId>
+            <artifactId>hibernate-core</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- Spring Framework -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <optional>true</optional>
+        </dependency>
+
         <!-- Testing -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
@@ -91,10 +116,41 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- Microsphere Java Test -->
+        <!-- Spring Testing -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Microsphere Resilience4j -->
         <dependency>
             <groupId>io.github.microsphere-projects</groupId>
-            <artifactId>microsphere-java-test</artifactId>
+            <artifactId>microsphere-resilience4j-commons</artifactId>
+            <version>${revision}</version>
+            <classifier>tests</classifier>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Microsphere Spring Test -->
+        <dependency>
+            <groupId>io.github.microsphere-projects</groupId>
+            <artifactId>microsphere-spring-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Microsphere Hibernate Test -->
+        <dependency>
+            <groupId>io.github.microsphere-projects</groupId>
+            <artifactId>microsphere-hibernate-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- H2 Database -->
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
             <scope>test</scope>
         </dependency>
 
@@ -105,21 +161,18 @@
             <scope>test</scope>
         </dependency>
 
-
     </dependencies>
 
     <build>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>test-jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <dependenciesToScan>
+                        <dependency>io.github.microsphere-projects:microsphere-resilience4j-commons:test-jar:tests</dependency>
+                    </dependenciesToScan>
+                </configuration>
             </plugin>
         </plugins>
     </build>

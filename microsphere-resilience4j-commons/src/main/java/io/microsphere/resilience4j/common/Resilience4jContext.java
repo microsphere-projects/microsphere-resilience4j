@@ -17,11 +17,12 @@
 package io.microsphere.resilience4j.common;
 
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
-import io.github.resilience4j.core.lang.NonNull;
-import io.github.resilience4j.core.lang.Nullable;
+import io.microsphere.annotation.Nonnull;
+import io.microsphere.annotation.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import static io.microsphere.util.Assert.assertNotNull;
 import static java.util.Collections.emptyMap;
@@ -37,6 +38,8 @@ import static java.util.Collections.unmodifiableMap;
  */
 public class Resilience4jContext<E> {
 
+    private static final ThreadLocal<Resilience4jContext> contextHolder = new ThreadLocal<>();
+
     /**
      * The name of Resilience4j's entry.
      */
@@ -45,7 +48,7 @@ public class Resilience4jContext<E> {
     /**
      * The Resilience4j's entry, e.g., {@link CircuitBreaker}.
      */
-    @NonNull
+    @Nonnull
     private final E entry;
 
     /**
@@ -252,6 +255,14 @@ public class Resilience4jContext<E> {
         return attributes;
     }
 
+    /**
+     * Set the current {@link Resilience4jContext} into {@link ThreadLocal}
+     */
+    public Resilience4jContext<E> withinContext() {
+        setContext(this);
+        return this;
+    }
+
     @Override
     public String toString() {
         return "Resilience4jContext{" +
@@ -262,5 +273,59 @@ public class Resilience4jContext<E> {
                 ", failure=" + failure +
                 ", attributes=" + attributes +
                 '}';
+    }
+
+    /**
+     * Get the current {@link Resilience4jContext}
+     *
+     * @return <code>null</code> if there is no {@link Resilience4jContext} associated with the current thread
+     */
+    @Nullable
+    public static Resilience4jContext getContext() {
+        return contextHolder.get();
+    }
+
+    /**
+     * Set the current {@link Resilience4jContext}
+     *
+     * @param context the {@link Resilience4jContext} , must not be <code>null</code>
+     */
+    public static void setContext(@Nullable Resilience4jContext context) {
+        contextHolder.set(context);
+    }
+
+    /**
+     * Remove and return the current {@link Resilience4jContext}
+     *
+     * @return <code>null</code> if there is no {@link Resilience4jContext} associated with the current thread
+     */
+    @Nullable
+    public static Resilience4jContext removeContext() {
+        Resilience4jContext context = getContext();
+        contextHolder.remove();
+        return context;
+    }
+
+    /**
+     * Do something in the current {@link Resilience4jContext}
+     *
+     * @param contextConsumer the {@link Consumer} of {@link Resilience4jContext}, must not be <code>null</code>
+     */
+    public static void doInContext(@Nonnull Consumer<Resilience4jContext> contextConsumer) {
+        doInContext(contextConsumer, false);
+    }
+
+    /**
+     * Do something in the current {@link Resilience4jContext}
+     *
+     * @param contextConsumer the {@link Consumer} of {@link Resilience4jContext}, must not be <code>null</code>
+     * @param forRemoval      if <code>true</code>, remove the current {@link Resilience4jContext} after the contextConsumer
+     *                        execution.
+     */
+    public static void doInContext(@Nonnull Consumer<Resilience4jContext> contextConsumer, boolean forRemoval) {
+        Resilience4jContext context = forRemoval ? removeContext() : getContext();
+        if (context != null) {
+            contextConsumer.accept(context);
+        }
     }
 }

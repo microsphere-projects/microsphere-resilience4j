@@ -20,8 +20,8 @@ import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 import io.github.resilience4j.core.Registry;
-import io.github.resilience4j.core.lang.NonNull;
-import io.github.resilience4j.core.lang.Nullable;
+import io.microsphere.annotation.Nonnull;
+import io.microsphere.annotation.Nullable;
 import io.microsphere.lang.Prioritized;
 import io.microsphere.lang.function.ThrowableConsumer;
 import io.microsphere.lang.function.ThrowableFunction;
@@ -85,7 +85,7 @@ public interface AdvancedResilience4jOperations<E, C, R extends Registry<E, C>> 
      *
      * @return non-null
      */
-    @NonNull
+    @Nonnull
     R getRegistry();
 
     /**
@@ -93,7 +93,7 @@ public interface AdvancedResilience4jOperations<E, C, R extends Registry<E, C>> 
      *
      * @return non-null
      */
-    @NonNull
+    @Nonnull
     Resilience4jModule getModule();
 
     /**
@@ -101,7 +101,7 @@ public interface AdvancedResilience4jOperations<E, C, R extends Registry<E, C>> 
      *
      * @return non-null
      */
-    @NonNull
+    @Nonnull
     default Class<E> getEntryClass() {
         return (Class<E>) getModule().getEntryClass();
     }
@@ -111,7 +111,7 @@ public interface AdvancedResilience4jOperations<E, C, R extends Registry<E, C>> 
      *
      * @return non-null
      */
-    @NonNull
+    @Nonnull
     default Class<C> getConfigClass() {
         return (Class<C>) getModule().getConfigClass();
     }
@@ -121,9 +121,8 @@ public interface AdvancedResilience4jOperations<E, C, R extends Registry<E, C>> 
      *
      * @return non-null
      */
-    @NonNull
+    @Nonnull
     Logger getLogger();
-
 
     // The Operations for Resilience4j's Configuration
 
@@ -134,7 +133,7 @@ public interface AdvancedResilience4jOperations<E, C, R extends Registry<E, C>> 
      * @return if the {@link C configuration} can't be found by the specified configuration name,
      * {@link #getDefaultConfig()} will be used as default
      */
-    @NonNull
+    @Nonnull
     default C getConfiguration(String configName) {
         Logger logger = getLogger();
         R registry = getRegistry();
@@ -155,7 +154,7 @@ public interface AdvancedResilience4jOperations<E, C, R extends Registry<E, C>> 
      *
      * @return non-null
      */
-    @NonNull
+    @Nonnull
     default C getDefaultConfig() {
         Logger logger = getLogger();
         R registry = getRegistry();
@@ -187,7 +186,7 @@ public interface AdvancedResilience4jOperations<E, C, R extends Registry<E, C>> 
      * @param name the name of the Resilience4j's entry
      * @return non-null
      */
-    @NonNull
+    @Nonnull
     default E getEntry(String name) {
         Logger logger = getLogger();
         R registry = getRegistry();
@@ -209,7 +208,7 @@ public interface AdvancedResilience4jOperations<E, C, R extends Registry<E, C>> 
      * @param name the name of the Resilience4j's entry
      * @return non-null
      */
-    @NonNull
+    @Nonnull
     E createEntry(String name);
 
     /**

@@ -19,7 +19,7 @@ package io.microsphere.resilience4j.spring.ratelimiter.annotation;
 import io.github.resilience4j.ratelimiter.RateLimiter;
 import io.github.resilience4j.ratelimiter.configure.RateLimiterConfigurationProperties;
 import io.microsphere.resilience4j.spring.common.Resilience4jPlugin;
-import io.microsphere.resilience4j.spring.common.annotation.EnableResilience4jExtension;
+import io.microsphere.resilience4j.spring.common.annotation.EnableResilience4j;
 import io.microsphere.spring.beans.factory.annotation.EnableConfigurationBeanBinding;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.annotation.AliasFor;
@@ -44,17 +44,16 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Documented
 @Inherited
 @Import(EnableRateLimiterRegistrar.class)
-@EnableResilience4jExtension
+@EnableResilience4j
 @EnableConfigurationBeanBinding(prefix = RATE_LIMITER_PREFIX, type = RateLimiterConfigurationProperties.class)
 public @interface EnableRateLimiter {
-
 
     /**
      * Whether to publish Resilience4j's events
      *
      * @return <code>true</code> as default
      */
-    @AliasFor(annotation = EnableResilience4jExtension.class, attribute = "publishEvents")
+    @AliasFor(annotation = EnableResilience4j.class, attribute = "publishEvents")
     boolean publishEvents() default false;
 
     /**
@@ -62,7 +61,7 @@ public @interface EnableRateLimiter {
      *
      * @return <code>true</code> as default
      */
-    @AliasFor(annotation = EnableResilience4jExtension.class, attribute = "consumeEvents")
+    @AliasFor(annotation = EnableResilience4j.class, attribute = "consumeEvents")
     boolean consumeEvents() default false;
 
     /**
@@ -71,6 +70,6 @@ public @interface EnableRateLimiter {
      * @return the Spring Bean names of the Resilience4j plugins
      * @see Resilience4jPlugin
      */
-    @AliasFor(annotation = EnableResilience4jExtension.class, attribute = "plugins")
+    @AliasFor(annotation = EnableResilience4j.class, attribute = "plugins")
     String[] plugins() default {};
 }

@@ -26,6 +26,7 @@
         <dependency>
             <groupId>io.github.microsphere-projects</groupId>
             <artifactId>microsphere-java-core</artifactId>
+            <optional>true</optional>
         </dependency>
 
         <!--  Resilience4j -->

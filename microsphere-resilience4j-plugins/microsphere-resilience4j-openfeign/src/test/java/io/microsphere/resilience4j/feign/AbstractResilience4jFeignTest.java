@@ -86,7 +86,6 @@ public abstract class AbstractResilience4jFeignTest {
 
     protected abstract Resilience4jCapability createResilience4jCapability(Resilience4jFacade facade);
 
-
     @Test
     void testProxy() {
         InvocationHandler handler = getInvocationHandler(this.userService);
@@ -118,6 +117,5 @@ public abstract class AbstractResilience4jFeignTest {
         User foundUser = this.userService.getUser(userName);
         assertEquals(user, foundUser);
     }
-
 
 }

@@ -16,7 +16,6 @@
  */
 package io.microsphere.resilience4j.util;
 
-
 import io.github.resilience4j.bulkhead.Bulkhead;
 import io.github.resilience4j.bulkhead.BulkheadRegistry;
 import io.github.resilience4j.bulkhead.ThreadPoolBulkheadRegistry;
@@ -121,7 +120,6 @@ class Resilience4jUtilsTest {
         }));
 
         String name = "test";
-
 
         Retry retry = retryRegistry.retry(name);
         Object entry = retry;

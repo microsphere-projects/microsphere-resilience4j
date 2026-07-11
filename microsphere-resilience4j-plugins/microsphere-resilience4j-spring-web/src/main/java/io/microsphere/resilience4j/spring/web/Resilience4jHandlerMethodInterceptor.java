@@ -26,7 +26,6 @@ import io.microsphere.resilience4j.spring.common.Resilience4jPlugin;
 import io.microsphere.spring.web.event.WebEndpointMappingsReadyEvent;
 import io.microsphere.spring.web.metadata.WebEndpointMapping;
 import io.microsphere.spring.web.method.support.HandlerMethodInterceptor;
-import io.microsphere.spring.webmvc.annotation.EnableWebMvcExtension;
 import org.springframework.context.ApplicationListener;
 import org.springframework.core.Ordered;
 import org.springframework.web.context.request.NativeWebRequest;
@@ -51,7 +50,8 @@ import static io.microsphere.util.Assert.assertNotNull;
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
  * @see Resilience4jPlugin
  * @see HandlerMethodInterceptor
- * @see EnableWebMvcExtension
+ * @see io.microsphere.spring.webmvc.annotation.EnableWebMvcExtension
+ * @see io.microsphere.spring.webflux.annotation.EnableWebFluxExtension
  * @since 1.0.0
  */
 public class Resilience4jHandlerMethodInterceptor implements HandlerMethodInterceptor,

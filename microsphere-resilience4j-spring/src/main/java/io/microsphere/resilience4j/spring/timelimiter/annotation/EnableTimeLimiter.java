@@ -19,7 +19,7 @@ package io.microsphere.resilience4j.spring.timelimiter.annotation;
 import io.github.resilience4j.timelimiter.TimeLimiter;
 import io.github.resilience4j.timelimiter.configure.TimeLimiterConfigurationProperties;
 import io.microsphere.resilience4j.spring.common.Resilience4jPlugin;
-import io.microsphere.resilience4j.spring.common.annotation.EnableResilience4jExtension;
+import io.microsphere.resilience4j.spring.common.annotation.EnableResilience4j;
 import io.microsphere.spring.beans.factory.annotation.EnableConfigurationBeanBinding;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.annotation.AliasFor;
@@ -44,7 +44,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Documented
 @Inherited
 @Import(EnableTimeLimiterRegistrar.class)
-@EnableResilience4jExtension
+@EnableResilience4j
 @EnableConfigurationBeanBinding(prefix = TIME_LIMITER_PREFIX, type = TimeLimiterConfigurationProperties.class)
 public @interface EnableTimeLimiter {
 
@@ -53,7 +53,7 @@ public @interface EnableTimeLimiter {
      *
      * @return <code>true</code> as default
      */
-    @AliasFor(annotation = EnableResilience4jExtension.class, attribute = "publishEvents")
+    @AliasFor(annotation = EnableResilience4j.class, attribute = "publishEvents")
     boolean publishEvents() default false;
 
     /**
@@ -61,7 +61,7 @@ public @interface EnableTimeLimiter {
      *
      * @return <code>true</code> as default
      */
-    @AliasFor(annotation = EnableResilience4jExtension.class, attribute = "consumeEvents")
+    @AliasFor(annotation = EnableResilience4j.class, attribute = "consumeEvents")
     boolean consumeEvents() default false;
 
     /**
@@ -70,6 +70,6 @@ public @interface EnableTimeLimiter {
      * @return the Spring Bean names of the Resilience4j plugins
      * @see Resilience4jPlugin
      */
-    @AliasFor(annotation = EnableResilience4jExtension.class, attribute = "plugins")
+    @AliasFor(annotation = EnableResilience4j.class, attribute = "plugins")
     String[] plugins() default {};
 }

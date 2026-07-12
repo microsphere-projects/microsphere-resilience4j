@@ -16,7 +16,7 @@
  */
 package io.microsphere.resilience4j.feign;
 
-import io.github.resilience4j.core.lang.NonNull;
+import io.microsphere.annotation.Nonnull;
 import io.microsphere.resilience4j.common.Resilience4jFacade;
 
 import java.lang.reflect.InvocationHandler;
@@ -58,7 +58,7 @@ public class Resilience4jInvocationHandler implements InvocationHandler {
      *
      * @return non-null
      */
-    @NonNull
+    @Nonnull
     public InvocationHandler getDelegate() {
         return delegate;
     }
@@ -68,7 +68,7 @@ public class Resilience4jInvocationHandler implements InvocationHandler {
      *
      * @return non-null
      */
-    @NonNull
+    @Nonnull
     public Resilience4jFacade getFacade() {
         return facade;
     }

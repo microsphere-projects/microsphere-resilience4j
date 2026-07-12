@@ -11,12 +11,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>io.github.microsphere-projects</groupId>
-    <artifactId>microsphere-resilience4j-alibaba-druid</artifactId>
+    <artifactId>microsphere-resilience4j-hibernate-core</artifactId>
     <version>${revision}</version>
     <packaging>jar</packaging>
 
-    <name>Microsphere :: Resilience4j :: Plugins :: Alibaba Druid</name>
-    <description>Microsphere Resilience4j Alibaba Druid</description>
+    <name>Microsphere :: Resilience4j :: Plugins :: Hibernate Core</name>
+    <description>Microsphere Resilience4j Hibernate Core</description>
 
     <dependencies>
 
@@ -32,6 +32,12 @@
             <groupId>io.github.microsphere-projects</groupId>
             <artifactId>microsphere-resilience4j-spring</artifactId>
             <version>${revision}</version>
+        </dependency>
+
+        <!-- Microsphere Hibernate Core -->
+        <dependency>
+            <groupId>io.github.microsphere-projects</groupId>
+            <artifactId>microsphere-hibernate-core</artifactId>
         </dependency>
 
         <!-- Microsphere Spring Context -->
@@ -97,10 +103,10 @@
             <optional>true</optional>
         </dependency>
 
-        <!-- Alibaba Druid -->
+        <!-- Hibernate -->
         <dependency>
-            <groupId>com.alibaba</groupId>
-            <artifactId>druid</artifactId>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-core</artifactId>
             <optional>true</optional>
         </dependency>
 
@@ -118,7 +124,7 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- Spring Testing -->
+        <!-- Spring Test -->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
@@ -129,6 +135,13 @@
         <dependency>
             <groupId>io.github.microsphere-projects</groupId>
             <artifactId>microsphere-spring-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Microsphere Hibernate Test -->
+        <dependency>
+            <groupId>io.github.microsphere-projects</groupId>
+            <artifactId>microsphere-hibernate-test</artifactId>
             <scope>test</scope>
         </dependency>
 

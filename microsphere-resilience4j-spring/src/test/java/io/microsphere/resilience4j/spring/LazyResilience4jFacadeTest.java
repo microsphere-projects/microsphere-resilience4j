@@ -17,7 +17,6 @@
 
 package io.microsphere.resilience4j.spring;
 
-
 import io.microsphere.resilience4j.common.Resilience4jContext;
 import io.microsphere.resilience4j.common.Resilience4jFacade;
 import io.microsphere.resilience4j.spring.bulkhead.annotation.EnableBulkhead;

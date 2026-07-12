@@ -121,7 +121,6 @@ public class Resilience4jHandlerMethodInterceptor implements HandlerMethodInterc
         Collection<WebEndpointMapping> webEndpointMappings = event.getMappings();
         int size = webEndpointMappings.size();
 
-
         Map<Method, String> methodEntryNamesCache = newFixedHashMap(size);
         this.methodEntryNamesCache = methodEntryNamesCache;
 

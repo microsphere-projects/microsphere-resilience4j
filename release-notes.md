@@ -26,3 +26,44 @@
 
 Thank you for using version 0.2.1! 🚀
 
+## v0.2.2
+
+# Release Notes - Version 0.2.2
+
+## New Features
+- **Hibernate Support:** Added Hibernate core plugin and test utilities. ([d827708](https://github.com/microsphere-projects/microsphere-resilience4j/commit/d827708))
+- **Microsphere OpenFeign Support:** Introduced optional Microsphere OpenFeign dependencies. ([e696ef0](https://github.com/microsphere-projects/microsphere-resilience4j/commit/e696ef0))
+- **Annotation Processor:** Added optional annotation processor dependency for usability. ([64e3ec7](https://github.com/microsphere-projects/microsphere-resilience4j/commit/64e3ec7))
+
+## Bug Fixes
+- **Class Renaming:** Renamed `EnableResilience4jExtension` to `EnableResilience4j` for consistency. ([d9aec8b](https://github.com/microsphere-projects/microsphere-resilience4j/commit/d9aec8b))
+- **Method Renaming:** Renamed `setContext()` to `withinContext()` for clarity. ([fabd0e2](https://github.com/microsphere-projects/microsphere-resilience4j/commit/fabd0e2))
+- Fixed template loading to respect selected modules. ([89e6e9a](https://github.com/microsphere-projects/microsphere-resilience4j/commit/89e6e9a))
+
+## Documentation
+- Updated README to clarify web extension references and revised branch names. ([5926a09](https://github.com/microsphere-projects/microsphere-resilience4j/commit/5926a09), [9a0d579](https://github.com/microsphere-projects/microsphere-resilience4j/commit/9a0d579))
+- Fixed DeepWiki badge link. ([4a83d26](https://github.com/microsphere-projects/microsphere-resilience4j/commit/4a83d26))
+
+## Dependency Updates
+- Bumped **microsphere-spring-cloud-parent** to `0.2.12`. ([ad26634](https://github.com/microsphere-projects/microsphere-resilience4j/commit/ad26634))
+- Updated **microsphere-alibaba-druid**, **microsphere-mybatis**, and **microsphere-redis** dependencies. ([897d139](https://github.com/microsphere-projects/microsphere-resilience4j/commit/897d139), [b9a3817](https://github.com/microsphere-projects/microsphere-resilience4j/commit/b9a3817), [68ad659](https://github.com/microsphere-projects/microsphere-resilience4j/commit/68ad659))
+
+## Test Improvements
+- Used static imports across various test classes for better readability. ([6d59dc4](https://github.com/microsphere-projects/microsphere-resilience4j/commit/6d59dc4), [6301c5a](https://github.com/microsphere-projects/microsphere-resilience4j/commit/6301c5a), [a48fbf5](https://github.com/microsphere-projects/microsphere-resilience4j/commit/a48fbf5))
+- Removed unused imports and refined test configurations. ([0a23303](https://github.com/microsphere-projects/microsphere-resilience4j/commit/0a23303), [2721c7a](https://github.com/microsphere-projects/microsphere-resilience4j/commit/2721c7a))
+- Deleted unused `logback.xml` from the test directory. ([314055c](https://github.com/microsphere-projects/microsphere-resilience4j/commit/314055c))
+
+## Build and Workflow Enhancements
+- Configured OSSRH credentials in the publish workflow. ([6839aae](https://github.com/microsphere-projects/microsphere-resilience4j/commit/6839aae))
+- Optimized POM files: Aligned plugin dependency scopes, removed unused configurations, and cleaned up extra blank lines. ([587a512](https://github.com/microsphere-projects/microsphere-resilience4j/commit/587a512), [7b99c53](https://github.com/microsphere-projects/microsphere-resilience4j/commit/7b99c53), [409eb74](https://github.com/microsphere-projects/microsphere-resilience4j/commit/409eb74))
+- Updated Maven workflows and streamlined scripts. ([5eb72ff](https://github.com/microsphere-projects/microsphere-resilience4j/commit/5eb72ff))
+- Improved Dependabot configuration formatting. ([2cff3c2](https://github.com/microsphere-projects/microsphere-resilience4j/commit/2cff3c2))
+
+## Other Changes
+- General code cleanup: Removed duplicate line separators, standardized whitespace, and formatted annotations. ([64578b0](https://github.com/microsphere-projects/microsphere-resilience4j/commit/64578b0), [2721c7a](https://github.com/microsphere-projects/microsphere-resilience4j/commit/2721c7a)) 
+
+--- 
+
+This release includes several improvements and dependency updates, alongside better testing practices and documentation updates for a cleaner and more robust codebase. 
+
+**Full Changelog**: https://github.com/microsphere-projects/microsphere-resilience4j/compare/0.2.1...0.2.2

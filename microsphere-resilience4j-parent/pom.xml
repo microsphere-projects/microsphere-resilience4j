@@ -20,10 +20,10 @@
 
     <properties>
         <microsphere-spring-cloud.version>0.2.25</microsphere-spring-cloud.version>
-        <microsphere-alibaba-druid.version>0.2.19</microsphere-alibaba-druid.version>
-        <microsphere-mybatis.version>0.2.14</microsphere-mybatis.version>
-        <microsphere-hibernate.version>0.2.8</microsphere-hibernate.version>
-        <microsphere-redis.version>0.2.12</microsphere-redis.version>
+        <microsphere-alibaba-druid.version>0.2.20</microsphere-alibaba-druid.version>
+        <microsphere-mybatis.version>0.2.15</microsphere-mybatis.version>
+        <microsphere-hibernate.version>0.2.9</microsphere-hibernate.version>
+        <microsphere-redis.version>0.2.13</microsphere-redis.version>
     </properties>
 
     <dependencyManagement>

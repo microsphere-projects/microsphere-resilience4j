@@ -57,4 +57,24 @@
 
 ---
 
-**Full Changelog**: https://github.com/microsphere-projects/microsphere-resilience4j/compare/0.1.1...0.1.2
+**Full Changelog**: https://github.com/microsphere-projects/microsphere-resilience4j/compare/0.1.1...0.1.2## v0.1.3
+
+_Release notes generation failed. Raw commits since 0.1.2:_
+
+```
+59a1518 Update version numbers in README.md
+e0a85fa Merge pull request #104 from mercyblitz/dev-1.x
+b4c1ad1 Use ConstructorUtils for instantiation
+e4b5903 Bump microsphere-redis to 0.1.13
+c50f09c Bump microsphere-hibernate to 0.1.9
+53d22f6 Bump microsphere-mybatis to 0.1.15
+88901cb Bump microsphere-alibaba-druid to 0.1.20
+45df620 Bump microsphere-spring-cloud to 0.1.25
+9a2d8fc Merge pull request #103 from microsphere-projects/release-1.x
+757ac21 Merge branch 'dev-1.x' into release-1.x
+75d96c1 chore: bump version to next patch after publishing 0.1.2
+4a3d90f Merge pull request #75 from microsphere-projects/copilot/remove-duplicated-line-separators-again
+cae5489 Clean up whitespace and line separators across Java codebase
+```
+
+**Full Changelog**: https://github.com/microsphere-projects/microsphere-resilience4j/compare/0.1.2...0.1.3

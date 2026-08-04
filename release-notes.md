@@ -66,4 +66,22 @@ Thank you for using version 0.2.1! 🚀
 
 This release includes several improvements and dependency updates, alongside better testing practices and documentation updates for a cleaner and more robust codebase. 
 
-**Full Changelog**: https://github.com/microsphere-projects/microsphere-resilience4j/compare/0.2.1...0.2.2
+**Full Changelog**: https://github.com/microsphere-projects/microsphere-resilience4j/compare/0.2.1...0.2.2## v0.2.3
+
+_Release notes generation failed. Raw commits since 0.2.2:_
+
+```
+5ba70d9 Update version numbers in README.md
+6a3793c chore: merge main into release [skip ci]
+2502f79 Use ConstructorUtils for newInstance calls
+1258445 Bump microsphere-redis to 0.2.13
+ae2e73c Bump microsphere-hibernate to 0.2.9
+0b8aa11 Bump microsphere-mybatis to 0.2.15
+13384eb Bump Microsphere Alibaba Druid version
+0d520ca chore: merge main into release [skip ci]
+3655a9e Bump microsphere-spring-cloud to 0.2.25
+c2009d7 chore: merge release into main [skip ci]
+9f510f0 chore: bump version to next patch after publishing 0.2.2
+```
+
+**Full Changelog**: https://github.com/microsphere-projects/microsphere-resilience4j/compare/0.2.2...0.2.3

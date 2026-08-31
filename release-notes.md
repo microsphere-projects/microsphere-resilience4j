@@ -84,4 +84,19 @@ c2009d7 chore: merge release into main [skip ci]
 9f510f0 chore: bump version to next patch after publishing 0.2.2
 ```
 
-**Full Changelog**: https://github.com/microsphere-projects/microsphere-resilience4j/compare/0.2.2...0.2.3
+**Full Changelog**: https://github.com/microsphere-projects/microsphere-resilience4j/compare/0.2.2...0.2.3## v0.2.4
+
+_Release notes generation failed. Raw commits since 0.2.3:_
+
+```
+3794579 Update version numbers in README.md
+a357616 chore: merge main into release [skip ci]
+69336e0 Bump Microsphere Spring Cloud to 0.2.26
+8ec468d chore: merge main into release [skip ci]
+342b65e Merge pull request #105 from microsphere-projects/dependabot/maven/org.apache.maven-apache-maven-3.9.16
+301945f Bump org.apache.maven:apache-maven from 3.9.15 to 3.9.16
+2723802 chore: bump version to next patch after publishing 0.2.3
+a1893ac chore: merge release into main [skip ci]
+```
+
+**Full Changelog**: https://github.com/microsphere-projects/microsphere-resilience4j/compare/0.2.3...0.2.4

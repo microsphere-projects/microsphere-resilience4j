@@ -77,4 +77,16 @@ c50f09c Bump microsphere-hibernate to 0.1.9
 cae5489 Clean up whitespace and line separators across Java codebase
 ```
 
-**Full Changelog**: https://github.com/microsphere-projects/microsphere-resilience4j/compare/0.1.2...0.1.3
+**Full Changelog**: https://github.com/microsphere-projects/microsphere-resilience4j/compare/0.1.2...0.1.3## v0.1.4
+
+_Release notes generation failed. Raw commits since 0.1.3:_
+
+```
+0dfc3f3 Merge pull request #106 from mercyblitz/dev-1.x
+7b43eda Upgrade microsphere-spring-cloud to 0.1.26
+58ac44d Add workflow to sync branches from upstream
+4ab0f77 chore: merge release-1.x into dev-1.x [skip ci]
+5441e03 chore: bump version to next patch after publishing 0.1.3
+```
+
+**Full Changelog**: https://github.com/microsphere-projects/microsphere-resilience4j/compare/0.1.3...0.1.4

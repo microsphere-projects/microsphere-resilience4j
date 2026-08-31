@@ -19,7 +19,7 @@
     <description>Microsphere Resilience4j Parent</description>
 
     <properties>
-        <microsphere-spring-cloud.version>0.1.25</microsphere-spring-cloud.version>
+        <microsphere-spring-cloud.version>0.1.26</microsphere-spring-cloud.version>
         <microsphere-alibaba-druid.version>0.1.20</microsphere-alibaba-druid.version>
         <microsphere-mybatis.version>0.1.15</microsphere-mybatis.version>
         <microsphere-hibernate.version>0.1.9</microsphere-hibernate.version>

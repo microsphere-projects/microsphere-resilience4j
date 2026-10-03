@@ -23,7 +23,7 @@
         <microsphere-alibaba-druid.version>0.2.20</microsphere-alibaba-druid.version>
         <microsphere-mybatis.version>0.2.15</microsphere-mybatis.version>
         <microsphere-hibernate.version>0.2.9</microsphere-hibernate.version>
-        <microsphere-redis.version>0.2.13</microsphere-redis.version>
+        <microsphere-redis.version>0.2.14</microsphere-redis.version>
     </properties>
 
     <dependencyManagement>

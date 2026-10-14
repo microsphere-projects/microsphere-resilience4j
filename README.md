@@ -100,9 +100,20 @@ We welcome your contributions! Please read [Code of Conduct](./CODE_OF_CONDUCT.m
 
 ## Documentation
 
+The full bilingual documentation set lives in the [`docs/`](docs/README.md) directory
+(中文索引见 [docs/zh/README.md](docs/zh/README.md)), covering the `release` branch (as [`current`](docs/current/user-guide/README.md))
+and the `release-1.x` branch (as [`1.x`](docs/1.x/user-guide/README.md)).
+
 ### User Guide
 
-[DeepWiki Host](https://deepwiki.com/microsphere-projects/microsphere-resilience4j)
+- Current line (v0.2.x, Resilience4j 2.0.0–2.4.0): [English](docs/current/user-guide/README.md) · [中文](docs/current/user-guide/zh/README.md)
+- 1.x line (v0.1.x, Resilience4j 1.3.0–1.7.0): [English](docs/1.x/user-guide/README.md) · [中文](docs/1.x/user-guide/zh/README.md)
+- Online: [DeepWiki Host](https://deepwiki.com/microsphere-projects/microsphere-resilience4j)
+
+### Developer Guide
+
+- Current line (v0.2.x): [English](docs/current/developer-guide/README.md) · [中文](docs/current/developer-guide/zh/README.md)
+- 1.x line (v0.1.x): [English](docs/1.x/developer-guide/README.md) · [中文](docs/1.x/developer-guide/zh/README.md)
 
 ### Wiki
 

@@ -14,6 +14,8 @@ docs/
 │   └── developer-guide/
 │       ├── README.md
 │       ├── zh/
+├── diff/                        # Cross-version source diff reports
+│   └── source/                  # `main-diff-<new>-vs-<old>.md` / `test-diff-…`, each with a `.zh.md` sibling
 └── 1.x/                         # Docs for the `release-1.x` branch (v0.1.x, Resilience4j 1.x)
     ├── user-guide/
     │   ├── README.md
@@ -49,6 +51,19 @@ Audience: developers **contributing to** or extending the library.
 - [1.x (0.1.x) Developer Guide](1.x/developer-guide/README.md) · [中文](1.x/developer-guide/zh/README.md)
 
 Contents: architecture design, module-by-module source analysis, design patterns used, and mermaid flow diagrams for complex control and event flows.
+
+### Version Diff Reports
+
+Audience: anyone **porting between the two release lines**, or reviewing why `0.2.x` differs from `0.1.x`.
+
+Module-by-module source comparisons of matching Maven modules, with `src/main` and `src/test` reported separately:
+
+- [Source diff 0.2.4 vs 0.1.4 — `src/main`](diff/source/main-diff-0.2.4-vs-0.1.4.md) · [中文](diff/source/main-diff-0.2.4-vs-0.1.4.zh.md)
+- [Source diff 0.2.4 vs 0.1.4 — `src/test`](diff/source/test-diff-0.2.4-vs-0.1.4.md) · [中文](diff/source/test-diff-0.2.4-vs-0.1.4.zh.md)
+
+Naming convention: `diff/source/<main|test>-diff-<new-tag>-vs-<old-tag>.md`, i.e. the Maven versions of the two compared tags. Chinese pages sit next to the English file as a `<name>.zh.md` sibling (rather than a `zh/` subdirectory) so a pair stays together in one flat listing.
+
+Each report matches modules by name — modules present on only one side are ignored — tabulates every differing file, and explains the cause (API compatibility, new capability, coverage, or clean-up). Java 8 ↔ Java 17 syntax/API differences and Java EE ↔ Jakarta EE namespace differences are excluded by design.
 
 ## Language Policy
 
